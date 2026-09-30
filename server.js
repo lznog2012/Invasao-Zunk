@@ -8,26 +8,26 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// --- ESTADO GLOBAL DO JOGO ---
-const game = {
-  state: 'LOBBY',
-  players: {},
-  nightActions: { zunkTarget: null, shieldTarget: null, biologistTarget: null },
-  votes: {},
-  skipDebateVotes: new Set(),
-  timer: null,
-  timeLeft: 300,
-  turn: 1
-};
+// Estudo e Armazenamento de Salas Ativas na Memória do Servidor
+const rooms = {};
 
-// --- BALANCEAMENTO AUTOMÁTICO ---
-function assignRoles(playerIds) {
+// Função auxiliar para gerar códigos de sala únicos (Ex: B8A1)
+function generateRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// Algoritmo de Balanceamento Automático de Papéis
+function assignRoles(room) {
+  const playerIds = Object.keys(room.players);
   const count = playerIds.length;
   let rolesPool = [];
 
-  if (count < 5) {
-    rolesPool = ['ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK_CREW', 'RIMK_CREW'];
-  } else if (count === 5) {
+  if (count <= 5) {
     const specialRole = Math.random() < 0.5 ? 'BIOLOGIST' : 'SHIELD_ENGINEER';
     rolesPool = ['ZUNK', specialRole, 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
   } else if (count === 6) {
@@ -36,6 +36,7 @@ function assignRoles(playerIds) {
     rolesPool = ['ZUNK', 'ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
   }
 
+  // Embaralhamento de Papéis (Fisher-Yates)
   for (let i = rolesPool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rolesPool[i], rolesPool[j]] = [rolesPool[j], rolesPool[i]];
@@ -43,13 +44,13 @@ function assignRoles(playerIds) {
 
   playerIds.forEach((id, index) => {
     const role = rolesPool[index] || 'RIMK_CREW';
-    game.players[id].role = role;
-    game.players[id].faction = role === 'ZUNK' ? 'ZUNK' : 'RIMK';
-    game.players[id].alive = true;
+    room.players[id].role = role;
+    room.players[id].faction = role === 'ZUNK' ? 'ZUNK' : 'RIMK';
+    room.players[id].alive = true;
   });
 }
 
-// --- FRONTEND EMBUTIDO ---
+// --- ENTREGA DO FRONTEND UNIFICADO ---
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -75,21 +76,22 @@ app.get('/', (req, res) => {
         .container { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 15px; }
         .panel { background: var(--card-bg); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.15); }
         
-        /* Grid de Cards */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
         .player-card { background: #050d0f; border: 1px solid #005522; border-radius: 8px; padding: 10px; text-align: center; position: relative; }
         .player-card.alive { border-color: var(--matrix-green); box-shadow: 0 0 8px rgba(0, 255, 102, 0.2); }
         .player-card.dead { border-color: var(--alert-red); opacity: 0.6; filter: grayscale(80%); }
         
-        .avatar-box { width: 100px; height: 100px; margin: 0 auto 8px auto; background: #020506; border-radius: 50%; border: 1px solid var(--matrix-green); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .avatar-box svg { width: 90px; height: 90px; }
+        .avatar-box { width: 90px; height: 90px; margin: 0 auto 8px auto; background: #020506; border-radius: 50%; border: 1px solid var(--matrix-green); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .avatar-box svg { width: 80px; height: 80px; }
 
         .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
-        select, input[type="text"] { background: #001100; border: 1px solid var(--matrix-green); color: var(--matrix-green); padding: 8px; width: 100%; border-radius: 4px; }
+        select, input[type="text"], input[type="number"] { background: #001100; border: 1px solid var(--matrix-green); color: var(--matrix-green); padding: 10px; width: 100%; border-radius: 4px; font-size: 1em; }
         
         button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 10px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; }
         button:hover { background: var(--matrix-green); color: #000; box-shadow: 0 0 12px var(--matrix-green); }
-
+        
+        .code-display { font-size: 2.2em; color: #ffff00; text-shadow: 0 0 12px #ffff00; letter-spacing: 5px; font-weight: bold; }
+        
         .game-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .game-layout { grid-template-columns: 1fr; } }
 
@@ -111,10 +113,10 @@ app.get('/', (req, res) => {
           <p style="color: #00aa44; margin: 0;">SISTEMA DE SEGURANÇA E DEDUÇÃO EMBARCADO</p>
         </div>
 
-        <!-- TELA 1: LOBBY -->
-        <div id="lobbyView" class="panel">
-          <h3>[ REGISTRO DE TRIPULANTE & CUSTOMIZAÇÃO DE AVATAR ]</h3>
-          <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center;">
+        <!-- TELA 1: CADASTRO E MONTAGEM DO AVATAR -->
+        <div id="setupView" class="panel">
+          <h3>[ 1. REGISTRO DE TRIPULANTE & AVATAR ]</h3>
+          <div style="display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: center;">
             <div style="text-align: center;">
               <div class="avatar-box" id="avatarPreview"></div>
               <small>Prévia do Avatar</small>
@@ -157,20 +159,54 @@ app.get('/', (req, res) => {
                   </select>
                 </div>
               </div>
-              <button id="joinBtn" style="width: 100%; margin-top: 10px;">ENTRAR NA ESTAÇÃO</button>
             </div>
           </div>
 
           <hr style="border-color: #003311; margin: 20px 0;">
 
-          <h4>TRIPULANTES CONECTADOS (<span id="playerCount">0</span>):</h4>
-          <div id="lobbyCardsGrid" class="cards-grid"></div>
-          
-          <br>
-          <button id="startBtn" style="width: 100%; background: #006622;">INICIAR SEQUÊNCIA DE MISSÃO (HOST)</button>
+          <h3>[ 2. CONEXÃO DA SALA ]</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Opção Criar Sala -->
+            <div style="border-right: 1px solid #004411; padding-right: 20px;">
+              <h4>CRIAR NOVA SALA (HOST)</h4>
+              <label>Máximo de Jogadores (5 a 7):</label>
+              <input type="number" id="maxPlayersInput" value="5" min="5" max="7" style="margin-bottom: 10px;">
+              <button onclick="createRoom()" style="width: 100%; background: #006622;">CRIAR SALA</button>
+            </div>
+
+            <!-- Opção Entrar em Sala -->
+            <div>
+              <h4>ENTRAR EM SALA EXISTENTE</h4>
+              <label>Código da Sala (4 Dígitos):</label>
+              <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; margin-bottom: 10px;">
+              <button onclick="joinRoom()" style="width: 100%;">ENTRAR NA SALA</button>
+            </div>
+          </div>
         </div>
 
-        <!-- TELA 2: TELA DE JOGO -->
+        <!-- TELA 2: FILA DE ESPERA (LOBBY) -->
+        <div id="lobbyView" class="panel" style="display:none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+              <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
+              <p style="color:#00ffcc; margin: 0;">Envie este código aos outros tripulantes!</p>
+            </div>
+            <div>
+              <h4>FILA DE ESPERA: <span id="queueCount">0 / 0</span></h4>
+            </div>
+          </div>
+
+          <hr style="border-color: #003311; margin: 15px 0;">
+
+          <h4>TRIPULANTES NA FILA:</h4>
+          <div id="lobbyQueueGrid" class="cards-grid"></div>
+
+          <div id="hostControls" style="margin-top: 20px; display: none;">
+            <button id="startBtn" onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (SOMENTE HOST)</button>
+          </div>
+        </div>
+
+        <!-- TELA 3: TELA DE JOGO -->
         <div id="gameView" class="container" style="display:none;">
           <div class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div><span>SEU PAPEL: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span></div>
@@ -189,7 +225,7 @@ app.get('/', (req, res) => {
                 <h3>PAINEL DE COMANDO & AÇÕES</h3>
                 <div id="actionPanel"><p>Aguardando início do ciclo...</p></div>
                 <div id="skipDebateBox" style="margin-top: 10px; display: none;">
-                  <button id="skipDebateBtn" style="background: #aa6600; width: 100%;">
+                  <button id="skipDebateBtn" onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
                     ⚡ VOTAR PARA AVANÇAR DEBATE (<span id="skipCount">0</span> Votos)
                   </button>
                 </div>
@@ -212,8 +248,9 @@ app.get('/', (req, res) => {
       <script>
         const socket = io();
         let myPlayerData = {};
+        let currentRoomCode = null;
 
-        // GERADOR SVG CORRIGIDO
+        // --- GERADOR DE SVG DO AVATAR ALIEN GREY ---
         function generateAvatarSVG(c) {
           if (!c) c = {};
           const skin = c.skin || '#55aa66';
@@ -263,28 +300,64 @@ app.get('/', (req, res) => {
           const custom = getCustomizationFromUI();
           document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(custom);
         }
-        
         window.onload = () => { updatePreview(); };
 
-        document.getElementById('joinBtn').onclick = () => {
+        // --- FUNÇÕES DE NAVEGAÇÃO E SALA ---
+        function createRoom() {
           const name = document.getElementById('username').value.trim();
-          if (!name) return alert('Por favor, digite um apelido!');
-          const custom = getCustomizationFromUI();
-          socket.emit('joinGame', { name: name, avatar: custom });
-        };
+          if (!name) return alert('Por favor, digite seu nome de tripulante!');
+          const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value);
+          const avatar = getCustomizationFromUI();
 
-        document.getElementById('startBtn').onclick = () => { socket.emit('startGame'); };
-        document.getElementById('skipDebateBtn').onclick = () => { socket.emit('voteSkipDebate'); };
+          socket.emit('createRoom', { name, avatar, maxPlayers });
+        }
 
+        function joinRoom() {
+          const name = document.getElementById('username').value.trim();
+          if (!name) return alert('Por favor, digite seu nome de tripulante!');
+          const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+          if (!roomCode) return alert('Digite o código da sala!');
+          const avatar = getCustomizationFromUI();
+
+          socket.emit('joinRoom', { name, avatar, roomCode });
+        }
+
+        function startMatch() {
+          if (currentRoomCode) {
+            socket.emit('startGame', { roomCode: currentRoomCode });
+          }
+        }
+
+        function voteSkipDebate() {
+          if (currentRoomCode) {
+            socket.emit('voteSkipDebate', { roomCode: currentRoomCode });
+          }
+        }
+
+        // --- HANDLERS DO SOCKET.IO ---
         socket.on('errorMsg', (msg) => { alert('⚠️ ' + msg); });
 
-        socket.on('updatePlayers', (players) => {
-          document.getElementById('playerCount').innerText = players.length;
-          const lobbyGrid = document.getElementById('lobbyCardsGrid');
-          lobbyGrid.innerHTML = players.map(p => 
+        socket.on('roomJoined', (data) => {
+          currentRoomCode = data.roomCode;
+          document.getElementById('setupView').style.display = 'none';
+          document.getElementById('lobbyView').style.display = 'block';
+          document.getElementById('displayRoomCode').innerText = data.roomCode;
+
+          if (data.isHost) {
+            document.getElementById('hostControls').style.display = 'block';
+          } else {
+            document.getElementById('hostControls').style.display = 'none';
+          }
+        });
+
+        socket.on('updateQueue', (data) => {
+          document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
+          const grid = document.getElementById('lobbyQueueGrid');
+          grid.innerHTML = data.players.map(p => 
             '<div class="player-card alive">' +
               '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
-              '<b>' + p.name + '</b>' +
+              '<b>' + p.name + '</b><br>' +
+              '<small>' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
             '</div>'
           ).join('');
         });
@@ -296,7 +369,7 @@ app.get('/', (req, res) => {
           myPlayerData = data;
           document.getElementById('myRole').innerText = data.role;
           document.getElementById('myFaction').innerText = data.faction;
-          addChatMessage('SISTEMA', 'Missão iniciada na Estação Alpha. Identidades atribuídas!', 'system');
+          addChatMessage('SISTEMA', 'Sequência de missão iniciada! Identidades atribuídas.', 'system');
         });
 
         socket.on('startNight', (data) => {
@@ -315,7 +388,7 @@ app.get('/', (req, res) => {
           if (data.killedPlayer) {
             addChatMessage('SISTEMA', 'ALERTA DE SEGURANÇA: O tripulante ' + data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
           } else {
-            addChatMessage('SISTEMA', 'RELATÓRIO: Nenhuma baixa registrada nesta noite. Os escudos contiveram os ataques.', 'system');
+            addChatMessage('SISTEMA', 'RELATÓRIO: Nenhuma baixa registrada nesta noite. Escudos ativos.', 'system');
           }
           
           renderDayActions(data.playersList);
@@ -428,20 +501,20 @@ app.get('/', (req, res) => {
         }
 
         function sendNightAction(actionType, targetId) {
-          socket.emit('submitNightAction', { actionType: actionType, targetId: targetId });
+          socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: actionType, targetId: targetId });
           document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Ação enviada com sucesso ao servidor central!</p>';
         }
 
         function sendVote(targetId) {
-          socket.emit('submitVote', { targetId: targetId });
+          socket.emit('submitVote', { roomCode: currentRoomCode, targetId: targetId });
           document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Seu voto de ejeção foi computado!</p>';
         }
 
         function sendChat() {
           const input = document.getElementById('chatInput');
           const text = input.value.trim();
-          if (text) {
-            socket.emit('sendChatMessage', text);
+          if (text && currentRoomCode) {
+            socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: text });
             input.value = '';
           }
         }
@@ -460,149 +533,216 @@ app.get('/', (req, res) => {
   `);
 });
 
-// --- LÓGICA DE WEBSOCKETS ---
+// --- LÓGICA DE WEBSOCKETS MULTI-SALAS ---
 io.on('connection', (socket) => {
 
-  socket.on('joinGame', ({ name, avatar }) => {
-    if (game.state !== 'LOBBY') {
-      socket.emit('errorMsg', 'Partida já em andamento.');
-      return;
-    }
-    game.players[socket.id] = {
+  // Criar uma Nova Sala
+  socket.on('createRoom', ({ name, avatar, maxPlayers }) => {
+    let roomCode = generateRoomCode();
+    while (rooms[roomCode]) { roomCode = generateRoomCode(); }
+
+    const limit = Math.min(Math.max(maxPlayers || 5, 5), 7);
+
+    rooms[roomCode] = {
+      code: roomCode,
+      hostId: socket.id,
+      maxPlayers: limit,
+      state: 'LOBBY',
+      players: {},
+      nightActions: { zunkTarget: null, shieldTarget: null, biologistTarget: null },
+      votes: {},
+      skipDebateVotes: new Set(),
+      timer: null,
+      timeLeft: 300,
+      turn: 1
+    };
+
+    rooms[roomCode].players[socket.id] = {
       id: socket.id,
       name: name || `Viajante ${socket.id.substring(0, 4)}`,
       avatar: avatar || {},
+      isHost: true,
       role: null,
       faction: null,
       alive: true
     };
-    io.emit('updatePlayers', Object.values(game.players));
+
+    socket.join(roomCode);
+    socket.emit('roomJoined', { roomCode, isHost: true });
+    
+    io.to(roomCode).emit('updateQueue', {
+      players: Object.values(rooms[roomCode].players),
+      maxPlayers: rooms[roomCode].maxPlayers
+    });
   });
 
-  socket.on('startGame', () => {
-    const ids = Object.keys(game.players);
-    if (ids.length < 1) {
-      socket.emit('errorMsg', 'Pelo menos 1 jogador necessário.');
-      return;
-    }
+  // Entrar em uma Sala Existente
+  socket.on('joinRoom', ({ name, avatar, roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return socket.emit('errorMsg', 'Sala não encontrada! Verifique o código.');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Esta partida já está em andamento.');
 
-    assignRoles(ids);
-    game.state = 'NOITE';
-    game.turn = 1;
+    const currentCount = Object.keys(room.players).length;
+    if (currentCount >= room.maxPlayers) return socket.emit('errorMsg', 'A sala já está cheia!');
 
-    ids.forEach((id) => {
-      const p = game.players[id];
+    room.players[socket.id] = {
+      id: socket.id,
+      name: name || `Viajante ${socket.id.substring(0, 4)}`,
+      avatar: avatar || {},
+      isHost: false,
+      role: null,
+      faction: null,
+      alive: true
+    };
+
+    socket.join(roomCode);
+    socket.emit('roomJoined', { roomCode, isHost: false });
+
+    io.to(roomCode).emit('updateQueue', {
+      players: Object.values(room.players),
+      maxPlayers: room.maxPlayers
+    });
+  });
+
+  // Iniciar a Partida (Host)
+  socket.on('startGame', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('errorMsg', 'Apenas o Host pode iniciar!');
+
+    assignRoles(room);
+    room.state = 'NOITE';
+    room.turn = 1;
+
+    Object.keys(room.players).forEach((id) => {
+      const p = room.players[id];
       io.to(id).emit('gameStarted', {
         role: p.role,
         faction: p.faction,
-        playersList: Object.values(game.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
+        playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
       });
     });
 
-    startNightPhase();
+    startNightPhase(roomCode);
   });
 
-  function startNightPhase() {
-    game.state = 'NOITE';
-    clearInterval(game.timer);
+  function startNightPhase(roomCode) {
+    const room = rooms[roomCode];
+    if (!room) return;
+    room.state = 'NOITE';
+    clearInterval(room.timer);
 
-    io.emit('startNight', {
-      turn: game.turn,
-      playersList: Object.values(game.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
+    io.to(roomCode).emit('startNight', {
+      turn: room.turn,
+      playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
     });
   }
 
-  function startDayPhase(killedPlayerName) {
-    game.state = 'DIA';
-    game.votes = {};
-    game.skipDebateVotes.clear();
-    game.timeLeft = 300;
+  function startDayPhase(roomCode, killedPlayerName) {
+    const room = rooms[roomCode];
+    if (!room) return;
 
-    io.emit('startDay', {
+    room.state = 'DIA';
+    room.votes = {};
+    room.skipDebateVotes.clear();
+    room.timeLeft = 300;
+
+    io.to(roomCode).emit('startDay', {
       killedPlayer: killedPlayerName,
-      playersList: Object.values(game.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive, faction: u.alive ? null : u.faction }))
+      playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive, faction: u.alive ? null : u.faction }))
     });
 
-    io.emit('updateSkipCount', 0);
-    io.emit('timerUpdate', game.timeLeft);
+    io.to(roomCode).emit('updateSkipCount', 0);
+    io.to(roomCode).emit('timerUpdate', room.timeLeft);
 
-    clearInterval(game.timer);
-    game.timer = setInterval(() => {
-      game.timeLeft -= 1;
-      io.emit('timerUpdate', game.timeLeft);
+    clearInterval(room.timer);
+    room.timer = setInterval(() => {
+      room.timeLeft -= 1;
+      io.to(roomCode).emit('timerUpdate', room.timeLeft);
 
-      if (game.timeLeft <= 0) {
-        clearInterval(game.timer);
-        resolveVotes();
+      if (room.timeLeft <= 0) {
+        clearInterval(room.timer);
+        resolveVotes(roomCode);
       }
     }, 1000);
   }
 
-  socket.on('submitNightAction', ({ actionType, targetId }) => {
-    const player = game.players[socket.id];
-    if (!player || !player.alive || game.state !== 'NOITE') return;
+  socket.on('submitNightAction', ({ roomCode, actionType, targetId }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const player = room.players[socket.id];
+    if (!player || !player.alive || room.state !== 'NOITE') return;
 
     if (actionType === 'ZUNK_KILL' && player.faction === 'ZUNK') {
-      game.nightActions.zunkTarget = targetId;
+      room.nightActions.zunkTarget = targetId;
     } else if (actionType === 'SHIELD_PROTECT' && player.role === 'SHIELD_ENGINEER') {
-      game.nightActions.shieldTarget = targetId;
+      room.nightActions.shieldTarget = targetId;
     } else if (actionType === 'BIOLOGIST_SCAN' && player.role === 'BIOLOGIST') {
-      const target = game.players[targetId];
+      const target = room.players[targetId];
       socket.emit('scanResult', { targetName: target ? target.name : 'Desconhecido', faction: target ? target.faction : 'N/A' });
     }
 
     let killedId = null;
-    if (game.nightActions.zunkTarget && game.nightActions.zunkTarget !== game.nightActions.shieldTarget) {
-      killedId = game.nightActions.zunkTarget;
-      if (game.players[killedId]) game.players[killedId].alive = false;
+    if (room.nightActions.zunkTarget && room.nightActions.zunkTarget !== room.nightActions.shieldTarget) {
+      killedId = room.nightActions.zunkTarget;
+      if (room.players[killedId]) room.players[killedId].alive = false;
     }
 
-    const killedName = killedId && game.players[killedId] ? game.players[killedId].name : null;
-    game.nightActions = { zunkTarget: null, shieldTarget: null, biologistTarget: null };
+    const killedName = killedId && room.players[killedId] ? room.players[killedId].name : null;
+    room.nightActions = { zunkTarget: null, shieldTarget: null, biologistTarget: null };
 
-    if (checkVictory()) return;
+    if (checkVictory(roomCode)) return;
 
-    startDayPhase(killedName);
+    startDayPhase(roomCode, killedName);
   });
 
-  socket.on('submitVote', ({ targetId }) => {
-    const player = game.players[socket.id];
-    if (!player || !player.alive || game.state !== 'DIA') return;
+  socket.on('submitVote', ({ roomCode, targetId }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const player = room.players[socket.id];
+    if (!player || !player.alive || room.state !== 'DIA') return;
 
-    game.votes[socket.id] = targetId;
-    const alivePlayers = Object.values(game.players).filter(p => p.alive);
+    room.votes[socket.id] = targetId;
+    const alivePlayers = Object.values(room.players).filter(p => p.alive);
 
-    if (Object.keys(game.votes).length >= alivePlayers.length) {
-      clearInterval(game.timer);
-      resolveVotes();
-    }
-  });
-
-  socket.on('voteSkipDebate', () => {
-    const player = game.players[socket.id];
-    if (!player || !player.alive || game.state !== 'DIA') return;
-
-    game.skipDebateVotes.add(socket.id);
-    const alivePlayers = Object.values(game.players).filter(p => p.alive);
-
-    io.emit('updateSkipCount', game.skipDebateVotes.size);
-
-    if (game.skipDebateVotes.size >= Math.ceil(alivePlayers.length / 2)) {
-      clearInterval(game.timer);
-      io.emit('chatMessage', { sender: 'SISTEMA', text: 'A maioria dos tripulantes votou para encerrar o debate antecipadamente!', type: 'system' });
-      resolveVotes();
+    if (Object.keys(room.votes).length >= alivePlayers.length) {
+      clearInterval(room.timer);
+      resolveVotes(roomCode);
     }
   });
 
-  socket.on('sendChatMessage', (text) => {
-    const player = game.players[socket.id];
+  socket.on('voteSkipDebate', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const player = room.players[socket.id];
+    if (!player || !player.alive || room.state !== 'DIA') return;
+
+    room.skipDebateVotes.add(socket.id);
+    const alivePlayers = Object.values(room.players).filter(p => p.alive);
+
+    io.to(roomCode).emit('updateSkipCount', room.skipDebateVotes.size);
+
+    if (room.skipDebateVotes.size >= Math.ceil(alivePlayers.length / 2)) {
+      clearInterval(room.timer);
+      io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'A maioria dos tripulantes votou para encerrar o debate antecipadamente!', type: 'system' });
+      resolveVotes(roomCode);
+    }
+  });
+
+  socket.on('sendChatMessage', ({ roomCode, text }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const player = room.players[socket.id];
     if (!player) return;
-    io.emit('chatMessage', { sender: player.name, text: text, type: 'normal' });
+    io.to(roomCode).emit('chatMessage', { sender: player.name, text: text, type: 'normal' });
   });
 
-  function resolveVotes() {
+  function resolveVotes(roomCode) {
+    const room = rooms[roomCode];
+    if (!room) return;
+
     const voteCounts = {};
-    Object.values(game.votes).forEach(target => {
+    Object.values(room.votes).forEach(target => {
       if (target !== 'SKIP') voteCounts[target] = (voteCounts[target] || 0) + 1;
     });
 
@@ -623,40 +763,58 @@ io.on('connection', (socket) => {
     let ejectedName = null;
     let ejectedFaction = null;
 
-    if (!isTie && ejectedId && game.players[ejectedId]) {
-      game.players[ejectedId].alive = false;
-      ejectedName = game.players[ejectedId].name;
-      ejectedFaction = game.players[ejectedId].faction;
+    if (!isTie && ejectedId && room.players[ejectedId]) {
+      room.players[ejectedId].alive = false;
+      ejectedName = room.players[ejectedId].name;
+      ejectedFaction = room.players[ejectedId].faction;
     }
 
-    io.emit('ejectionResult', { ejectedPlayer: ejectedName, ejectedFaction: ejectedFaction });
+    io.to(roomCode).emit('ejectionResult', { ejectedPlayer: ejectedName, ejectedFaction: ejectedFaction });
 
-    if (checkVictory()) return;
+    if (checkVictory(roomCode)) return;
 
-    game.turn += 1;
-    setTimeout(() => { startNightPhase(); }, 4000);
+    room.turn += 1;
+    setTimeout(() => { startNightPhase(roomCode); }, 4000);
   }
 
-  function checkVictory() {
-    const alive = Object.values(game.players).filter(p => p.alive);
+  function checkVictory(roomCode) {
+    const room = rooms[roomCode];
+    if (!room) return false;
+
+    const alive = Object.values(room.players).filter(p => p.alive);
     const zunks = alive.filter(p => p.faction === 'ZUNK').length;
     const rimks = alive.filter(p => p.faction === 'RIMK').length;
 
     if (zunks === 0) {
-      game.state = 'FINISHED';
-      io.emit('gameOver', { winner: 'RIMKS (Tripulação Limpa)' });
+      room.state = 'FINISHED';
+      io.to(roomCode).emit('gameOver', { winner: 'RIMKS (Tripulação Limpa)' });
       return true;
     } else if (zunks >= rimks) {
-      game.state = 'FINISHED';
-      io.emit('gameOver', { winner: 'ZUNKS (Infiltração Bem-Sucedida)' });
+      room.state = 'FINISHED';
+      io.to(roomCode).emit('gameOver', { winner: 'ZUNKS (Infiltração Bem-Sucedida)' });
       return true;
     }
     return false;
   }
 
   socket.on('disconnect', () => {
-    delete game.players[socket.id];
-    io.emit('updatePlayers', Object.values(game.players));
+    for (const roomCode in rooms) {
+      const room = rooms[roomCode];
+      if (room.players[socket.id]) {
+        delete room.players[socket.id];
+
+        if (Object.keys(room.players).length === 0) {
+          clearInterval(room.timer);
+          delete rooms[roomCode];
+        } else {
+          io.to(roomCode).emit('updateQueue', {
+            players: Object.values(room.players),
+            maxPlayers: room.maxPlayers
+          });
+        }
+        break;
+      }
+    }
   });
 });
 
