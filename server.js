@@ -8,7 +8,6 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Servir os arquivos visuais da pasta 'public'
 app.use(express.static('public'));
 
 const rooms = {};
@@ -21,6 +20,13 @@ function generateRoomCode() {
   }
   return code;
 }
+
+const ROLE_MAP = {
+  ZUNK: { name: 'Infiltrado Zunk', faction: 'ZUNK' },
+  BIOLOGIST: { name: 'Biólogo', faction: 'RIMK' },
+  SHIELD_ENGINEER: { name: 'Engenheiro de Escudo', faction: 'RIMK' },
+  RIMK_CREW: { name: 'Tripulante Rimk', faction: 'RIMK' }
+};
 
 function assignRoles(room) {
   const playerIds = Object.keys(room.players);
@@ -42,27 +48,37 @@ function assignRoles(room) {
   }
 
   playerIds.forEach((id, index) => {
-    const role = rolesPool[index] || 'RIMK_CREW';
-    room.players[id].role = role;
-    room.players[id].faction = role === 'ZUNK' ? 'ZUNK' : 'RIMK';
+    const roleKey = rolesPool[index] || 'RIMK_CREW';
+    const roleInfo = ROLE_MAP[roleKey];
+    room.players[id].roleKey = roleKey;
+    room.players[id].role = roleInfo.name;
+    room.players[id].faction = roleInfo.faction;
     room.players[id].alive = true;
   });
 }
 
-// --- LÓGICA WEBSOCKETS ---
 io.on('connection', (socket) => {
 
-  socket.on('createRoom', ({ name, avatar, maxPlayers, debateTime }) => {
+  socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes }) => {
     let roomCode = generateRoomCode();
     while (rooms[roomCode]) { roomCode = generateRoomCode(); }
 
-    const limit = Math.min(Math.max(maxPlayers || 5, 5), 7);
+    const limit = Math.min(Math.max(parseInt(maxPlayers) || 5, 5), 7);
+    const debateTimeInSeconds = (parseInt(debateMinutes) || 3) * 60;
 
     rooms[roomCode] = {
-      code: roomCode, hostId: socket.id, maxPlayers: limit,
-      debateTime: debateTime || 300,
-      state: 'LOBBY', players: {}, nightActions: {}, votes: {}, skipDebateVotes: new Set(),
-      timer: null, timeLeft: 0, turn: 1
+      code: roomCode,
+      hostId: socket.id,
+      maxPlayers: limit,
+      debateTime: debateTimeInSeconds,
+      state: 'LOBBY',
+      players: {},
+      nightActions: {},
+      votes: {},
+      skipDebateVotes: new Set(),
+      timer: null,
+      timeLeft: 0,
+      turn: 1
     };
 
     rooms[roomCode].players[socket.id] = { id: socket.id, name, avatar, isHost: true, alive: true };
@@ -74,8 +90,8 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
-    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já em andamento.');
-    if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia!');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já iniciada nesta sala.');
+    if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'A sala já está cheia!');
 
     room.players[socket.id] = { id: socket.id, name, avatar, isHost: false, alive: true };
     socket.join(roomCode);
@@ -89,9 +105,14 @@ io.on('connection', (socket) => {
 
     assignRoles(room);
     room.state = 'NOITE';
-    
+
     Object.keys(room.players).forEach(id => {
-      io.to(id).emit('gameStarted', { role: room.players[id].role, faction: room.players[id].faction, playersList: Object.values(room.players) });
+      io.to(id).emit('gameStarted', {
+        roleKey: room.players[id].roleKey,
+        role: room.players[id].role,
+        faction: room.players[id].faction,
+        playersList: Object.values(room.players)
+      });
     });
     startNightPhase(roomCode);
   });
@@ -108,7 +129,8 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (!room) return;
     room.state = 'DIA';
-    room.votes = {}; room.skipDebateVotes.clear();
+    room.votes = {};
+    room.skipDebateVotes.clear();
     room.timeLeft = room.debateTime;
 
     io.to(roomCode).emit('startDay', { killedPlayer, playersList: Object.values(room.players) });
@@ -119,21 +141,29 @@ io.on('connection', (socket) => {
     room.timer = setInterval(() => {
       room.timeLeft--;
       io.to(roomCode).emit('timerUpdate', room.timeLeft);
-      if (room.timeLeft <= 0) { clearInterval(room.timer); resolveVotes(roomCode); }
+      if (room.timeLeft <= 0) {
+        clearInterval(room.timer);
+        resolveVotes(roomCode);
+      }
     }, 1000);
   }
 
   socket.on('submitNightAction', ({ roomCode, actionType, targetId }) => {
-    const room = rooms[roomCode], p = room?.players[socket.id];
+    const room = rooms[roomCode];
+    const p = room?.players[socket.id];
     if (!p || !p.alive || room.state !== 'NOITE') return;
 
     if (actionType === 'ZUNK_KILL' && p.faction === 'ZUNK') room.nightActions.zunk = targetId;
-    else if (actionType === 'SHIELD_PROTECT' && p.role === 'SHIELD_ENGINEER') room.nightActions.shield = targetId;
-    else if (actionType === 'BIOLOGIST_SCAN' && p.role === 'BIOLOGIST') socket.emit('scanResult', { targetName: room.players[targetId]?.name, faction: room.players[targetId]?.faction });
+    else if (actionType === 'SHIELD_PROTECT' && p.roleKey === 'SHIELD_ENGINEER') room.nightActions.shield = targetId;
+    else if (actionType === 'BIOLOGIST_SCAN' && p.roleKey === 'BIOLOGIST') {
+      const target = room.players[targetId];
+      const facName = target?.faction === 'ZUNK' ? 'INFILTRADO ZUNK' : 'RIMK';
+      socket.emit('scanResult', { targetName: target?.name, faction: facName });
+    }
 
     let kId = (room.nightActions.zunk && room.nightActions.zunk !== room.nightActions.shield) ? room.nightActions.zunk : null;
     if (kId && room.players[kId]) room.players[kId].alive = false;
-    
+
     room.nightActions = {};
     if (checkVictory(roomCode)) return;
     startDayPhase(roomCode, kId ? room.players[kId].name : null);
@@ -143,7 +173,10 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (!room || room.state !== 'DIA' || !room.players[socket.id]?.alive) return;
     room.votes[socket.id] = targetId;
-    if (Object.keys(room.votes).length >= Object.values(room.players).filter(p => p.alive).length) { clearInterval(room.timer); resolveVotes(roomCode); }
+    if (Object.keys(room.votes).length >= Object.values(room.players).filter(p => p.alive).length) {
+      clearInterval(room.timer);
+      resolveVotes(roomCode);
+    }
   });
 
   socket.on('voteSkipDebate', ({ roomCode }) => {
@@ -152,11 +185,31 @@ io.on('connection', (socket) => {
     room.skipDebateVotes.add(socket.id);
     io.to(roomCode).emit('updateSkipCount', room.skipDebateVotes.size);
     if (room.skipDebateVotes.size >= Math.ceil(Object.values(room.players).filter(p => p.alive).length / 2)) {
-      clearInterval(room.timer); io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'Debate encerrado por maioria!', type: 'system' }); resolveVotes(roomCode);
+      clearInterval(room.timer);
+      io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'Discussão encerrada por maioria!', type: 'system', channel: 'alive' });
+      resolveVotes(roomCode);
     }
   });
 
-  socket.on('sendChatMessage', ({ roomCode, text }) => { io.to(roomCode).emit('chatMessage', { sender: rooms[roomCode]?.players[socket.id]?.name, text }); });
+  socket.on('sendChatMessage', ({ roomCode, text }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const p = room.players[socket.id];
+    if (!p) return;
+
+    if (!p.alive) {
+      // Chat dos Mortos
+      Object.values(room.players).forEach(player => {
+        if (!player.alive) {
+          io.to(player.id).emit('chatMessage', { sender: p.name, text, type: 'dead', channel: 'dead' });
+        }
+      });
+    } else {
+      // Chat dos Vivos (Apenas no Dia)
+      if (room.state !== 'DIA') return;
+      io.to(roomCode).emit('chatMessage', { sender: p.name, text, type: 'normal', channel: 'alive' });
+    }
+  });
 
   function resolveVotes(roomCode) {
     const room = rooms[roomCode];
@@ -165,21 +218,40 @@ io.on('connection', (socket) => {
     Object.values(room.votes).forEach(t => { if (t !== 'SKIP') counts[t] = (counts[t] || 0) + 1; });
 
     let max = 0, eId = null, tie = false;
-    for (const [t, c] of Object.entries(counts)) { if (c > max) { max = c; eId = t; tie = false; } else if (c === max) tie = true; }
+    for (const [t, c] of Object.entries(counts)) {
+      if (c > max) { max = c; eId = t; tie = false; }
+      else if (c === max) tie = true;
+    }
 
     if (!tie && eId && room.players[eId]) room.players[eId].alive = false;
-    io.to(roomCode).emit('ejectionResult', { ejectedPlayer: (!tie && eId) ? room.players[eId].name : null, ejectedFaction: (!tie && eId) ? room.players[eId].faction : null });
-    
+
+    const ejectedPlayer = (!tie && eId) ? room.players[eId] : null;
+    const ejectedFactionName = ejectedPlayer ? (ejectedPlayer.faction === 'ZUNK' ? 'INFILTRADO ZUNK' : 'RIMK') : null;
+
+    io.to(roomCode).emit('ejectionResult', {
+      ejectedPlayer: ejectedPlayer ? ejectedPlayer.name : null,
+      ejectedFaction: ejectedFactionName
+    });
+
     if (checkVictory(roomCode)) return;
-    room.turn++; setTimeout(() => startNightPhase(roomCode), 4000);
+    room.turn++;
+    setTimeout(() => startNightPhase(roomCode), 4000);
   }
 
   function checkVictory(code) {
     const room = rooms[code];
     const alv = Object.values(room.players).filter(p => p.alive);
-    const z = alv.filter(p => p.faction === 'ZUNK').length, r = alv.filter(p => p.faction === 'RIMK').length;
-    if (z === 0) { io.to(code).emit('gameOver', { winner: 'RIMKS' }); return true; }
-    if (z >= r) { io.to(code).emit('gameOver', { winner: 'ZUNKS' }); return true; }
+    const z = alv.filter(p => p.faction === 'ZUNK').length;
+    const r = alv.filter(p => p.faction === 'RIMK').length;
+
+    if (z === 0) {
+      io.to(code).emit('gameOver', { winner: 'OS RIMKS VENCERAM! Todos os Infiltrados Zunks foram ejetados.' });
+      return true;
+    }
+    if (z >= r) {
+      io.to(code).emit('gameOver', { winner: 'OS ZUNKS VENCERAM! A estação Alpha caiu sob controle dos Zunks.' });
+      return true;
+    }
     return false;
   }
 
@@ -195,4 +267,4 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor de alta tecnologia rodando na porta ${PORT}`));
