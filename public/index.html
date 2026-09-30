@@ -225,7 +225,7 @@
           <label>Nome do Tripulante:</label>
           <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom: 10px;">
           
-<div class="customizer-grid">
+          <div class="customizer-grid">
             <div>
               <label>Pelo Facial / Bigode:</label>
               <select id="optFacialHair" onchange="updatePreview()">
@@ -268,6 +268,8 @@
               </select>
             </div>
           </div>
+        </div>
+      </div>
 
       <hr style="border-color: #003311; margin: 25px 0;">
 
@@ -441,22 +443,21 @@
       }
     }
 
-    // MONTA O AVATAR (TODOS NASCEM VERDES COM rimk.png; SÓ FICA BRANCO 2.png SE FOR ZUNK REVELADO)
+    // MONTA O AVATAR COM AS CAMADAS
     function generateAvatarHTML(c, extra) {
       if (!c) c = {};
       if (!extra) extra = {};
 
       let baseImg = 'rimk.png';
       if (extra.isZunkRevealed) {
-        baseImg = '2.png'; // Transforma em Zunk Branco quando ejetado/revelado
+        baseImg = '2.png';
       }
 
-      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="/images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
-      const bodyImg = `<img src="/images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
-      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="/images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
-      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="/images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
-      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="/images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
-      const helmetImg = (c.helmet && c.helmet !== 'none') ? `<img src="/images/${c.helmet}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 6;" />` : '';
+      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
+      const bodyImg = `<img src="images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
+      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
+      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
+      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
 
       return `
         <div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">
@@ -465,18 +466,20 @@
           ${suitImg}
           ${hairImg}
           ${eyewearImg}
-          ${helmetImg}
         </div>
       `;
     }
 
     function getCustomizationFromUI() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : 'none';
+      };
       return {
-        facialHair: document.getElementById('optFacialHair').value,
-        eyewear: document.getElementById('optEyewear').value,
-        helmet: document.getElementById('optHelmet').value,
-        suit: document.getElementById('optSuit').value,
-        bg: document.getElementById('optBg').value
+        facialHair: getVal('optFacialHair'),
+        eyewear: getVal('optEyewear'),
+        suit: getVal('optSuit'),
+        bg: getVal('optBg')
       };
     }
 
