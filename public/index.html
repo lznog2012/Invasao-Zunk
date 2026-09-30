@@ -65,8 +65,8 @@
       border: 1px solid var(--matrix-green);
       overflow: hidden;
       background: #000;
+      position: relative;
     }
-    .avatar-box svg { width: 100%; height: 100%; }
 
     .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 10px 0; }
     
@@ -117,7 +117,6 @@
     
     .hidden-form { display: none; background: #010c06; padding: 20px; border: 1px dashed var(--matrix-green); border-radius: 8px; margin-top: 15px; }
 
-    /* CORREÇÃO DO GUIA LATERAL E MODAL (SEM BLOQUEIO DE CLIQUE) */
     .guide-sidebar {
       position: fixed;
       left: 0;
@@ -279,7 +278,13 @@
       </div>
 
       <hr style="border-color: #003311; margin: 25px 0;">
-      
+
+      <h3>[ 2. MODO DE ENTRADA ]</h3>
+      <div class="action-menu">
+        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
+        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
+      </div>
+
       <!-- PARÂMETROS DO HOST -->
       <div id="formCreate" class="hidden-form">
         <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ PARÂMETROS DA PARTIDA</h4>
@@ -444,101 +449,41 @@
       }
     }
 
-    function generateAvatarSVG(c, extra) {
+    // FUNÇÃO QUE MONTA O AVATAR COM CAMADAS DE IMAGENS PNG/JPG
+    function generateAvatarHTML(c, extra) {
       if (!c) c = {};
       if (!extra) extra = {};
 
-      const skinColor = extra.isZunkRevealed ? '#ffffff' : '#88c242';
-
-      let bgSVG = '<rect width="100" height="100" fill="#02080a" />';
-      if (c.bg === 'control') {
-        bgSVG = '<rect width="100" height="100" fill="#031520" /><line x1="0" y1="70" x2="100" y2="70" stroke="#00ffff" stroke-width="1"/><rect x="10" y="75" width="20" height="15" fill="#003344"/><rect x="40" y="75" width="20" height="15" fill="#004433"/>';
-      } else if (c.bg === 'greenhouse') {
-        bgSVG = '<rect width="100" height="100" fill="#021a08" /><path d="M 10 90 Q 20 60 30 90 M 70 90 Q 80 50 90 90" stroke="#00ff66" stroke-width="2" fill="none"/>';
-      } else if (c.bg === 'reactor') {
-        bgSVG = '<rect width="100" height="100" fill="#1a0208" /><circle cx="50" cy="50" r="35" stroke="#ff3366" stroke-width="1" fill="none" opacity="0.4"/>';
-      } else {
-        bgSVG = '<rect width="100" height="100" fill="#010408" /><circle cx="20" cy="20" r="1" fill="#fff"/><circle cx="80" cy="30" r="1.5" fill="#00ffff"/><circle cx="40" cy="70" r="1" fill="#fff"/>';
+      let baseImg = c.base || 'rimk.png';
+      if (extra.isZunkRevealed) {
+        baseImg = '2.png';
       }
 
-      let suitColor = '#112211';
-      let suitDetails = '';
-      if (c.suit === 'space') {
-        suitColor = '#e0e0e0';
-        suitDetails = '<rect x="42" y="75" width="16" height="18" fill="#ffaa00"/><circle cx="50" cy="82" r="3" fill="#000"/>';
-      } else if (c.suit === 'officer') {
-        suitColor = '#002244';
-        suitDetails = '<path d="M 50 65 L 45 90 L 55 90 Z" fill="#ffcc00"/>';
-      } else if (c.suit === 'bio') {
-        suitColor = '#005533';
-        suitDetails = '<path d="M 48 65 L 48 90 M 52 65 L 52 90" stroke="#00ff66" stroke-width="1"/>';
-      } else if (c.suit === 'sci') {
-        suitColor = '#440055';
-        suitDetails = '<circle cx="50" cy="78" r="6" fill="#00ffff" opacity="0.8"/>';
-      }
+      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="/images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
+      const bodyImg = `<img src="/images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
+      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="/images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
+      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="/images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
+      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="/images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
+      const helmetImg = (c.helmet && c.helmet !== 'none') ? `<img src="/images/${c.helmet}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 6;" />` : '';
 
-      const bodySVG = '<path d="M 20 100 Q 20 65 50 65 Q 80 65 80 100 Z" fill="' + suitColor + '" />' + suitDetails;
-
-      let m = '';
-      if (c.moustache === 'classic') {
-        m = '<path d="M 35 52 Q 50 46 65 52 Q 75 58 80 52 Q 65 56 50 54 Q 35 56 20 52 Q 25 58 35 52 Z" fill="#111" />';
-      } else if (c.moustache === 'handlebar') {
-        m = '<path d="M 30 50 Q 50 42 70 50 Q 85 42 80 55 Q 65 50 50 52 Q 35 50 20 55 Q 15 42 30 50 Z" fill="#221100" />';
-      } else if (c.moustache === 'pencil') {
-        m = '<rect x="38" y="50" width="24" height="2" rx="1" fill="#111" />';
-      }
-
-      let g = '';
-      if (c.glasses === 'visor') {
-        g = '<rect x="22" y="30" width="56" height="12" rx="3" fill="#00ffff" opacity="0.85"/>';
-      } else if (c.glasses === 'monocle') {
-        g = '<circle cx="35" cy="36" r="8" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="44" x2="40" y2="58" stroke="#ffaa00" stroke-width="1.5"/>';
-      } else if (c.glasses === 'sunglasses') {
-        g = '<polygon points="22,30 47,30 42,42 26,42" fill="#111" stroke="#00ff66"/><polygon points="53,30 78,30 74,42 58,42" fill="#111" stroke="#00ff66"/>';
-      }
-
-      let h = '';
-      if (c.hat === 'cap') {
-        h = '<path d="M 18 22 Q 50 8 82 22 L 86 26 L 14 26 Z" fill="#002244"/><rect x="14" y="24" width="72" height="3" fill="#ffcc00"/>';
-      } else if (c.hat === 'antenna') {
-        h = '<line x1="50" y1="15" x2="50" y2="2" stroke="#00ff66" stroke-width="2.5"/><circle cx="50" cy="2" r="4" fill="#00ff66"/>';
-      } else if (c.hat === 'punk') {
-        h = '<polygon points="50,2 45,18 55,18" fill="#ff0055"/><polygon points="36,6 34,19 42,19" fill="#ff0055"/><polygon points="64,6 66,19 58,19" fill="#ff0055"/>';
-      } else if (c.hat === 'helmet') {
-        h = '<path d="M 15 25 Q 50 -5 85 25 Q 88 45 85 65 Q 50 85 15 65 Z" fill="none" stroke="#00ff66" stroke-width="2.5" opacity="0.5"/>';
-      }
-
-      let roleOverlay = '';
-      if (extra.isPersonalRole) {
-        if (extra.roleKey === 'BIOLOGIST') {
-          roleOverlay = '<g transform="translate(72,68)"><circle cx="10" cy="10" r="10" fill="#003311" stroke="#00ff66"/><path d="M 6 14 Q 10 4 14 14" stroke="#00ff66" fill="none" stroke-width="2"/></g>';
-        } else if (extra.roleKey === 'SHIELD_ENGINEER') {
-          roleOverlay = '<g transform="translate(72,68)"><circle cx="10" cy="10" r="10" fill="#002244" stroke="#00ffff"/><polygon points="10,4 16,7 16,13 10,16 4,13 4,7" fill="none" stroke="#00ffff"/></g>';
-        } else if (extra.roleKey === 'ZUNK') {
-          roleOverlay = '<g transform="translate(72,68)"><circle cx="10" cy="10" r="10" fill="#330011" stroke="#ff3366"/><circle cx="10" cy="10" r="4" fill="#ff3366"/></g>';
-        } else if (extra.roleKey === 'RIMK_CREW') {
-          roleOverlay = '<g transform="translate(72,68)"><circle cx="10" cy="10" r="10" fill="#223300" stroke="#ffcc00"/><polygon points="10,4 12,8 16,8 13,11 14,15 10,12 6,15 7,11 4,8 8,8" fill="#ffcc00"/></g>';
-        }
-      }
-
-      return '<svg viewBox="0 0 100 100">' +
-        bgSVG +
-        bodySVG +
-        '<path d="M 50 12 C 22 12 18 32 26 52 C 32 66 45 74 50 74 C 55 74 68 66 74 52 C 82 32 78 12 50 12 Z" fill="' + skinColor + '" />' +
-        '<ellipse cx="36" cy="36" rx="8" ry="11" fill="#050505" transform="rotate(-10 36 36)"/>' +
-        '<ellipse cx="64" cy="36" rx="8" ry="11" fill="#050505" transform="rotate(10 64 36)"/>' +
-        '<circle cx="34" cy="34" r="2.5" fill="#ffffff" opacity="0.8"/>' +
-        '<circle cx="62" cy="34" r="2.5" fill="#ffffff" opacity="0.8"/>' +
-        '<circle cx="48" cy="45" r="1" fill="#222"/><circle cx="52" cy="45" r="1" fill="#222"/>' +
-        m + g + h + roleOverlay +
-      '</svg>';
+      return `
+        <div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">
+          ${bgImg}
+          ${bodyImg}
+          ${suitImg}
+          ${hairImg}
+          ${eyewearImg}
+          ${helmetImg}
+        </div>
+      `;
     }
 
     function getCustomizationFromUI() {
       return {
-        moustache: document.getElementById('optMoustache').value,
-        glasses: document.getElementById('optGlasses').value,
-        hat: document.getElementById('optHat').value,
+        base: document.getElementById('optBase').value,
+        facialHair: document.getElementById('optFacialHair').value,
+        eyewear: document.getElementById('optEyewear').value,
+        helmet: document.getElementById('optHelmet').value,
         suit: document.getElementById('optSuit').value,
         bg: document.getElementById('optBg').value
       };
@@ -546,7 +491,7 @@
 
     function updatePreview() {
       const box = document.getElementById('avatarPreview');
-      if (box) box.innerHTML = generateAvatarSVG(getCustomizationFromUI());
+      if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
     }
 
     window.addEventListener('DOMContentLoaded', function() {
@@ -594,7 +539,7 @@
         document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
         document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(function(p) {
           return '<div class="player-card alive">' +
-            '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
+            '<div class="avatar-box">' + generateAvatarHTML(p.avatar) + '</div>' +
             '<b>' + p.name + '</b><br><small style="color:var(--cyan-glow);">' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
           '</div>';
         }).join('');
@@ -684,110 +629,126 @@
     }
 
     function renderGameCards(players) {
-      document.getElementById('gameCardsGrid').innerHTML = players.map(function(p) {
+      const container = document.getElementById('gameCardsGrid');
+      if (!container) return;
+
+      container.innerHTML = players.map(function(p) {
         const status = p.alive ? 'alive' : 'dead';
-        let badge = '';
+        let badge = p.alive ? '<span class="badge badge-rimk">VIVO</span>' : '<span class="badge badge-zunk">ELIMINADO</span>';
         let isZunkRevealed = false;
 
-        const isMe = socket ? (p.id === socket.id) : false;
-
-        if (!p.alive) {
-          if (p.faction === 'ZUNK') {
-            isZunkRevealed = true;
-            badge = '<span class="badge badge-zunk">INFILTRADO ZUNK</span>';
-          } else {
-            badge = '<span class="badge badge-rimk">RAÇA: RIMK</span>';
-          }
+        if (!p.alive && p.faction === 'ZUNK') {
+          isZunkRevealed = true;
+          badge = '<span class="badge badge-zunk">ZUNK REVELADO</span>';
         }
 
-        const svgExtra = {
-          isZunkRevealed: isZunkRevealed,
-          roleKey: p.roleKey || myPlayerData.roleKey,
-          isPersonalRole: isMe
-        };
+        const isMe = socket ? (p.id === socket.id) : false;
+        const meStyle = isMe ? 'style="border-color: var(--cyan-glow);"' : '';
 
-        return '<div class="player-card ' + status + '">' +
-          '<div class="avatar-box">' + generateAvatarSVG(p.avatar, svgExtra) + '</div>' +
-          '<b>' + p.name + '</b><br>' + badge +
-        '</div>';
+        return `
+          <div class="player-card ${status}" ${meStyle}>
+            <div class="avatar-box">${generateAvatarHTML(p.avatar, { isZunkRevealed: isZunkRevealed })}</div>
+            <b>${p.name}</b> ${isMe ? '<small style="color:var(--cyan-glow);">(Você)</small>' : ''}<br>
+            ${badge}
+          </div>
+        `;
       }).join('');
     }
 
     function renderNightActions(players) {
-      const panel = document.getElementById('actionPanel');
-      if (!socket) return;
-      const me = players.find(p => p.id === socket.id);
-      if (!me || !me.alive) return panel.innerHTML = '<p style="color:var(--ghost-purple)">Você foi eliminado. Acompanhe a partida em modo fantasma.</p>';
-      
-      const aliveTargets = players.filter(p => p.id !== socket.id && p.alive);
-      panel.innerHTML = '<p style="color:var(--cyan-glow)">Selecione seu alvo para esta noite:</p>';
+      const actionPanel = document.getElementById('actionPanel');
+      if (!actionPanel) return;
 
-      if (myPlayerData.faction === 'ZUNK') {
-        aliveTargets.forEach(t => {
-          const safeName = t.name.replace(/'/g, "\\'");
-          panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">Desintegrar ' + safeName + '</button> ';
-        });
-      } else if (myPlayerData.roleKey === 'SHIELD_ENGINEER') {
-        players.forEach(t => {
-          if (t.alive) {
-            const safeName = t.name.replace(/'/g, "\\'");
-            panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">Proteger ' + safeName + '</button> ';
-          }
-        });
-      } else if (myPlayerData.roleKey === 'BIOLOGIST') {
-        aliveTargets.forEach(t => {
-          const safeName = t.name.replace(/'/g, "\\'");
-          panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">Escanear ' + safeName + '</button> ';
-        });
+      if (!checkAmIAlive(players)) {
+        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
+        return;
+      }
+
+      const role = myPlayerData.roleKey || myPlayerData.role;
+
+      if (role === 'ZUNK' || myPlayerData.faction === 'ZUNK') {
+        let targetsHTML = players.filter(p => p.alive && p.faction !== 'ZUNK').map(p => 
+          `<button onclick="sendNightAction('kill', '${p.id}')" style="background:#441122; border-color:var(--alert-red); margin:3px;">DESINTEGRAR ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🔴 AÇÃO ZUNK: ESCOLHA UM RIMK PARA ELIMINAR</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
+      } else if (role === 'BIOLOGIST' || role === 'BIÓLOGO') {
+        let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p => 
+          `<button onclick="sendNightAction('scan', '${p.id}')" style="background:#003344; border-color:var(--cyan-glow); margin:3px;">ESCANEAR ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🧪 AÇÃO DO BIÓLOGO: ESCANEAR RAÇA BIOLÓGICA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
+      } else if (role === 'SHIELD_ENGINEER' || role === 'ENGENHEIRO DE ESCUDO') {
+        let targetsHTML = players.filter(p => p.alive).map(p => 
+          `<button onclick="sendNightAction('shield', '${p.id}')" style="background:#003311; border-color:var(--matrix-green); margin:3px;">PROTEGER ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🛡 AÇÃO DO ENGENHEIRO: ATIVAR CAMPO DE FORÇA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
       } else {
-        panel.innerHTML = '<p>Aguarde em silêncio o encerramento do Eclipse...</p>';
+        actionPanel.innerHTML = '<p>💤 Durante o Eclipse, aguarde as ações dos especialistas...</p>';
+      }
+    }
+
+    function sendNightAction(action, targetId) {
+      if (socket && currentRoomCode) {
+        socket.emit('nightAction', { roomCode: currentRoomCode, action, targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--cyan-glow);">Ação enviada com sucesso! Aguardando o fim do Eclipse...</p>';
       }
     }
 
     function renderDayActions(players) {
-      const panel = document.getElementById('actionPanel');
-      if (!socket) return;
-      const me = players.find(p => p.id === socket.id);
-      if (!me || !me.alive) return panel.innerHTML = '<p style="color:var(--ghost-purple)">Você está ejetado/falecido. Não pode votar.</p>';
-      
-      panel.innerHTML = '<p style="color:var(--cyan-glow)">Escolha em quem votar para ejetar da estação:</p>';
-      players.filter(p => p.alive).forEach(t => {
-        const safeName = t.name.replace(/'/g, "\\'");
-        panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + safeName + '</button> ';
-      });
-      panel.innerHTML += '<br><br><button onclick="sendVote(\'SKIP\')" style="background:#443300;">Abster-se / Pular Voto</button>';
+      const actionPanel = document.getElementById('actionPanel');
+      if (!actionPanel) return;
+
+      if (!checkAmIAlive(players)) {
+        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está morto e não pode votar na reunião.</p>';
+        return;
+      }
+
+      let targetsHTML = players.filter(p => p.alive).map(p => 
+        `<button onclick="voteEject('${p.id}')" style="background:#002211; border-color:var(--matrix-green); margin:3px;">VOTAR EM ${p.name}</button>`
+      ).join('');
+
+      targetsHTML += `<button onclick="voteEject('skip')" style="background:#222; border-color:#888; margin:3px;">PULAR VOTO (ABSTER)</button>`;
+
+      actionPanel.innerHTML = `<h4>🗳 VOTAÇÃO DE EMERGÊNCIA: QUEM DEVE SER EJETADO?</h4><div>${targetsHTML}</div>`;
     }
 
-    function sendNightAction(type, target) {
-      if (socket) socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target });
-      document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Sua ordem da noite foi registrada!</p>';
+    function voteEject(targetId) {
+      if (socket && currentRoomCode) {
+        socket.emit('voteEject', { roomCode: currentRoomCode, targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">Voto registrado com sucesso!</p>';
+      }
     }
 
-    function sendVote(target) {
-      if (socket) socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target });
-      document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Voto computado com sucesso!</p>';
-    }
-    
     function sendChat() {
-      const txt = document.getElementById('chatInput').value.trim();
-      if (txt && currentRoomCode && socket) {
-        socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: txt });
-        document.getElementById('chatInput').value = '';
+      const input = document.getElementById('chatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (socket && currentRoomCode) {
+        socket.emit('sendChat', { roomCode: currentRoomCode, text });
+        input.value = '';
       }
     }
 
     function addChatMessage(sender, text, type, channel) {
       const box = document.getElementById('chatBox');
       if (!box) return;
-      let typeClass = type || 'normal';
-      let tag = '[' + sender + ']';
-      
-      if (channel === 'dead') {
-        typeClass = 'dead';
-        tag = '👻 [FANTASMA - ' + sender + ']';
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg ' + (type || '');
+
+      if (type === 'system') {
+        msgDiv.innerHTML = `<b>[SISTEMA]</b> ${text}`;
+      } else if (type === 'alert') {
+        msgDiv.innerHTML = `<b>[ALERTA]</b> ${text}`;
+      } else if (channel === 'ghost' || type === 'dead') {
+        msgDiv.className = 'chat-msg dead';
+        msgDiv.innerHTML = `<b>👻 ${sender}:</b> ${text}`;
+      } else {
+        msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
       }
 
-      box.innerHTML += '<div class="chat-msg ' + typeClass + '"><b>' + tag + ':</b> ' + text + '</div>';
+      box.appendChild(msgDiv);
       box.scrollTop = box.scrollHeight;
     }
   </script>
