@@ -10,13 +10,13 @@ const PORT = process.env.PORT || 3000;
 
 // --- ESTADO GLOBAL DO JOGO ---
 const game = {
-  state: 'LOBBY', // LOBBY, NOITE, DIA, FINISHED
+  state: 'LOBBY',
   players: {},
   nightActions: { zunkTarget: null, shieldTarget: null, biologistTarget: null },
   votes: {},
   skipDebateVotes: new Set(),
   timer: null,
-  timeLeft: 300, // 5 minutos em segundos
+  timeLeft: 300,
   turn: 1
 };
 
@@ -49,7 +49,7 @@ function assignRoles(playerIds) {
   });
 }
 
-// --- FRONTEND EMBUTIDO (HTML / MATRIX CSS / JS CLIENT) ---
+// --- FRONTEND EMBUTIDO ---
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -65,7 +65,6 @@ app.get('/', (req, res) => {
           --bg-color: #030708;
           --card-bg: #0a1114;
           --alert-red: #ff3366;
-          --text-color: #a3ffc2;
         }
 
         * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
@@ -76,30 +75,24 @@ app.get('/', (req, res) => {
         .container { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 15px; }
         .panel { background: var(--card-bg); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.15); }
         
-        /* Grid de Cards dos Jogadores */
+        /* Grid de Cards */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
-        .player-card { background: #050d0f; border: 1px solid #005522; border-radius: 8px; padding: 10px; text-align: center; transition: all 0.3s ease; position: relative; }
+        .player-card { background: #050d0f; border: 1px solid #005522; border-radius: 8px; padding: 10px; text-align: center; position: relative; }
         .player-card.alive { border-color: var(--matrix-green); box-shadow: 0 0 8px rgba(0, 255, 102, 0.2); }
         .player-card.dead { border-color: var(--alert-red); opacity: 0.6; filter: grayscale(80%); }
-        .player-card.voted { border-color: #ffff00; }
         
         .avatar-box { width: 100px; height: 100px; margin: 0 auto 8px auto; background: #020506; border-radius: 50%; border: 1px solid var(--matrix-green); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .avatar-box svg { width: 90px; height: 90px; }
 
-        /* Estilo da Interface de Customização */
         .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
         select, input[type="text"] { background: #001100; border: 1px solid var(--matrix-green); color: var(--matrix-green); padding: 8px; width: 100%; border-radius: 4px; }
         
-        /* Botões Estilo Cyberpunk */
         button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 10px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; }
         button:hover { background: var(--matrix-green); color: #000; box-shadow: 0 0 12px var(--matrix-green); }
-        button:disabled { background: #222; border-color: #444; color: #666; cursor: not-allowed; box-shadow: none; }
 
-        /* Layout Principal do Jogo (Cards + Chat) */
         .game-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .game-layout { grid-template-columns: 1fr; } }
 
-        /* Chat e Log */
         .chat-box { height: 250px; background: #020506; border: 1px solid #004411; border-radius: 4px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; font-size: 0.9em; }
         .chat-msg { margin: 2px 0; word-break: break-word; }
         .chat-msg.system { color: #ffff00; font-style: italic; }
@@ -113,13 +106,12 @@ app.get('/', (req, res) => {
     </head>
     <body>
       <div class="container">
-        <!-- TÍTULO -->
         <div style="text-align: center;">
           <h1>🛸 ESTAÇÃO ALPHA: RIMKS VS ZUNKS 🛸</h1>
           <p style="color: #00aa44; margin: 0;">SISTEMA DE SEGURANÇA E DEDUÇÃO EMBARCADO</p>
         </div>
 
-        <!-- TELA 1: LOBBY & CUSTOMIZAÇÃO DO AVATAR -->
+        <!-- TELA 1: LOBBY -->
         <div id="lobbyView" class="panel">
           <h3>[ REGISTRO DE TRIPULANTE & CUSTOMIZAÇÃO DE AVATAR ]</h3>
           <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center;">
@@ -180,21 +172,13 @@ app.get('/', (req, res) => {
 
         <!-- TELA 2: TELA DE JOGO -->
         <div id="gameView" class="container" style="display:none;">
-          <!-- STATUS SUPERIOR -->
           <div class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-            <div>
-              <span>SEU PAPEL: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span>
-            </div>
-            <div>
-              <span>FASE: <b id="gameState">ECLIPSE</b></span>
-            </div>
-            <div>
-              <span class="timer-badge" id="timerDisplay">05:00</span>
-            </div>
+            <div><span>SEU PAPEL: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span></div>
+            <div><span>FASE: <b id="gameState">ECLIPSE</b></span></div>
+            <div><span class="timer-badge" id="timerDisplay">05:00</span></div>
           </div>
 
           <div class="game-layout">
-            <!-- PAINEL ESQUERDO: GRID DE CARDS + AÇÕES -->
             <div>
               <div class="panel">
                 <h3>TRIPULAÇÃO DA ESTAÇÃO</h3>
@@ -212,7 +196,6 @@ app.get('/', (req, res) => {
               </div>
             </div>
 
-            <!-- PAINEL DIREITO: CHAT DA NAVE -->
             <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
               <h3>COMUNICAÇÃO DE BORDO</h3>
               <div id="chatBox" class="chat-box"></div>
@@ -229,50 +212,42 @@ app.get('/', (req, res) => {
       <script>
         const socket = io();
         let myPlayerData = {};
-        let currentPlayers = [];
 
-        // --- GERADOR DE SVG DE AVATAR ALIEN GREY ---
-        function generateAvatarSVG(custom) {
-          const skin = custom.skin || '#55aa66';
-          let mustacheSVG = '';
-          if (custom.moustache === 'classic') {
-            mustacheSVG = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
-          } else if (custom.moustache === 'handlebar') {
-            mustacheSVG = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
+        // GERADOR SVG CORRIGIDO
+        function generateAvatarSVG(c) {
+          if (!c) c = {};
+          const skin = c.skin || '#55aa66';
+          
+          let m = '';
+          if (c.moustache === 'classic') {
+            m = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
+          } else if (c.moustache === 'handlebar') {
+            m = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
           }
 
-          let glassesSVG = '';
-          if (custom.glasses === 'visor') {
-            glassesSVG = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8" stroke="#008888" stroke-width="2"/>';
-          } else if (custom.glasses === 'monocle') {
-            glassesSVG = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
+          let g = '';
+          if (c.glasses === 'visor') {
+            g = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8"/>';
+          } else if (c.glasses === 'monocle') {
+            g = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
           }
 
-          let hatSVG = '';
-          if (custom.hat === 'cap') {
-            hatSVG = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
-          } else if (custom.hat === 'antenna') {
-            hatSVG = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
+          let h = '';
+          if (c.hat === 'cap') {
+            h = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
+          } else if (c.hat === 'antenna') {
+            h = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
           }
 
-          return \`
-            <svg viewBox="0 0 100 100">
-              <!-- Cabeça de Grey -->
-              <path d="M 50 15 C 20 15 15 40 25 65 C 32 82 45 92 50 92 C 55 92 68 82 75 65 C 85 40 80 15 50 15 Z" fill="\${skin}" />
-              <!-- Olhos Pretos de Alien -->
-              <ellipse cx="35" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(-12 35 45)"/>
-              <ellipse cx="65" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(12 65 45)"/>
-              <ellipse cx="33" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>
-              <ellipse cx="63" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>
-              <!-- Nariz Mínimo -->
-              <circle cx="48" cy="56" r="1" fill="#222"/>
-              <circle cx="52" cy="56" r="1" fill="#222"/>
-              <!-- Acessórios -->
-              \${mustacheSVG}
-              \${glassesSVG}
-              \${hatSVG}
-            </svg>
-          \`;
+          return '<svg viewBox="0 0 100 100">' +
+            '<path d="M 50 15 C 20 15 15 40 25 65 C 32 82 45 92 50 92 C 55 92 68 82 75 65 C 85 40 80 15 50 15 Z" fill="' + skin + '" />' +
+            '<ellipse cx="35" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(-12 35 45)"/>' +
+            '<ellipse cx="65" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(12 65 45)"/>' +
+            '<ellipse cx="33" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
+            '<ellipse cx="63" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
+            '<circle cx="48" cy="56" r="1" fill="#222"/><circle cx="52" cy="56" r="1" fill="#222"/>' +
+            m + g + h +
+          '</svg>';
         }
 
         function getCustomizationFromUI() {
@@ -288,14 +263,14 @@ app.get('/', (req, res) => {
           const custom = getCustomizationFromUI();
           document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(custom);
         }
-        updatePreview();
+        
+        window.onload = () => { updatePreview(); };
 
-        // --- EVENTOS SOCKET.IO ---
         document.getElementById('joinBtn').onclick = () => {
           const name = document.getElementById('username').value.trim();
           if (!name) return alert('Por favor, digite um apelido!');
           const custom = getCustomizationFromUI();
-          socket.emit('joinGame', { name, avatar: custom });
+          socket.emit('joinGame', { name: name, avatar: custom });
         };
 
         document.getElementById('startBtn').onclick = () => { socket.emit('startGame'); };
@@ -304,17 +279,14 @@ app.get('/', (req, res) => {
         socket.on('errorMsg', (msg) => { alert('⚠️ ' + msg); });
 
         socket.on('updatePlayers', (players) => {
-          currentPlayers = players;
           document.getElementById('playerCount').innerText = players.length;
-          
-          // Renderiza Cards do Lobby
           const lobbyGrid = document.getElementById('lobbyCardsGrid');
-          lobbyGrid.innerHTML = players.map(p => \`
-            <div class="player-card alive">
-              <div class="avatar-box">\${generateAvatarSVG(p.avatar)}</div>
-              <b>\${p.name}</b>
-            </div>
-          \`).join('');
+          lobbyGrid.innerHTML = players.map(p => 
+            '<div class="player-card alive">' +
+              '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
+              '<b>' + p.name + '</b>' +
+            '</div>'
+          ).join('');
         });
 
         socket.on('gameStarted', (data) => {
@@ -352,7 +324,7 @@ app.get('/', (req, res) => {
         socket.on('timerUpdate', (seconds) => {
           const m = Math.floor(seconds / 60).toString().padStart(2, '0');
           const s = (seconds % 60).toString().padStart(2, '0');
-          document.getElementById('timerDisplay').innerText = \`\${m}:\${s}\`;
+          document.getElementById('timerDisplay').innerText = m + ':' + s;
         });
 
         socket.on('updateSkipCount', (count) => {
@@ -380,37 +352,32 @@ app.get('/', (req, res) => {
           location.reload();
         });
 
-        // --- RENDERIZAÇÃO DOS CARDS NO JOGO ---
         function renderGameCards(players) {
           const grid = document.getElementById('gameCardsGrid');
           grid.innerHTML = players.map(p => {
             const statusClass = p.alive ? 'alive' : 'dead';
             let factionBadge = '';
-            
-            // Se o jogador estiver morto/ejetado, revela o avatar real da raça dele
             let displayAvatar = p.avatar;
+
             if (!p.alive && p.faction) {
               if (p.faction === 'RIMK') {
-                displayAvatar = { skin: '#88bb44', moustache: 'classic', glasses: 'none', hat: 'none' }; // Grey Amarelo-Verde com Moustache
+                displayAvatar = { skin: '#88bb44', moustache: 'classic', glasses: 'none', hat: 'none' };
                 factionBadge = '<span class="badge badge-rimk">RAÇA: RIMK</span>';
               } else {
-                displayAvatar = { skin: '#ffffff', moustache: 'none', glasses: 'none', hat: 'none' }; // Grey Branco sem bigode
+                displayAvatar = { skin: '#ffffff', moustache: 'none', glasses: 'none', hat: 'none' };
                 factionBadge = '<span class="badge badge-zunk">INFILTRADO: ZUNK</span>';
               }
             }
 
-            return \`
-              <div class="player-card \${statusClass}">
-                <div class="avatar-box">\${generateAvatarSVG(displayAvatar)}</div>
-                <b>\${p.name}</b><br>
-                <small>\${p.alive ? '🟢 Operacional' : '🔴 Ejetado/Eliminado'}</small><br>
-                \${factionBadge}
-              </div>
-            \`;
+            return '<div class="player-card ' + statusClass + '">' +
+              '<div class="avatar-box">' + generateAvatarSVG(displayAvatar) + '</div>' +
+              '<b>' + p.name + '</b><br>' +
+              '<small>' + (p.alive ? '🟢 Operacional' : '🔴 Ejetado/Eliminado') + '</small><br>' +
+              factionBadge +
+            '</div>';
           }).join('');
         }
 
-        // --- PAINEL DE AÇÕES ---
         function renderNightActions(players) {
           const panel = document.getElementById('actionPanel');
           panel.innerHTML = '<p><b>Fase Noturna Ativa:</b> Realize sua ação secreta de bordo.</p>';
@@ -426,17 +393,17 @@ app.get('/', (req, res) => {
           if (myPlayerData.faction === 'ZUNK') {
             panel.innerHTML += '<p>Selecione o Rimk a ser desintegrado:</p>';
             aliveTargets.forEach(t => {
-              panel.innerHTML += \`<button onclick="sendNightAction('ZUNK_KILL', '\${t.id}')">\${t.name}</button> \`;
+              panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">' + t.name + '</button> ';
             });
           } else if (myPlayerData.role === 'SHIELD_ENGINEER') {
             panel.innerHTML += '<p>Selecione um tripulante para proteger com o Escudo:</p>';
             players.forEach(t => {
-              if(t.alive) panel.innerHTML += \`<button onclick="sendNightAction('SHIELD_PROTECT', '\${t.id}')">\${t.name}</button> \`;
+              if(t.alive) panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">' + t.name + '</button> ';
             });
           } else if (myPlayerData.role === 'BIOLOGIST') {
             panel.innerHTML += '<p>Selecione um tripulante para escanear o DNA:</p>';
             aliveTargets.forEach(t => {
-              panel.innerHTML += \`<button onclick="sendNightAction('BIOLOGIST_SCAN', '\${t.id}')">\${t.name}</button> \`;
+              panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">' + t.name + '</button> ';
             });
           } else {
             panel.innerHTML += '<p>Tripulante comum: Permaneça em silêncio aguardando o fim do Eclipse...</p>';
@@ -455,18 +422,18 @@ app.get('/', (req, res) => {
 
           const aliveTargets = players.filter(p => p.alive);
           aliveTargets.forEach(t => {
-            panel.innerHTML += \`<button onclick="sendVote('\${t.id}')">Ejetar \${t.name}</button> \`;
+            panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + t.name + '</button> ';
           });
           panel.innerHTML += '<br><br><button style="background:#665500" onclick="sendVote(\'SKIP\')">Abster / Pular Voto</button>';
         }
 
         function sendNightAction(actionType, targetId) {
-          socket.emit('submitNightAction', { actionType, targetId });
+          socket.emit('submitNightAction', { actionType: actionType, targetId: targetId });
           document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Ação enviada com sucesso ao servidor central!</p>';
         }
 
         function sendVote(targetId) {
-          socket.emit('submitVote', { targetId });
+          socket.emit('submitVote', { targetId: targetId });
           document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Seu voto de ejeção foi computado!</p>';
         }
 
@@ -479,11 +446,11 @@ app.get('/', (req, res) => {
           }
         }
 
-        function addChatMessage(sender, text, type = 'normal') {
+        function addChatMessage(sender, text, type) {
           const box = document.getElementById('chatBox');
           const msgDiv = document.createElement('div');
-          msgDiv.className = 'chat-msg ' + type;
-          msgDiv.innerHTML = \`<b>[\${sender}]:</b> \${text}\`;
+          msgDiv.className = 'chat-msg ' + (type || 'normal');
+          msgDiv.innerHTML = '<b>[' + sender + ']:</b> ' + text;
           box.appendChild(msgDiv);
           box.scrollTop = box.scrollHeight;
         }
@@ -493,7 +460,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// --- LÓGICA DE WEBSOCKETS NO BACKEND ---
+// --- LÓGICA DE WEBSOCKETS ---
 io.on('connection', (socket) => {
 
   socket.on('joinGame', ({ name, avatar }) => {
@@ -549,7 +516,7 @@ io.on('connection', (socket) => {
     game.state = 'DIA';
     game.votes = {};
     game.skipDebateVotes.clear();
-    game.timeLeft = 300; // Reset para 5 minutos (300 segundos)
+    game.timeLeft = 300;
 
     io.emit('startDay', {
       killedPlayer: killedPlayerName,
@@ -559,7 +526,6 @@ io.on('connection', (socket) => {
     io.emit('updateSkipCount', 0);
     io.emit('timerUpdate', game.timeLeft);
 
-    // Inicia Cronômetro Regressivo de 5 minutos
     clearInterval(game.timer);
     game.timer = setInterval(() => {
       game.timeLeft -= 1;
@@ -567,7 +533,7 @@ io.on('connection', (socket) => {
 
       if (game.timeLeft <= 0) {
         clearInterval(game.timer);
-        resolveVotes(); // Encerra o tempo e computa os votos automaticamente
+        resolveVotes();
       }
     }, 1000);
   }
@@ -585,7 +551,6 @@ io.on('connection', (socket) => {
       socket.emit('scanResult', { targetName: target ? target.name : 'Desconhecido', faction: target ? target.faction : 'N/A' });
     }
 
-    // Processa os resultados da noite
     let killedId = null;
     if (game.nightActions.zunkTarget && game.nightActions.zunkTarget !== game.nightActions.shieldTarget) {
       killedId = game.nightActions.zunkTarget;
@@ -607,7 +572,6 @@ io.on('connection', (socket) => {
     game.votes[socket.id] = targetId;
     const alivePlayers = Object.values(game.players).filter(p => p.alive);
 
-    // Se todos os vivos votaram, encerra o dia imediatamente
     if (Object.keys(game.votes).length >= alivePlayers.length) {
       clearInterval(game.timer);
       resolveVotes();
@@ -623,7 +587,6 @@ io.on('connection', (socket) => {
 
     io.emit('updateSkipCount', game.skipDebateVotes.size);
 
-    // Se a maioria simples dos vivos concordar em pular, encerra o debate na hora
     if (game.skipDebateVotes.size >= Math.ceil(alivePlayers.length / 2)) {
       clearInterval(game.timer);
       io.emit('chatMessage', { sender: 'SISTEMA', text: 'A maioria dos tripulantes votou para encerrar o debate antecipadamente!', type: 'system' });
