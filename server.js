@@ -8,6 +8,7 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
+// Armazenamento de Salas
 const rooms = {};
 
 function generateRoomCode() {
@@ -69,20 +70,20 @@ app.get('/', (req, res) => {
         h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px var(--matrix-green); margin: 5px 0; }
         
         .container { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 15px; }
-        .panel { background: var(--card-bg); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.15); }
+        .panel { background: var(--card-bg); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 20px; box-shadow: 0 0 15px rgba(0, 255, 102, 0.15); }
         
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
         .player-card { background: #050d0f; border: 1px solid #005522; border-radius: 8px; padding: 10px; text-align: center; position: relative; }
         .player-card.alive { border-color: var(--matrix-green); box-shadow: 0 0 8px rgba(0, 255, 102, 0.2); }
         .player-card.dead { border-color: var(--alert-red); opacity: 0.6; filter: grayscale(80%); }
         
-        .avatar-box { width: 90px; height: 90px; margin: 0 auto 8px auto; background: #020506; border-radius: 50%; border: 1px solid var(--matrix-green); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .avatar-box svg { width: 80px; height: 80px; }
+        .avatar-box { width: 100px; height: 100px; margin: 0 auto 8px auto; background: #020506; border-radius: 50%; border: 1px solid var(--matrix-green); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .avatar-box svg { width: 90px; height: 90px; }
 
-        .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
+        .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 10px 0; }
         select, input[type="text"], input[type="number"] { background: #001100; border: 1px solid var(--matrix-green); color: var(--matrix-green); padding: 10px; width: 100%; border-radius: 4px; font-size: 1em; }
         
-        button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 12px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; font-size: 1.1em; }
+        button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 12px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; font-size: 1em; }
         button:hover { background: var(--matrix-green); color: #000; box-shadow: 0 0 12px var(--matrix-green); }
         
         .code-display { font-size: 2.2em; color: #ffff00; text-shadow: 0 0 12px #ffff00; letter-spacing: 5px; font-weight: bold; }
@@ -100,8 +101,8 @@ app.get('/', (req, res) => {
         .badge-rimk { background: #224400; color: #aaff00; border: 1px solid #aaff00; }
         .badge-zunk { background: #444444; color: #ffffff; border: 1px solid #ffffff; }
 
-        .action-menu { display: flex; gap: 15px; margin-bottom: 20px; }
-        .action-menu button { flex: 1; padding: 15px; font-size: 1.2em; background: #002211; border: 2px solid var(--matrix-green); }
+        .action-menu { display: flex; gap: 15px; margin-top: 20px; }
+        .action-menu button { flex: 1; padding: 15px; font-size: 1.1em; background: #002211; border: 2px solid var(--matrix-green); }
         .action-menu button:hover, .action-menu button.active { background: var(--matrix-green); color: #000; }
         
         .hidden-form { display: none; background: #020805; padding: 20px; border: 1px dashed var(--matrix-green); border-radius: 8px; margin-top: 15px; }
@@ -110,17 +111,17 @@ app.get('/', (req, res) => {
     <body>
       <div class="container">
         <div style="text-align: center;">
-          <h1>🛸 ESTAÇÃO ALPHA 🛸</h1>
+          <h1>🛸 ESTAÇÃO ALPHA: RIMKS VS ZUNKS 🛸</h1>
           <p style="color: #00aa44; margin: 0;">SISTEMA DE SEGURANÇA E DEDUÇÃO EMBARCADO</p>
         </div>
 
-        <!-- TELA 1: CADASTRO E NAVEGAÇÃO PROGRESSIVA -->
+        <!-- TELA 1: CUSTOMIZAÇÃO DO TRIPULANTE & MENU -->
         <div id="setupView" class="panel">
-          <h3>[ 1. REGISTRO DE TRIPULANTE ]</h3>
+          <h3>[ 1. IDENTIFICAÇÃO DO TRIPULANTE ]</h3>
           <div style="display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: center;">
             <div style="text-align: center;">
               <div class="avatar-box" id="avatarPreview"></div>
-              <small>Prévia</small>
+              <small style="color:#00ff66;">Pele Rimk Padrão</small>
             </div>
             <div>
               <label>Nome do Tripulante:</label>
@@ -128,35 +129,31 @@ app.get('/', (req, res) => {
               
               <div class="customizer-grid">
                 <div>
-                  <label>Pele:</label>
-                  <select id="optSkin" onchange="updatePreview()">
-                    <option value="#55aa66">Grey Esverdeado</option>
-                    <option value="#88bb44">Grey Amarelado</option>
-                    <option value="#dddddd">Grey Pálido</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Bigode:</label>
+                  <label>Estilo Bigode:</label>
                   <select id="optMoustache" onchange="updatePreview()">
-                    <option value="none">Nenhum</option>
-                    <option value="classic">Clássico</option>
-                    <option value="handlebar">Imperial</option>
+                    <option value="classic">Clássico Moustache</option>
+                    <option value="handlebar">Imperial Galáctico</option>
+                    <option value="pencil">Fino Elegante</option>
+                    <option value="none">Sem Bigode</option>
                   </select>
                 </div>
                 <div>
-                  <label>Óculos:</label>
+                  <label>Acessório Olhos:</label>
                   <select id="optGlasses" onchange="updatePreview()">
                     <option value="none">Nenhum</option>
-                    <option value="visor">Visor Cyber</option>
-                    <option value="monocle">Monóculo</option>
+                    <option value="visor">Visor Cyberpunk</option>
+                    <option value="monocle">Monóculo Bio</option>
+                    <option value="sunglasses">Óculos Espaciais</option>
                   </select>
                 </div>
                 <div>
-                  <label>Chapéu:</label>
+                  <label>Acessório Cabeça:</label>
                   <select id="optHat" onchange="updatePreview()">
                     <option value="none">Nenhum</option>
-                    <option value="cap">Quepe Oficial</option>
-                    <option value="antenna">Antena</option>
+                    <option value="cap">Quepe de Oficial</option>
+                    <option value="antenna">Antena Espacial</option>
+                    <option value="punk">Cabelo Punk Sci-Fi</option>
+                    <option value="helmet">Capacete Espacial</option>
                   </select>
                 </div>
               </div>
@@ -165,19 +162,18 @@ app.get('/', (req, res) => {
 
           <hr style="border-color: #003311; margin: 25px 0;">
 
-          <h3>[ 2. ACESSO À ESTAÇÃO ]</h3>
-          <!-- Botões Principais -->
+          <h3>[ 2. MODO DE ENTRADA ]</h3>
           <div class="action-menu">
-            <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR SALA (HOST)</button>
+            <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
             <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
           </div>
 
-          <!-- Formulário Oculto: CONFIGURAR SALA -->
+          <!-- PARÂMETROS DO HOST -->
           <div id="formCreate" class="hidden-form">
-            <h4 style="margin-top:0;">⚙️️ PARÂMETROS DA NOVA PARTIDA</h4>
+            <h4 style="margin-top:0;">⚙ PARÂMETROS DA NOVA PARTIDA</h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
               <div>
-                <label>Máximo de Jogadores:</label>
+                <label>Quantidade de Jogadores:</label>
                 <select id="maxPlayersInput">
                   <option value="5">5 Jogadores</option>
                   <option value="6">6 Jogadores</option>
@@ -189,28 +185,27 @@ app.get('/', (req, res) => {
                 <input type="number" id="debateTimeInput" value="300" min="60" max="600">
               </div>
             </div>
-            <p style="font-size: 0.9em; color: #00aa44;">* Após gerar a sala, você receberá um código para enviar aos outros jogadores.</p>
-            <button onclick="createRoom()" style="width: 100%; background: #005522;">GERAR CÓDIGO DA SALA</button>
+            <button onclick="createRoom()" style="width: 100%; background: #006622;">GERAR CÓDIGO DA SALA E ABRIR FILA</button>
           </div>
 
-          <!-- Formulário Oculto: ENTRAR NA SALA -->
+          <!-- ENTRAR COM CÓDIGO -->
           <div id="formJoin" class="hidden-form">
-            <h4 style="margin-top:0;">📡 INSERIR CÓDIGO DE ACESSO</h4>
+            <h4 style="margin-top:0;">📡 INSERIR CÓDIGO DA SALA</h4>
             <label>Código da Sala (4 Dígitos):</label>
             <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; font-size: 1.5em; text-align: center; letter-spacing: 5px; margin: 10px 0;">
-            <button onclick="joinRoom()" style="width: 100%; background: #003366; border-color: #0088cc;">CONECTAR À FILA</button>
+            <button onclick="joinRoom()" style="width: 100%; background: #003366; border-color: #0088cc;">CONECTAR À FILA DA SALA</button>
           </div>
         </div>
 
-        <!-- TELA 2: FILA DE ESPERA (LOBBY) -->
+        <!-- TELA 2: FILA DE ESPERA DA SALA -->
         <div id="lobbyView" class="panel" style="display:none;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
               <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
-              <p style="color:#00ffcc; margin: 0;">Envie este código para os tripulantes entrarem na fila!</p>
+              <p style="color:#00ffcc; margin: 0;">Compartilhe este código para outros entrarem na fila!</p>
             </div>
             <div>
-              <h4>NA FILA: <span id="queueCount">0 / 0</span></h4>
+              <h4>TRIPULANTES NA FILA: <span id="queueCount">0 / 0</span></h4>
             </div>
           </div>
 
@@ -219,7 +214,7 @@ app.get('/', (req, res) => {
           <div id="lobbyQueueGrid" class="cards-grid"></div>
 
           <div id="hostControls" style="margin-top: 20px; display: none;">
-            <button onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (SOMENTE HOST)</button>
+            <button onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (COMANDO DO HOST)</button>
           </div>
         </div>
 
@@ -243,7 +238,7 @@ app.get('/', (req, res) => {
                 <div id="actionPanel"><p>Aguardando...</p></div>
                 <div id="skipDebateBox" style="margin-top: 10px; display: none;">
                   <button onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
-                    ⚡ AVANÇAR DEBATE (<span id="skipCount">0</span> Votos)
+                    ⚡ VOTAR PARA AVANÇAR DEBATE (<span id="skipCount">0</span> Votos)
                   </button>
                 </div>
               </div>
@@ -267,7 +262,6 @@ app.get('/', (req, res) => {
         let myPlayerData = {};
         let currentRoomCode = null;
 
-        // --- SISTEMA DE UI PROGRESSIVA ---
         function toggleForm(type) {
           document.getElementById('btnMenuCreate').classList.remove('active');
           document.getElementById('btnMenuJoin').classList.remove('active');
@@ -283,20 +277,39 @@ app.get('/', (req, res) => {
           }
         }
 
-        // --- AVATAR E CORE ---
+        // GERADOR SVG DO AVATAR (Pele Rimk Fixo: #88c242)
         function generateAvatarSVG(c) {
           if (!c) c = {};
-          const skin = c.skin || '#55aa66';
-          let m = '', g = '', h = '';
+          const skin = '#88c242'; // Cor de pele Rimk Verde-Amarelada Fixa
           
-          if (c.moustache === 'classic') m = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
-          else if (c.moustache === 'handlebar') m = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
+          let m = '';
+          if (c.moustache === 'classic') {
+            m = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
+          } else if (c.moustache === 'handlebar') {
+            m = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
+          } else if (c.moustache === 'pencil') {
+            m = '<rect x="38" y="60" width="24" height="3" rx="1" fill="#111" />';
+          }
 
-          if (c.glasses === 'visor') g = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8"/>';
-          else if (c.glasses === 'monocle') g = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
+          let g = '';
+          if (c.glasses === 'visor') {
+            g = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8"/>';
+          } else if (c.glasses === 'monocle') {
+            g = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
+          } else if (c.glasses === 'sunglasses') {
+            g = '<polygon points="20,38 48,38 42,52 24,52" fill="#111" stroke="#00ff66"/><polygon points="52,38 80,38 76,52 58,52" fill="#111" stroke="#00ff66"/><line x1="48" y1="42" x2="52" y2="42" stroke="#00ff66" stroke-width="2"/>';
+          }
 
-          if (c.hat === 'cap') h = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
-          else if (c.hat === 'antenna') h = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
+          let h = '';
+          if (c.hat === 'cap') {
+            h = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
+          } else if (c.hat === 'antenna') {
+            h = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
+          } else if (c.hat === 'punk') {
+            h = '<polygon points="50,2 45,20 55,20" fill="#ff0055"/><polygon points="35,8 33,22 42,22" fill="#ff0055"/><polygon points="65,8 67,22 58,22" fill="#ff0055"/>';
+          } else if (c.hat === 'helmet') {
+            h = '<path d="M 15 30 Q 50 -5 85 30 Q 88 50 85 70 Q 50 95 15 70 Z" fill="none" stroke="#00ff66" stroke-width="3" opacity="0.6"/>';
+          }
 
           return '<svg viewBox="0 0 100 100">' +
             '<path d="M 50 15 C 20 15 15 40 25 65 C 32 82 45 92 50 92 C 55 92 68 82 75 65 C 85 40 80 15 50 15 Z" fill="' + skin + '" />' +
@@ -304,21 +317,26 @@ app.get('/', (req, res) => {
             '<ellipse cx="65" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(12 65 45)"/>' +
             '<ellipse cx="33" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
             '<ellipse cx="63" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
+            '<circle cx="48" cy="56" r="1" fill="#222"/><circle cx="52" cy="56" r="1" fill="#222"/>' +
             m + g + h +
           '</svg>';
         }
 
         function getCustomizationFromUI() {
           return {
-            skin: document.getElementById('optSkin').value,
             moustache: document.getElementById('optMoustache').value,
             glasses: document.getElementById('optGlasses').value,
             hat: document.getElementById('optHat').value
           };
         }
 
-        function updatePreview() { document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(getCustomizationFromUI()); }
-        window.onload = () => { updatePreview(); };
+        function updatePreview() {
+          document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(getCustomizationFromUI());
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+          updatePreview();
+        });
 
         function createRoom() {
           const name = document.getElementById('username').value.trim();
@@ -357,7 +375,7 @@ app.get('/', (req, res) => {
           document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(p => 
             '<div class="player-card alive">' +
               '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
-              '<b>' + p.name + '</b><br><small>' + (p.isHost ? '👑 HOST' : '🟢 Fila') + '</small>' +
+              '<b>' + p.name + '</b><br><small>' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
             '</div>'
           ).join('');
         });
@@ -368,7 +386,7 @@ app.get('/', (req, res) => {
           myPlayerData = data;
           document.getElementById('myRole').innerText = data.role;
           document.getElementById('myFaction').innerText = data.faction;
-          addChatMessage('SISTEMA', 'Missão iniciada! Identidades distribuídas.', 'system');
+          addChatMessage('SISTEMA', 'Missão iniciada! Identidades atribuídas.', 'system');
         });
 
         socket.on('startNight', (data) => {
@@ -399,7 +417,7 @@ app.get('/', (req, res) => {
 
         socket.on('ejectionResult', (data) => {
           if (data.ejectedPlayer) addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado! Raça: ' + data.ejectedFaction, 'alert');
-          else addChatMessage('SISTEMA', 'Impasse. Ninguém ejetado.', 'system');
+          else addChatMessage('SISTEMA', 'Impasse na votação. Ninguém ejetado.', 'system');
         });
 
         socket.on('gameOver', (data) => {
@@ -411,9 +429,15 @@ app.get('/', (req, res) => {
           document.getElementById('gameCardsGrid').innerHTML = players.map(p => {
             const status = p.alive ? 'alive' : 'dead';
             let badge = '', display = p.avatar;
+            // Se morreu/foi ejetado, revela a raça real:
             if (!p.alive && p.faction) {
-              display = p.faction === 'RIMK' ? { skin: '#88bb44', moustache: 'classic', glasses: 'none', hat: 'none' } : { skin: '#ffffff', moustache: 'none', glasses: 'none', hat: 'none' };
-              badge = p.faction === 'RIMK' ? '<span class="badge badge-rimk">RIMK</span>' : '<span class="badge badge-zunk">ZUNK</span>';
+              if (p.faction === 'RIMK') {
+                display = { moustache: 'classic', glasses: 'none', hat: 'none' };
+                badge = '<span class="badge badge-rimk">RAÇA: RIMK</span>';
+              } else {
+                // Se for Zunk ejetado, vira Grey Pálido sem bigode
+                badge = '<span class="badge badge-zunk">INFILTRADO: ZUNK</span>';
+              }
             }
             return '<div class="player-card ' + status + '"><div class="avatar-box">' + generateAvatarSVG(display) + '</div><b>' + p.name + '</b><br>' + badge + '</div>';
           }).join('');
@@ -422,26 +446,26 @@ app.get('/', (req, res) => {
         function renderNightActions(players) {
           const panel = document.getElementById('actionPanel');
           const aliveTargets = players.filter(p => p.id !== socket.id && p.alive);
-          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p>Você foi eliminado.</p>';
+          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p style="color:var(--alert-red)">Você foi eliminado. Modo espectador.</p>';
           
           panel.innerHTML = '<p>Selecione seu alvo:</p>';
           if (myPlayerData.faction === 'ZUNK') aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">Desintegrar ' + t.name + '</button> ');
           else if (myPlayerData.role === 'SHIELD_ENGINEER') players.forEach(t => { if(t.alive) panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">Proteger ' + t.name + '</button> '});
           else if (myPlayerData.role === 'BIOLOGIST') aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">Escanear ' + t.name + '</button> ');
-          else panel.innerHTML = '<p>Permaneça em silêncio no alojamento...</p>';
+          else panel.innerHTML = '<p>Permaneça em silêncio aguardando o fim do Eclipse...</p>';
         }
 
         function renderDayActions(players) {
           const panel = document.getElementById('actionPanel');
-          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p>Você está fora da comunicação.</p>';
+          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p style="color:var(--alert-red)">Sua comunicação foi cortada.</p>';
           
-          panel.innerHTML = '';
-          players.filter(p => p.alive).forEach(t => panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Votar ' + t.name + '</button> ');
-          panel.innerHTML += '<br><br><button onclick="sendVote(\'SKIP\')">Pular Voto</button>';
+          panel.innerHTML = '<p>Escolha em quem votar para ejetar:</p>';
+          players.filter(p => p.alive).forEach(t => panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + t.name + '</button> ');
+          panel.innerHTML += '<br><br><button onclick="sendVote(\'SKIP\')">Abster / Pular Voto</button>';
         }
 
-        function sendNightAction(type, target) { socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p>Ação enviada!</p>'; }
-        function sendVote(target) { socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p>Voto computado!</p>'; }
+        function sendNightAction(type, target) { socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Ação enviada!</p>'; }
+        function sendVote(target) { socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Voto computado!</p>'; }
         
         function sendChat() {
           const txt = document.getElementById('chatInput').value.trim();
@@ -459,7 +483,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// --- LÓGICA DE SERVIDOR ---
+// --- BACKEND WEBSOCKETS ---
 io.on('connection', (socket) => {
 
   socket.on('createRoom', ({ name, avatar, maxPlayers, debateTime }) => {
@@ -470,7 +494,7 @@ io.on('connection', (socket) => {
 
     rooms[roomCode] = {
       code: roomCode, hostId: socket.id, maxPlayers: limit,
-      debateTime: debateTime || 300, // NOVO PARÂMETRO
+      debateTime: debateTime || 300,
       state: 'LOBBY', players: {}, nightActions: {}, votes: {}, skipDebateVotes: new Set(),
       timer: null, timeLeft: 0, turn: 1
     };
@@ -484,7 +508,7 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
-    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida em andamento.');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já em andamento.');
     if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia!');
 
     room.players[socket.id] = { id: socket.id, name: name, avatar: avatar, isHost: false, alive: true };
@@ -519,7 +543,7 @@ io.on('connection', (socket) => {
     if (!room) return;
     room.state = 'DIA';
     room.votes = {}; room.skipDebateVotes.clear();
-    room.timeLeft = room.debateTime; // USA O TEMPO CONFIGURADO PELO HOST
+    room.timeLeft = room.debateTime;
 
     io.to(roomCode).emit('startDay', { killedPlayer, playersList: Object.values(room.players) });
     io.to(roomCode).emit('updateSkipCount', 0);
