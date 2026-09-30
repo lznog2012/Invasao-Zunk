@@ -225,30 +225,38 @@
           <label>Nome do Tripulante:</label>
           <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom: 10px;">
           
-          <div class="customizer-grid">
+<div class="customizer-grid">
             <div>
               <label>Pelo Facial / Bigode:</label>
               <select id="optFacialHair" onchange="updatePreview()">
                 <option value="none">Sem Pelo Facial</option>
-                <option value="11.png">Bigode Clássico Rimk (Grosso)</option>
+                <option value="11.png">Bigode Clássico Rimk</option>
                 <option value="12.png">Bigode Fino</option>
                 <option value="13.png">Barba Volumosa</option>
+                <!-- Se tiver mais ficheiros de barba/bigode, adicione aqui -->
               </select>
             </div>
+
             <div>
-              <label>Acessório de Olhos:</label>
+              <label>Acessório de Olhos / Óculos:</label>
               <select id="optEyewear" onchange="updatePreview()">
                 <option value="none">Nenhum</option>
-                <option value="7.png">Monóculo Dourado</option>
+                <option value="6.png">Óculos Estilo 1 (6.png)</option>
+                <option value="7.png">Monóculo Dourado (7.png)</option>
+                <option value="8.png">Óculos Escuros (8.png)</option>
+                <option value="9.png">Óculos Futuristas (9.png)</option>
+                <option value="10.png">Visor / Óculos 5 (10.png)</option>
               </select>
             </div>
+
             <div>
-              <label>Capacete / Traje Espacial:</label>
+              <label>Capacete / Cabeça:</label>
               <select id="optHelmet" onchange="updatePreview()">
                 <option value="none">Nenhum</option>
                 <option value="17.png">Traje de Astronauta</option>
               </select>
             </div>
+
             <div>
               <label>Roupa / Traje:</label>
               <select id="optSuit" onchange="updatePreview()">
@@ -258,6 +266,7 @@
                 <option value="16.png">Blusa Vermelha</option>
               </select>
             </div>
+
             <div>
               <label>Fundo do Cartão:</label>
               <select id="optBg" onchange="updatePreview()">
@@ -268,8 +277,6 @@
               </select>
             </div>
           </div>
-        </div>
-      </div>
 
       <hr style="border-color: #003311; margin: 25px 0;">
 
