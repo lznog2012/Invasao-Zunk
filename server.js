@@ -1,274 +1,353 @@
 const express = require('express');
 const http = require('http');
-const path = require('path');
 const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 3000;
+app.use(express.static('public'));
 
-// Servir arquivos da pasta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+// Armazenamento em memória das salas
 const rooms = {};
 
+// Gera código aleatório de 4 letras
 function generateRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 4; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-}
-
-const ROLE_MAP = {
-  ZUNK: { name: 'Infiltrado Zunk', faction: 'ZUNK' },
-  BIOLOGIST: { name: 'Biólogo', faction: 'RIMK' },
-  SHIELD_ENGINEER: { name: 'Engenheiro de Escudo', faction: 'RIMK' },
-  RIMK_CREW: { name: 'Tripulante Rimk', faction: 'RIMK' }
-};
-
-function assignRoles(room) {
-  const playerIds = Object.keys(room.players);
-  const count = playerIds.length;
-  let rolesPool = [];
-
-  if (count <= 5) {
-    const specialRole = Math.random() < 0.5 ? 'BIOLOGIST' : 'SHIELD_ENGINEER';
-    rolesPool = ['ZUNK', specialRole, 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
-  } else if (count === 6) {
-    rolesPool = ['ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
-  } else {
-    rolesPool = ['ZUNK', 'ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
-  }
-
-  for (let i = rolesPool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [rolesPool[i], rolesPool[j]] = [rolesPool[j], rolesPool[i]];
-  }
-
-  playerIds.forEach((id, index) => {
-    const roleKey = rolesPool[index] || 'RIMK_CREW';
-    const roleInfo = ROLE_MAP[roleKey];
-    room.players[id].roleKey = roleKey;
-    room.players[id].role = roleInfo.name;
-    room.players[id].faction = roleInfo.faction;
-    room.players[id].alive = true;
-  });
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
 
 io.on('connection', (socket) => {
+  console.log('Novo jogador conectado:', socket.id);
 
+  // 1. CRIAR SALA
   socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes }) => {
-    let roomCode = generateRoomCode();
-    while (rooms[roomCode]) { roomCode = generateRoomCode(); }
-
-    const limit = Math.min(Math.max(parseInt(maxPlayers) || 5, 5), 7);
-    const debateTimeInSeconds = (parseInt(debateMinutes) || 3) * 60;
-
+    const roomCode = generateRoomCode();
     rooms[roomCode] = {
       code: roomCode,
       hostId: socket.id,
-      maxPlayers: limit,
-      debateTime: debateTimeInSeconds,
-      state: 'LOBBY',
-      players: {},
-      nightActions: {},
-      votes: {},
-      skipDebateVotes: new Set(),
-      timer: null,
-      timeLeft: 0,
-      turn: 1
+      maxPlayers: parseInt(maxPlayers) || 5,
+      debateMinutes: parseInt(debateMinutes) || 3,
+      state: 'LOBBY', // LOBBY, NIGHT, DAY
+      turn: 0,
+      players: [],
+      nightActions: {}, // Armazena ações de cada um na noite
+      votes: {},        // Armazena votos de ejeção no dia
+      timer: null
     };
 
-    rooms[roomCode].players[socket.id] = { id: socket.id, name, avatar, isHost: true, alive: true };
+    const player = {
+      id: socket.id,
+      name,
+      avatar,
+      isHost: true,
+      alive: true,
+      role: null,
+      faction: null
+    };
+
+    rooms[roomCode].players.push(player);
     socket.join(roomCode);
+
     socket.emit('roomJoined', { roomCode, isHost: true });
-    io.to(roomCode).emit('updateQueue', { players: Object.values(rooms[roomCode].players), maxPlayers: limit });
+    io.to(roomCode).emit('updateQueue', {
+      players: rooms[roomCode].players,
+      maxPlayers: rooms[roomCode].maxPlayers
+    });
   });
 
+  // 2. ENTRAR EM SALA
   socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
-    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já iniciada nesta sala.');
-    if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'A sala já está cheia!');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'A partida já começou!');
+    if (room.players.length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia!');
 
-    room.players[socket.id] = { id: socket.id, name, avatar, isHost: false, alive: true };
+    const player = {
+      id: socket.id,
+      name,
+      avatar,
+      isHost: false,
+      alive: true,
+      role: null,
+      faction: null
+    };
+
+    room.players.push(player);
     socket.join(roomCode);
+
     socket.emit('roomJoined', { roomCode, isHost: false });
-    io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
+    io.to(roomCode).emit('updateQueue', {
+      players: room.players,
+      maxPlayers: room.maxPlayers
+    });
   });
 
+  // 3. INICIAR PARTIDA E DISTRIBUIR PAPÉIS
   socket.on('startGame', ({ roomCode }) => {
     const room = rooms[roomCode];
     if (!room || room.hostId !== socket.id) return;
 
-    assignRoles(room);
-    room.state = 'NOITE';
+    // Sorteio de Funções
+    const rolesPool = ['ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK', 'RIMK', 'RIMK', 'RIMK'];
+    const shuffledRoles = rolesPool.sort(() => 0.5 - Math.random());
 
-    Object.keys(room.players).forEach(id => {
-      io.to(id).emit('gameStarted', {
-        roleKey: room.players[id].roleKey,
-        role: room.players[id].role,
-        faction: room.players[id].faction,
-        playersList: Object.values(room.players)
+    room.players.forEach((p, idx) => {
+      const assigned = shuffledRoles[idx] || 'RIMK';
+      p.role = assigned;
+      p.faction = (assigned === 'ZUNK') ? 'ZUNK' : 'RIMK';
+
+      // Notifica individualmente cada jogador sobre sua função
+      io.to(p.id).emit('gameStarted', {
+        role: getRoleDisplayName(p.role),
+        roleKey: p.role,
+        faction: p.faction
       });
     });
+
+    // Começa a primeira noite
     startNightPhase(roomCode);
   });
 
-  function startNightPhase(roomCode) {
+  // 4. REGISTRAR AÇÕES NOTURNAS
+  socket.on('nightAction', ({ roomCode, action, targetId }) => {
     const room = rooms[roomCode];
-    if (!room) return;
-    room.state = 'NOITE';
-    clearInterval(room.timer);
-    io.to(roomCode).emit('startNight', { turn: room.turn, playersList: Object.values(room.players) });
-  }
+    if (!room || room.state !== 'NIGHT') return;
 
-  function startDayPhase(roomCode, killedPlayer) {
-    const room = rooms[roomCode];
-    if (!room) return;
-    room.state = 'DIA';
-    room.votes = {};
-    room.skipDebateVotes.clear();
-    room.timeLeft = room.debateTime;
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player || !player.alive) return;
 
-    io.to(roomCode).emit('startDay', { killedPlayer, playersList: Object.values(room.players) });
-    io.to(roomCode).emit('updateSkipCount', 0);
-    io.to(roomCode).emit('timerUpdate', room.timeLeft);
-
-    clearInterval(room.timer);
-    room.timer = setInterval(() => {
-      room.timeLeft--;
-      io.to(roomCode).emit('timerUpdate', room.timeLeft);
-      if (room.timeLeft <= 0) {
-        clearInterval(room.timer);
-        resolveVotes(roomCode);
+    // Trata ação do Biólogo imediatamente em privado
+    if (action === 'scan') {
+      const target = room.players.find(p => p.id === targetId);
+      if (target) {
+        socket.emit('scanResult', {
+          targetName: target.name,
+          faction: target.faction
+        });
       }
-    }, 1000);
-  }
-
-  socket.on('submitNightAction', ({ roomCode, actionType, targetId }) => {
-    const room = rooms[roomCode];
-    const p = room?.players[socket.id];
-    if (!p || !p.alive || room.state !== 'NOITE') return;
-
-    if (actionType === 'ZUNK_KILL' && p.faction === 'ZUNK') room.nightActions.zunk = targetId;
-    else if (actionType === 'SHIELD_PROTECT' && p.roleKey === 'SHIELD_ENGINEER') room.nightActions.shield = targetId;
-    else if (actionType === 'BIOLOGIST_SCAN' && p.roleKey === 'BIOLOGIST') {
-      const target = room.players[targetId];
-      const facName = target?.faction === 'ZUNK' ? 'INFILTRADO ZUNK' : 'RIMK';
-      socket.emit('scanResult', { targetName: target?.name, faction: facName });
+    } else {
+      // Salva ações de Eliminar (Zunk) ou Proteger (Engenheiro)
+      room.nightActions[action] = targetId;
     }
-
-    let kId = (room.nightActions.zunk && room.nightActions.zunk !== room.nightActions.shield) ? room.nightActions.zunk : null;
-    if (kId && room.players[kId]) room.players[kId].alive = false;
-
-    room.nightActions = {};
-    if (checkVictory(roomCode)) return;
-    startDayPhase(roomCode, kId ? room.players[kId].name : null);
   });
 
-  socket.on('submitVote', ({ roomCode, targetId }) => {
+  // 5. REGISTRAR VOTOS DO DIA (EJEÇÃO)
+  socket.on('voteEject', ({ roomCode, targetId }) => {
     const room = rooms[roomCode];
-    if (!room || room.state !== 'DIA' || !room.players[socket.id]?.alive) return;
+    if (!room || room.state !== 'DAY') return;
+
     room.votes[socket.id] = targetId;
-    if (Object.keys(room.votes).length >= Object.values(room.players).filter(p => p.alive).length) {
+
+    // Se todos os vivos votaram, encerra o dia imediatamente
+    const alivePlayers = room.players.filter(p => p.alive);
+    if (Object.keys(room.votes).length >= alivePlayers.length) {
       clearInterval(room.timer);
-      resolveVotes(roomCode);
+      resolveDayPhase(roomCode);
     }
   });
 
-  socket.on('voteSkipDebate', ({ roomCode }) => {
-    const room = rooms[roomCode];
-    if (!room || room.state !== 'DIA' || !room.players[socket.id]?.alive) return;
-    room.skipDebateVotes.add(socket.id);
-    io.to(roomCode).emit('updateSkipCount', room.skipDebateVotes.size);
-    if (room.skipDebateVotes.size >= Math.ceil(Object.values(room.players).filter(p => p.alive).length / 2)) {
-      clearInterval(room.timer);
-      io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'Discussão encerrada por maioria!', type: 'system', channel: 'alive' });
-      resolveVotes(roomCode);
-    }
-  });
-
-  socket.on('sendChatMessage', ({ roomCode, text }) => {
+  // CHAT DE BORDO
+  socket.on('sendChat', ({ roomCode, text }) => {
     const room = rooms[roomCode];
     if (!room) return;
-    const p = room.players[socket.id];
-    if (!p) return;
 
-    if (!p.alive) {
-      Object.values(room.players).forEach(player => {
-        if (!player.alive) {
-          io.to(player.id).emit('chatMessage', { sender: p.name, text, type: 'dead', channel: 'dead' });
-        }
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player) return;
+
+    if (room.state === 'NIGHT') {
+      return socket.emit('errorMsg', 'Comunicação bloqueada durante o Eclipse!');
+    }
+
+    if (!player.alive) {
+      // Chat dos Mortos (Frequência Fantasma)
+      const deadPlayers = room.players.filter(p => !p.alive);
+      deadPlayers.forEach(dp => {
+        io.to(dp.id).emit('chatMessage', { sender: player.name, text, channel: 'ghost' });
       });
     } else {
-      if (room.state !== 'DIA') return;
-      io.to(roomCode).emit('chatMessage', { sender: p.name, text, type: 'normal', channel: 'alive' });
+      // Chat dos Vivos
+      io.to(roomCode).emit('chatMessage', { sender: player.name, text, channel: 'global' });
     }
   });
 
-  function resolveVotes(roomCode) {
-    const room = rooms[roomCode];
-    if (!room) return;
-    const counts = {};
-    Object.values(room.votes).forEach(t => { if (t !== 'SKIP') counts[t] = (counts[t] || 0) + 1; });
-
-    let max = 0, eId = null, tie = false;
-    for (const [t, c] of Object.entries(counts)) {
-      if (c > max) { max = c; eId = t; tie = false; }
-      else if (c === max) tie = true;
-    }
-
-    if (!tie && eId && room.players[eId]) room.players[eId].alive = false;
-
-    const ejectedPlayer = (!tie && eId) ? room.players[eId] : null;
-    const ejectedFactionName = ejectedPlayer ? (ejectedPlayer.faction === 'ZUNK' ? 'INFILTRADO ZUNK' : 'RIMK') : null;
-
-    io.to(roomCode).emit('ejectionResult', {
-      ejectedPlayer: ejectedPlayer ? ejectedPlayer.name : null,
-      ejectedFaction: ejectedFactionName
-    });
-
-    if (checkVictory(roomCode)) return;
-    room.turn++;
-    setTimeout(() => startNightPhase(roomCode), 4000);
-  }
-
-  function checkVictory(code) {
-    const room = rooms[code];
-    const alv = Object.values(room.players).filter(p => p.alive);
-    const z = alv.filter(p => p.faction === 'ZUNK').length;
-    const r = alv.filter(p => p.faction === 'RIMK').length;
-
-    if (z === 0) {
-      io.to(code).emit('gameOver', { winner: 'OS RIMKS VENCERAM! Todos os Infiltrados Zunks foram ejetados.' });
-      return true;
-    }
-    if (z >= r) {
-      io.to(code).emit('gameOver', { winner: 'OS ZUNKS VENCERAM! A estação Alpha caiu sob controle dos Zunks.' });
-      return true;
-    }
-    return false;
-  }
-
   socket.on('disconnect', () => {
-    for (const code in rooms) {
-      if (rooms[code].players[socket.id]) {
-        delete rooms[code].players[socket.id];
-        if (Object.keys(rooms[code].players).length === 0) delete rooms[code];
-        else io.to(code).emit('updateQueue', { players: Object.values(rooms[code].players), maxPlayers: rooms[code].maxPlayers });
-        break;
-      }
-    }
+    // Limpeza ao desconectar se necessário
   });
 });
 
-server.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+// --- FUNÇÕES DE TRANSIÇÃO DE FASE DA PARTIDA ---
+
+function startNightPhase(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  room.state = 'NIGHT';
+  room.turn += 1;
+  room.nightActions = {};
+
+  io.to(roomCode).emit('startNight', {
+    turn: room.turn,
+    playersList: getPublicPlayersList(room.players)
+  });
+
+  // Timer fixo de 30 segundos para a noite
+  let nightSecondsLeft = 30;
+  clearInterval(room.timer);
+
+  room.timer = setInterval(() => {
+    nightSecondsLeft--;
+    io.to(roomCode).emit('timerUpdate', nightSecondsLeft);
+
+    if (nightSecondsLeft <= 0) {
+      clearInterval(room.timer);
+      resolveNightPhase(roomCode);
+    }
+  }, 1000);
+}
+
+function resolveNightPhase(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  const killedId = room.nightActions['kill'];
+  const shieldedId = room.nightActions['shield'];
+  let killedPlayerName = null;
+
+  // Resolve o ataque do Zunk levando em conta o escudo do Engenheiro
+  if (killedId && killedId !== shieldedId) {
+    const victim = room.players.find(p => p.id === killedId);
+    if (victim) {
+      victim.alive = false;
+      killedPlayerName = victim.name;
+    }
+  }
+
+  // Verifica condição de vitória antes de abrir o dia
+  if (checkGameOver(roomCode)) return;
+
+  startDayPhase(roomCode, killedPlayerName);
+}
+
+function startDayPhase(roomCode, killedPlayerName) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  room.state = 'DAY';
+  room.votes = {};
+
+  io.to(roomCode).emit('startDay', {
+    killedPlayer: killedPlayerName,
+    playersList: getPublicPlayersList(room.players)
+  });
+
+  // Temporizador de discussão configurado pelo Host
+  let daySecondsLeft = (room.debateMinutes || 3) * 60;
+  clearInterval(room.timer);
+
+  room.timer = setInterval(() => {
+    daySecondsLeft--;
+    io.to(roomCode).emit('timerUpdate', daySecondsLeft);
+
+    if (daySecondsLeft <= 0) {
+      clearInterval(room.timer);
+      resolveDayPhase(roomCode);
+    }
+  }, 1000);
+}
+
+function resolveDayPhase(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  // Contagem de Votos
+  const voteCounts = {};
+  Object.values(room.votes).forEach(targetId => {
+    if (targetId && targetId !== 'skip') {
+      voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
+    }
+  });
+
+  let mostVotedId = null;
+  let maxVotes = 0;
+  let tie = false;
+
+  for (const [targetId, count] of Object.entries(voteCounts)) {
+    if (count > maxVotes) {
+      maxVotes = count;
+      mostVotedId = targetId;
+      tie = false;
+    } else if (count === maxVotes) {
+      tie = true;
+    }
+  }
+
+  let ejectedPlayerName = null;
+  let ejectedFaction = null;
+
+  if (mostVotedId && !tie) {
+    const ejected = room.players.find(p => p.id === mostVotedId);
+    if (ejected) {
+      ejected.alive = false;
+      ejectedPlayerName = ejected.name;
+      ejectedFaction = ejected.faction;
+    }
+  }
+
+  io.to(roomCode).emit('ejectionResult', {
+    ejectedPlayer: ejectedPlayerName,
+    ejectedFaction: ejectedFaction
+  });
+
+  // Se o jogo não acabou após a votação, volta para a Noite
+  if (!checkGameOver(roomCode)) {
+    setTimeout(() => {
+      startNightPhase(roomCode);
+    }, 5000);
+  }
+}
+
+function checkGameOver(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return false;
+
+  const aliveZunks = room.players.filter(p => p.alive && p.faction === 'ZUNK').length;
+  const aliveRimks = room.players.filter(p => p.alive && p.faction === 'RIMK').length;
+
+  if (aliveZunks === 0) {
+    io.to(roomCode).emit('gameOver', { winner: '🟢 OS RIMKS VENCERAM! A estação está segura.' });
+    clearInterval(room.timer);
+    return true;
+  }
+
+  if (aliveZunks >= aliveRimks) {
+    io.to(roomCode).emit('gameOver', { winner: '🔴 OS ZUNKS DOMINARAM A ESTAÇÃO!' });
+    clearInterval(room.timer);
+    return true;
+  }
+
+  return false;
+}
+
+function getPublicPlayersList(players) {
+  return players.map(p => ({
+    id: p.id,
+    name: p.name,
+    avatar: p.avatar,
+    alive: p.alive,
+    faction: p.alive ? null : p.faction // Revela facção apenas se estiver morto
+  }));
+}
+
+function getRoleDisplayName(role) {
+  switch (role) {
+    case 'ZUNK': return 'Infiltrado Zunk';
+    case 'BIOLOGIST': return 'Biólogo';
+    case 'SHIELD_ENGINEER': return 'Engenheiro de Escudo';
+    default: return 'Tripulante Rimk';
+  }
+}
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
