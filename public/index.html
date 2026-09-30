@@ -228,50 +228,50 @@
           
           <div class="customizer-grid">
             <div>
-              <label>Bigode:</label>
-              <select id="optMoustache" onchange="updatePreview()">
-                <option value="classic">Moustache Clássico</option>
-                <option value="handlebar">Imperial Galáctico</option>
-                <option value="pencil">Fino Elegante</option>
-                <option value="none">Sem Bigode</option>
+              <label>Pele do Rimk:</label>
+              <select id="optBase" onchange="updatePreview()">
+                <option value="rimk.png">Rimk Verde Clássico</option>
+                <option value="2.png">Rimk Branco Galáctico</option>
               </select>
             </div>
             <div>
-              <label>Acessório Olhos:</label>
-              <select id="optGlasses" onchange="updatePreview()">
+              <label>Pelo Facial / Barba:</label>
+              <select id="optFacialHair" onchange="updatePreview()">
+                <option value="none">Sem Pelo</option>
+                <option value="11.png">Bigode Fino</option>
+                <option value="12.png">Bigode Imperial</option>
+                <option value="13.png">Barba Volumosa</option>
+              </select>
+            </div>
+            <div>
+              <label>Acessório de Olhos:</label>
+              <select id="optEyewear" onchange="updatePreview()">
                 <option value="none">Nenhum</option>
-                <option value="visor">Visor Cyberpunk</option>
-                <option value="monocle">Monóculo Bio</option>
-                <option value="sunglasses">Óculos Espaciais</option>
+                <option value="7.png">Monóculo Dourado</option>
               </select>
             </div>
             <div>
-              <label>Acessório Cabeça:</label>
-              <select id="optHat" onchange="updatePreview()">
+              <label>Capacete / Traje Espacial:</label>
+              <select id="optHelmet" onchange="updatePreview()">
                 <option value="none">Nenhum</option>
-                <option value="cap">Quepe de Oficial</option>
-                <option value="antenna">Antena Espacial</option>
-                <option value="punk">Cabelo Punk Sci-Fi</option>
-                <option value="helmet">Capacete Espacial</option>
+                <option value="17.png">Traje de Astronauta</option>
               </select>
             </div>
             <div>
-              <label>Traje / Roupa:</label>
+              <label>Roupa / Traje:</label>
               <select id="optSuit" onchange="updatePreview()">
-                <option value="space">Traje Espacial</option>
-                <option value="officer">Uniforme de Comando</option>
-                <option value="bio">Jaleco Científico</option>
-                <option value="sci">Robe Sci-Fi</option>
-                <option value="none">Traje Básico</option>
+                <option value="none">Básico</option>
+                <option value="14.png">Suéter Azul</option>
+                <option value="15.png">Jaqueta Espacial</option>
+                <option value="16.png">Blusa Vermelha</option>
               </select>
             </div>
             <div>
               <label>Fundo do Cartão:</label>
               <select id="optBg" onchange="updatePreview()">
-                <option value="space">Espaço Profundo</option>
-                <option value="control">Sala de Comando</option>
-                <option value="greenhouse">Estufa Botânica</option>
-                <option value="reactor">Núcleo do Reator</option>
+                <option value="none">Padrão Escuro</option>
+                <option value="3.jpg">Galáxia Espacial 1</option>
+                <option value="4.jpg">Galáxia Espacial 2</option>
               </select>
             </div>
           </div>
@@ -279,13 +279,7 @@
       </div>
 
       <hr style="border-color: #003311; margin: 25px 0;">
-
-      <h3>[ 2. MODO DE ENTRADA ]</h3>
-      <div class="action-menu">
-        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
-        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
-      </div>
-
+      
       <!-- PARÂMETROS DO HOST -->
       <div id="formCreate" class="hidden-form">
         <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ PARÂMETROS DA PARTIDA</h4>
