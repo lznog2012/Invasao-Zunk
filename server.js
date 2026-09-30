@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 
 const app = express();
@@ -8,7 +9,12 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+// Servir arquivos da pasta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const rooms = {};
 
@@ -198,14 +204,12 @@ io.on('connection', (socket) => {
     if (!p) return;
 
     if (!p.alive) {
-      // Chat dos Mortos
       Object.values(room.players).forEach(player => {
         if (!player.alive) {
           io.to(player.id).emit('chatMessage', { sender: p.name, text, type: 'dead', channel: 'dead' });
         }
       });
     } else {
-      // Chat dos Vivos (Apenas no Dia)
       if (room.state !== 'DIA') return;
       io.to(roomCode).emit('chatMessage', { sender: p.name, text, type: 'normal', channel: 'alive' });
     }
@@ -267,4 +271,4 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => console.log(`Servidor de alta tecnologia rodando na porta ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
