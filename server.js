@@ -8,10 +8,8 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Estudo e Armazenamento de Salas Ativas na Memória do Servidor
 const rooms = {};
 
-// Função auxiliar para gerar códigos de sala únicos (Ex: B8A1)
 function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -21,7 +19,6 @@ function generateRoomCode() {
   return code;
 }
 
-// Algoritmo de Balanceamento Automático de Papéis
 function assignRoles(room) {
   const playerIds = Object.keys(room.players);
   const count = playerIds.length;
@@ -36,7 +33,6 @@ function assignRoles(room) {
     rolesPool = ['ZUNK', 'ZUNK', 'BIOLOGIST', 'SHIELD_ENGINEER', 'RIMK_CREW', 'RIMK_CREW', 'RIMK_CREW'];
   }
 
-  // Embaralhamento de Papéis (Fisher-Yates)
   for (let i = rolesPool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rolesPool[i], rolesPool[j]] = [rolesPool[j], rolesPool[i]];
@@ -50,7 +46,6 @@ function assignRoles(room) {
   });
 }
 
-// --- ENTREGA DO FRONTEND UNIFICADO ---
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -87,7 +82,7 @@ app.get('/', (req, res) => {
         .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
         select, input[type="text"], input[type="number"] { background: #001100; border: 1px solid var(--matrix-green); color: var(--matrix-green); padding: 10px; width: 100%; border-radius: 4px; font-size: 1em; }
         
-        button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 10px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; }
+        button { background: var(--matrix-dark-green); color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 12px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; transition: 0.2s; font-size: 1.1em; }
         button:hover { background: var(--matrix-green); color: #000; box-shadow: 0 0 12px var(--matrix-green); }
         
         .code-display { font-size: 2.2em; color: #ffff00; text-shadow: 0 0 12px #ffff00; letter-spacing: 5px; font-weight: bold; }
@@ -104,22 +99,28 @@ app.get('/', (req, res) => {
         .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-top: 4px; }
         .badge-rimk { background: #224400; color: #aaff00; border: 1px solid #aaff00; }
         .badge-zunk { background: #444444; color: #ffffff; border: 1px solid #ffffff; }
+
+        .action-menu { display: flex; gap: 15px; margin-bottom: 20px; }
+        .action-menu button { flex: 1; padding: 15px; font-size: 1.2em; background: #002211; border: 2px solid var(--matrix-green); }
+        .action-menu button:hover, .action-menu button.active { background: var(--matrix-green); color: #000; }
+        
+        .hidden-form { display: none; background: #020805; padding: 20px; border: 1px dashed var(--matrix-green); border-radius: 8px; margin-top: 15px; }
       </style>
     </head>
     <body>
       <div class="container">
         <div style="text-align: center;">
-          <h1>🛸 ESTAÇÃO ALPHA: RIMKS VS ZUNKS 🛸</h1>
+          <h1>🛸 ESTAÇÃO ALPHA 🛸</h1>
           <p style="color: #00aa44; margin: 0;">SISTEMA DE SEGURANÇA E DEDUÇÃO EMBARCADO</p>
         </div>
 
-        <!-- TELA 1: CADASTRO E MONTAGEM DO AVATAR -->
+        <!-- TELA 1: CADASTRO E NAVEGAÇÃO PROGRESSIVA -->
         <div id="setupView" class="panel">
-          <h3>[ 1. REGISTRO DE TRIPULANTE & AVATAR ]</h3>
+          <h3>[ 1. REGISTRO DE TRIPULANTE ]</h3>
           <div style="display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: center;">
             <div style="text-align: center;">
               <div class="avatar-box" id="avatarPreview"></div>
-              <small>Prévia do Avatar</small>
+              <small>Prévia</small>
             </div>
             <div>
               <label>Nome do Tripulante:</label>
@@ -138,49 +139,66 @@ app.get('/', (req, res) => {
                   <label>Bigode:</label>
                   <select id="optMoustache" onchange="updatePreview()">
                     <option value="none">Nenhum</option>
-                    <option value="classic">Moustache Clássico</option>
-                    <option value="handlebar">Imperial Galáctico</option>
+                    <option value="classic">Clássico</option>
+                    <option value="handlebar">Imperial</option>
                   </select>
                 </div>
                 <div>
-                  <label>Acessório:</label>
+                  <label>Óculos:</label>
                   <select id="optGlasses" onchange="updatePreview()">
                     <option value="none">Nenhum</option>
-                    <option value="visor">Visor Cyberpunk</option>
-                    <option value="monocle">Monóculo Bio</option>
+                    <option value="visor">Visor Cyber</option>
+                    <option value="monocle">Monóculo</option>
                   </select>
                 </div>
                 <div>
                   <label>Chapéu:</label>
                   <select id="optHat" onchange="updatePreview()">
                     <option value="none">Nenhum</option>
-                    <option value="cap">Quepe de Oficial</option>
-                    <option value="antenna">Antena Espacial</option>
+                    <option value="cap">Quepe Oficial</option>
+                    <option value="antenna">Antena</option>
                   </select>
                 </div>
               </div>
             </div>
           </div>
 
-          <hr style="border-color: #003311; margin: 20px 0;">
+          <hr style="border-color: #003311; margin: 25px 0;">
 
-          <h3>[ 2. CONEXÃO DA SALA ]</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <!-- Opção Criar Sala -->
-            <div style="border-right: 1px solid #004411; padding-right: 20px;">
-              <h4>CRIAR NOVA SALA (HOST)</h4>
-              <label>Máximo de Jogadores (5 a 7):</label>
-              <input type="number" id="maxPlayersInput" value="5" min="5" max="7" style="margin-bottom: 10px;">
-              <button onclick="createRoom()" style="width: 100%; background: #006622;">CRIAR SALA</button>
-            </div>
+          <h3>[ 2. ACESSO À ESTAÇÃO ]</h3>
+          <!-- Botões Principais -->
+          <div class="action-menu">
+            <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR SALA (HOST)</button>
+            <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
+          </div>
 
-            <!-- Opção Entrar em Sala -->
-            <div>
-              <h4>ENTRAR EM SALA EXISTENTE</h4>
-              <label>Código da Sala (4 Dígitos):</label>
-              <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; margin-bottom: 10px;">
-              <button onclick="joinRoom()" style="width: 100%;">ENTRAR NA SALA</button>
+          <!-- Formulário Oculto: CONFIGURAR SALA -->
+          <div id="formCreate" class="hidden-form">
+            <h4 style="margin-top:0;">⚙️️ PARÂMETROS DA NOVA PARTIDA</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+              <div>
+                <label>Máximo de Jogadores:</label>
+                <select id="maxPlayersInput">
+                  <option value="5">5 Jogadores</option>
+                  <option value="6">6 Jogadores</option>
+                  <option value="7">7 Jogadores</option>
+                </select>
+              </div>
+              <div>
+                <label>Tempo de Discussão (Segundos):</label>
+                <input type="number" id="debateTimeInput" value="300" min="60" max="600">
+              </div>
             </div>
+            <p style="font-size: 0.9em; color: #00aa44;">* Após gerar a sala, você receberá um código para enviar aos outros jogadores.</p>
+            <button onclick="createRoom()" style="width: 100%; background: #005522;">GERAR CÓDIGO DA SALA</button>
+          </div>
+
+          <!-- Formulário Oculto: ENTRAR NA SALA -->
+          <div id="formJoin" class="hidden-form">
+            <h4 style="margin-top:0;">📡 INSERIR CÓDIGO DE ACESSO</h4>
+            <label>Código da Sala (4 Dígitos):</label>
+            <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; font-size: 1.5em; text-align: center; letter-spacing: 5px; margin: 10px 0;">
+            <button onclick="joinRoom()" style="width: 100%; background: #003366; border-color: #0088cc;">CONECTAR À FILA</button>
           </div>
         </div>
 
@@ -189,20 +207,19 @@ app.get('/', (req, res) => {
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
               <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
-              <p style="color:#00ffcc; margin: 0;">Envie este código aos outros tripulantes!</p>
+              <p style="color:#00ffcc; margin: 0;">Envie este código para os tripulantes entrarem na fila!</p>
             </div>
             <div>
-              <h4>FILA DE ESPERA: <span id="queueCount">0 / 0</span></h4>
+              <h4>NA FILA: <span id="queueCount">0 / 0</span></h4>
             </div>
           </div>
 
           <hr style="border-color: #003311; margin: 15px 0;">
 
-          <h4>TRIPULANTES NA FILA:</h4>
           <div id="lobbyQueueGrid" class="cards-grid"></div>
 
           <div id="hostControls" style="margin-top: 20px; display: none;">
-            <button id="startBtn" onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (SOMENTE HOST)</button>
+            <button onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (SOMENTE HOST)</button>
           </div>
         </div>
 
@@ -222,11 +239,11 @@ app.get('/', (req, res) => {
               </div>
 
               <div class="panel" style="margin-top: 15px;">
-                <h3>PAINEL DE COMANDO & AÇÕES</h3>
-                <div id="actionPanel"><p>Aguardando início do ciclo...</p></div>
+                <h3>PAINEL DE COMANDO</h3>
+                <div id="actionPanel"><p>Aguardando...</p></div>
                 <div id="skipDebateBox" style="margin-top: 10px; display: none;">
-                  <button id="skipDebateBtn" onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
-                    ⚡ VOTAR PARA AVANÇAR DEBATE (<span id="skipCount">0</span> Votos)
+                  <button onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
+                    ⚡ AVANÇAR DEBATE (<span id="skipCount">0</span> Votos)
                   </button>
                 </div>
               </div>
@@ -236,7 +253,7 @@ app.get('/', (req, res) => {
               <h3>COMUNICAÇÃO DE BORDO</h3>
               <div id="chatBox" class="chat-box"></div>
               <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <input type="text" id="chatInput" placeholder="Mensagem de rádio..." onkeypress="if(event.key==='Enter') sendChat()">
+                <input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendChat()">
                 <button onclick="sendChat()">ENVIAR</button>
               </div>
             </div>
@@ -250,31 +267,36 @@ app.get('/', (req, res) => {
         let myPlayerData = {};
         let currentRoomCode = null;
 
-        // --- GERADOR DE SVG DO AVATAR ALIEN GREY ---
+        // --- SISTEMA DE UI PROGRESSIVA ---
+        function toggleForm(type) {
+          document.getElementById('btnMenuCreate').classList.remove('active');
+          document.getElementById('btnMenuJoin').classList.remove('active');
+          document.getElementById('formCreate').style.display = 'none';
+          document.getElementById('formJoin').style.display = 'none';
+
+          if (type === 'create') {
+            document.getElementById('btnMenuCreate').classList.add('active');
+            document.getElementById('formCreate').style.display = 'block';
+          } else {
+            document.getElementById('btnMenuJoin').classList.add('active');
+            document.getElementById('formJoin').style.display = 'block';
+          }
+        }
+
+        // --- AVATAR E CORE ---
         function generateAvatarSVG(c) {
           if (!c) c = {};
           const skin = c.skin || '#55aa66';
+          let m = '', g = '', h = '';
           
-          let m = '';
-          if (c.moustache === 'classic') {
-            m = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
-          } else if (c.moustache === 'handlebar') {
-            m = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
-          }
+          if (c.moustache === 'classic') m = '<path d="M 35 62 Q 50 55 65 62 Q 75 70 80 62 Q 65 68 50 66 Q 35 68 20 62 Q 25 70 35 62 Z" fill="#111" />';
+          else if (c.moustache === 'handlebar') m = '<path d="M 30 60 Q 50 50 70 60 Q 85 50 80 65 Q 65 60 50 64 Q 35 60 20 65 Q 15 50 30 60 Z" fill="#221100" />';
 
-          let g = '';
-          if (c.glasses === 'visor') {
-            g = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8"/>';
-          } else if (c.glasses === 'monocle') {
-            g = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
-          }
+          if (c.glasses === 'visor') g = '<rect x="20" y="38" width="60" height="14" rx="4" fill="#00ffff" opacity="0.8"/>';
+          else if (c.glasses === 'monocle') g = '<circle cx="35" cy="45" r="10" fill="none" stroke="#ffaa00" stroke-width="2"/><line x1="35" y1="55" x2="40" y2="70" stroke="#ffaa00" stroke-width="2"/>';
 
-          let h = '';
-          if (c.hat === 'cap') {
-            h = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
-          } else if (c.hat === 'antenna') {
-            h = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
-          }
+          if (c.hat === 'cap') h = '<path d="M 15 28 Q 50 10 85 28 L 90 32 L 10 32 Z" fill="#003366"/><rect x="10" y="30" width="80" height="4" fill="#ffcc00"/>';
+          else if (c.hat === 'antenna') h = '<line x1="50" y1="20" x2="50" y2="2" stroke="#00ff66" stroke-width="3"/><circle cx="50" cy="2" r="5" fill="#00ff66"/>';
 
           return '<svg viewBox="0 0 100 100">' +
             '<path d="M 50 15 C 20 15 15 40 25 65 C 32 82 45 92 50 92 C 55 92 68 82 75 65 C 85 40 80 15 50 15 Z" fill="' + skin + '" />' +
@@ -282,7 +304,6 @@ app.get('/', (req, res) => {
             '<ellipse cx="65" cy="45" rx="10" ry="14" fill="#050505" transform="rotate(12 65 45)"/>' +
             '<ellipse cx="33" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
             '<ellipse cx="63" cy="42" rx="3" ry="5" fill="#ffffff" opacity="0.7"/>' +
-            '<circle cx="48" cy="56" r="1" fill="#222"/><circle cx="52" cy="56" r="1" fill="#222"/>' +
             m + g + h +
           '</svg>';
         }
@@ -296,45 +317,31 @@ app.get('/', (req, res) => {
           };
         }
 
-        function updatePreview() {
-          const custom = getCustomizationFromUI();
-          document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(custom);
-        }
+        function updatePreview() { document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(getCustomizationFromUI()); }
         window.onload = () => { updatePreview(); };
 
-        // --- FUNÇÕES DE NAVEGAÇÃO E SALA ---
         function createRoom() {
           const name = document.getElementById('username').value.trim();
           if (!name) return alert('Por favor, digite seu nome de tripulante!');
+          
           const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value);
-          const avatar = getCustomizationFromUI();
-
-          socket.emit('createRoom', { name, avatar, maxPlayers });
+          const debateTime = parseInt(document.getElementById('debateTimeInput').value);
+          
+          socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateTime });
         }
 
         function joinRoom() {
           const name = document.getElementById('username').value.trim();
-          if (!name) return alert('Por favor, digite seu nome de tripulante!');
+          if (!name) return alert('Por favor, digite seu nome!');
           const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
           if (!roomCode) return alert('Digite o código da sala!');
-          const avatar = getCustomizationFromUI();
 
-          socket.emit('joinRoom', { name, avatar, roomCode });
+          socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
         }
 
-        function startMatch() {
-          if (currentRoomCode) {
-            socket.emit('startGame', { roomCode: currentRoomCode });
-          }
-        }
+        function startMatch() { if (currentRoomCode) socket.emit('startGame', { roomCode: currentRoomCode }); }
+        function voteSkipDebate() { if (currentRoomCode) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
 
-        function voteSkipDebate() {
-          if (currentRoomCode) {
-            socket.emit('voteSkipDebate', { roomCode: currentRoomCode });
-          }
-        }
-
-        // --- HANDLERS DO SOCKET.IO ---
         socket.on('errorMsg', (msg) => { alert('⚠️ ' + msg); });
 
         socket.on('roomJoined', (data) => {
@@ -342,22 +349,15 @@ app.get('/', (req, res) => {
           document.getElementById('setupView').style.display = 'none';
           document.getElementById('lobbyView').style.display = 'block';
           document.getElementById('displayRoomCode').innerText = data.roomCode;
-
-          if (data.isHost) {
-            document.getElementById('hostControls').style.display = 'block';
-          } else {
-            document.getElementById('hostControls').style.display = 'none';
-          }
+          document.getElementById('hostControls').style.display = data.isHost ? 'block' : 'none';
         });
 
         socket.on('updateQueue', (data) => {
           document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
-          const grid = document.getElementById('lobbyQueueGrid');
-          grid.innerHTML = data.players.map(p => 
+          document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(p => 
             '<div class="player-card alive">' +
               '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
-              '<b>' + p.name + '</b><br>' +
-              '<small>' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
+              '<b>' + p.name + '</b><br><small>' + (p.isHost ? '👑 HOST' : '🟢 Fila') + '</small>' +
             '</div>'
           ).join('');
         });
@@ -365,11 +365,10 @@ app.get('/', (req, res) => {
         socket.on('gameStarted', (data) => {
           document.getElementById('lobbyView').style.display = 'none';
           document.getElementById('gameView').style.display = 'flex';
-
           myPlayerData = data;
           document.getElementById('myRole').innerText = data.role;
           document.getElementById('myFaction').innerText = data.faction;
-          addChatMessage('SISTEMA', 'Sequência de missão iniciada! Identidades atribuídas.', 'system');
+          addChatMessage('SISTEMA', 'Missão iniciada! Identidades distribuídas.', 'system');
         });
 
         socket.on('startNight', (data) => {
@@ -377,20 +376,14 @@ app.get('/', (req, res) => {
           document.getElementById('skipDebateBox').style.display = 'none';
           renderGameCards(data.playersList);
           renderNightActions(data.playersList);
-          addChatMessage('SISTEMA', 'A Estação entrou em Eclipse Orbital. Cuidado...', 'system');
+          addChatMessage('SISTEMA', 'O Eclipse começou. Ações ocultas ativadas.', 'system');
         });
 
         socket.on('startDay', (data) => {
           document.getElementById('gameState').innerText = 'TRANSMISSÃO (DIA)';
           document.getElementById('skipDebateBox').style.display = 'block';
           renderGameCards(data.playersList);
-          
-          if (data.killedPlayer) {
-            addChatMessage('SISTEMA', 'ALERTA DE SEGURANÇA: O tripulante ' + data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
-          } else {
-            addChatMessage('SISTEMA', 'RELATÓRIO: Nenhuma baixa registrada nesta noite. Escudos ativos.', 'system');
-          }
-          
+          if (data.killedPlayer) addChatMessage('SISTEMA', data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
           renderDayActions(data.playersList);
         });
 
@@ -400,131 +393,64 @@ app.get('/', (req, res) => {
           document.getElementById('timerDisplay').innerText = m + ':' + s;
         });
 
-        socket.on('updateSkipCount', (count) => {
-          document.getElementById('skipCount').innerText = count;
-        });
-
-        socket.on('scanResult', (result) => {
-          alert('[ESCÂNER GENÉTICO]: O escâner revelou que ' + result.targetName + ' pertence à raça: ' + result.faction);
-        });
-
-        socket.on('chatMessage', (data) => {
-          addChatMessage(data.sender, data.text, data.type);
-        });
+        socket.on('updateSkipCount', (count) => { document.getElementById('skipCount').innerText = count; });
+        socket.on('scanResult', (res) => { alert('[ESCÂNER]: ' + res.targetName + ' é da raça ' + res.faction); });
+        socket.on('chatMessage', (data) => { addChatMessage(data.sender, data.text, data.type); });
 
         socket.on('ejectionResult', (data) => {
-          if (data.ejectedPlayer) {
-            addChatMessage('SISTEMA', 'VOTAÇÃO ENCERRADA: ' + data.ejectedPlayer + ' foi ejetado no vácuo! Raça revelada: ' + data.ejectedFaction, 'alert');
-          } else {
-            addChatMessage('SISTEMA', 'VOTAÇÃO ENCERRADA: Impasse na votação. Ninguém foi ejetado.', 'system');
-          }
+          if (data.ejectedPlayer) addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado! Raça: ' + data.ejectedFaction, 'alert');
+          else addChatMessage('SISTEMA', 'Impasse. Ninguém ejetado.', 'system');
         });
 
         socket.on('gameOver', (data) => {
-          alert('FIM DE JOGO! A vitória é da raça: ' + data.winner);
+          alert('FIM DE JOGO! Vitória: ' + data.winner);
           location.reload();
         });
 
         function renderGameCards(players) {
-          const grid = document.getElementById('gameCardsGrid');
-          grid.innerHTML = players.map(p => {
-            const statusClass = p.alive ? 'alive' : 'dead';
-            let factionBadge = '';
-            let displayAvatar = p.avatar;
-
+          document.getElementById('gameCardsGrid').innerHTML = players.map(p => {
+            const status = p.alive ? 'alive' : 'dead';
+            let badge = '', display = p.avatar;
             if (!p.alive && p.faction) {
-              if (p.faction === 'RIMK') {
-                displayAvatar = { skin: '#88bb44', moustache: 'classic', glasses: 'none', hat: 'none' };
-                factionBadge = '<span class="badge badge-rimk">RAÇA: RIMK</span>';
-              } else {
-                displayAvatar = { skin: '#ffffff', moustache: 'none', glasses: 'none', hat: 'none' };
-                factionBadge = '<span class="badge badge-zunk">INFILTRADO: ZUNK</span>';
-              }
+              display = p.faction === 'RIMK' ? { skin: '#88bb44', moustache: 'classic', glasses: 'none', hat: 'none' } : { skin: '#ffffff', moustache: 'none', glasses: 'none', hat: 'none' };
+              badge = p.faction === 'RIMK' ? '<span class="badge badge-rimk">RIMK</span>' : '<span class="badge badge-zunk">ZUNK</span>';
             }
-
-            return '<div class="player-card ' + statusClass + '">' +
-              '<div class="avatar-box">' + generateAvatarSVG(displayAvatar) + '</div>' +
-              '<b>' + p.name + '</b><br>' +
-              '<small>' + (p.alive ? '🟢 Operacional' : '🔴 Ejetado/Eliminado') + '</small><br>' +
-              factionBadge +
-            '</div>';
+            return '<div class="player-card ' + status + '"><div class="avatar-box">' + generateAvatarSVG(display) + '</div><b>' + p.name + '</b><br>' + badge + '</div>';
           }).join('');
         }
 
         function renderNightActions(players) {
           const panel = document.getElementById('actionPanel');
-          panel.innerHTML = '<p><b>Fase Noturna Ativa:</b> Realize sua ação secreta de bordo.</p>';
-
           const aliveTargets = players.filter(p => p.id !== socket.id && p.alive);
-          const amIAlive = players.find(p => p.id === socket.id && p.alive);
-
-          if (!amIAlive) {
-            panel.innerHTML = '<p style="color:var(--alert-red)">Você foi eliminado. Acompanhe a transmissão em modo espectador.</p>';
-            return;
-          }
-
-          if (myPlayerData.faction === 'ZUNK') {
-            panel.innerHTML += '<p>Selecione o Rimk a ser desintegrado:</p>';
-            aliveTargets.forEach(t => {
-              panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">' + t.name + '</button> ';
-            });
-          } else if (myPlayerData.role === 'SHIELD_ENGINEER') {
-            panel.innerHTML += '<p>Selecione um tripulante para proteger com o Escudo:</p>';
-            players.forEach(t => {
-              if(t.alive) panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">' + t.name + '</button> ';
-            });
-          } else if (myPlayerData.role === 'BIOLOGIST') {
-            panel.innerHTML += '<p>Selecione um tripulante para escanear o DNA:</p>';
-            aliveTargets.forEach(t => {
-              panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">' + t.name + '</button> ';
-            });
-          } else {
-            panel.innerHTML += '<p>Tripulante comum: Permaneça em silêncio aguardando o fim do Eclipse...</p>';
-          }
+          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p>Você foi eliminado.</p>';
+          
+          panel.innerHTML = '<p>Selecione seu alvo:</p>';
+          if (myPlayerData.faction === 'ZUNK') aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">Desintegrar ' + t.name + '</button> ');
+          else if (myPlayerData.role === 'SHIELD_ENGINEER') players.forEach(t => { if(t.alive) panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">Proteger ' + t.name + '</button> '});
+          else if (myPlayerData.role === 'BIOLOGIST') aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">Escanear ' + t.name + '</button> ');
+          else panel.innerHTML = '<p>Permaneça em silêncio no alojamento...</p>';
         }
 
         function renderDayActions(players) {
           const panel = document.getElementById('actionPanel');
-          panel.innerHTML = '<p><b>Fase de Transmissão & Votação:</b> Debatam no chat e escolham quem ejetar.</p>';
-
-          const amIAlive = players.find(p => p.id === socket.id && p.alive);
-          if (!amIAlive) {
-            panel.innerHTML = '<p style="color:var(--alert-red)">Sua transmissão foi cortada. Apenas acompanhe o debate.</p>';
-            return;
-          }
-
-          const aliveTargets = players.filter(p => p.alive);
-          aliveTargets.forEach(t => {
-            panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + t.name + '</button> ';
-          });
-          panel.innerHTML += '<br><br><button style="background:#665500" onclick="sendVote(\'SKIP\')">Abster / Pular Voto</button>';
+          if (!players.find(p => p.id === socket.id && p.alive)) return panel.innerHTML = '<p>Você está fora da comunicação.</p>';
+          
+          panel.innerHTML = '';
+          players.filter(p => p.alive).forEach(t => panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Votar ' + t.name + '</button> ');
+          panel.innerHTML += '<br><br><button onclick="sendVote(\'SKIP\')">Pular Voto</button>';
         }
 
-        function sendNightAction(actionType, targetId) {
-          socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: actionType, targetId: targetId });
-          document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Ação enviada com sucesso ao servidor central!</p>';
-        }
-
-        function sendVote(targetId) {
-          socket.emit('submitVote', { roomCode: currentRoomCode, targetId: targetId });
-          document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Seu voto de ejeção foi computado!</p>';
-        }
-
+        function sendNightAction(type, target) { socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p>Ação enviada!</p>'; }
+        function sendVote(target) { socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target }); document.getElementById('actionPanel').innerHTML = '<p>Voto computado!</p>'; }
+        
         function sendChat() {
-          const input = document.getElementById('chatInput');
-          const text = input.value.trim();
-          if (text && currentRoomCode) {
-            socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: text });
-            input.value = '';
-          }
+          const txt = document.getElementById('chatInput').value.trim();
+          if (txt && currentRoomCode) { socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: txt }); document.getElementById('chatInput').value = ''; }
         }
 
         function addChatMessage(sender, text, type) {
           const box = document.getElementById('chatBox');
-          const msgDiv = document.createElement('div');
-          msgDiv.className = 'chat-msg ' + (type || 'normal');
-          msgDiv.innerHTML = '<b>[' + sender + ']:</b> ' + text;
-          box.appendChild(msgDiv);
+          box.innerHTML += '<div class="chat-msg ' + (type || 'normal') + '"><b>[' + sender + ']:</b> ' + text + '</div>';
           box.scrollTop = box.scrollHeight;
         }
       </script>
@@ -533,96 +459,50 @@ app.get('/', (req, res) => {
   `);
 });
 
-// --- LÓGICA DE WEBSOCKETS MULTI-SALAS ---
+// --- LÓGICA DE SERVIDOR ---
 io.on('connection', (socket) => {
 
-  // Criar uma Nova Sala
-  socket.on('createRoom', ({ name, avatar, maxPlayers }) => {
+  socket.on('createRoom', ({ name, avatar, maxPlayers, debateTime }) => {
     let roomCode = generateRoomCode();
     while (rooms[roomCode]) { roomCode = generateRoomCode(); }
 
     const limit = Math.min(Math.max(maxPlayers || 5, 5), 7);
 
     rooms[roomCode] = {
-      code: roomCode,
-      hostId: socket.id,
-      maxPlayers: limit,
-      state: 'LOBBY',
-      players: {},
-      nightActions: { zunkTarget: null, shieldTarget: null, biologistTarget: null },
-      votes: {},
-      skipDebateVotes: new Set(),
-      timer: null,
-      timeLeft: 300,
-      turn: 1
+      code: roomCode, hostId: socket.id, maxPlayers: limit,
+      debateTime: debateTime || 300, // NOVO PARÂMETRO
+      state: 'LOBBY', players: {}, nightActions: {}, votes: {}, skipDebateVotes: new Set(),
+      timer: null, timeLeft: 0, turn: 1
     };
 
-    rooms[roomCode].players[socket.id] = {
-      id: socket.id,
-      name: name || `Viajante ${socket.id.substring(0, 4)}`,
-      avatar: avatar || {},
-      isHost: true,
-      role: null,
-      faction: null,
-      alive: true
-    };
-
+    rooms[roomCode].players[socket.id] = { id: socket.id, name: name, avatar: avatar, isHost: true, alive: true };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true });
-    
-    io.to(roomCode).emit('updateQueue', {
-      players: Object.values(rooms[roomCode].players),
-      maxPlayers: rooms[roomCode].maxPlayers
-    });
+    io.to(roomCode).emit('updateQueue', { players: Object.values(rooms[roomCode].players), maxPlayers: limit });
   });
 
-  // Entrar em uma Sala Existente
   socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
-    if (!room) return socket.emit('errorMsg', 'Sala não encontrada! Verifique o código.');
-    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Esta partida já está em andamento.');
+    if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida em andamento.');
+    if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia!');
 
-    const currentCount = Object.keys(room.players).length;
-    if (currentCount >= room.maxPlayers) return socket.emit('errorMsg', 'A sala já está cheia!');
-
-    room.players[socket.id] = {
-      id: socket.id,
-      name: name || `Viajante ${socket.id.substring(0, 4)}`,
-      avatar: avatar || {},
-      isHost: false,
-      role: null,
-      faction: null,
-      alive: true
-    };
-
+    room.players[socket.id] = { id: socket.id, name: name, avatar: avatar, isHost: false, alive: true };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: false });
-
-    io.to(roomCode).emit('updateQueue', {
-      players: Object.values(room.players),
-      maxPlayers: room.maxPlayers
-    });
+    io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
   });
 
-  // Iniciar a Partida (Host)
   socket.on('startGame', ({ roomCode }) => {
     const room = rooms[roomCode];
-    if (!room) return;
-    if (room.hostId !== socket.id) return socket.emit('errorMsg', 'Apenas o Host pode iniciar!');
+    if (!room || room.hostId !== socket.id) return;
 
     assignRoles(room);
     room.state = 'NOITE';
-    room.turn = 1;
-
-    Object.keys(room.players).forEach((id) => {
-      const p = room.players[id];
-      io.to(id).emit('gameStarted', {
-        role: p.role,
-        faction: p.faction,
-        playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
-      });
+    
+    Object.keys(room.players).forEach(id => {
+      io.to(id).emit('gameStarted', { role: room.players[id].role, faction: room.players[id].faction, playersList: Object.values(room.players) });
     });
-
     startNightPhase(roomCode);
   });
 
@@ -631,193 +511,98 @@ io.on('connection', (socket) => {
     if (!room) return;
     room.state = 'NOITE';
     clearInterval(room.timer);
-
-    io.to(roomCode).emit('startNight', {
-      turn: room.turn,
-      playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive }))
-    });
+    io.to(roomCode).emit('startNight', { turn: room.turn, playersList: Object.values(room.players) });
   }
 
-  function startDayPhase(roomCode, killedPlayerName) {
+  function startDayPhase(roomCode, killedPlayer) {
     const room = rooms[roomCode];
     if (!room) return;
-
     room.state = 'DIA';
-    room.votes = {};
-    room.skipDebateVotes.clear();
-    room.timeLeft = 300;
+    room.votes = {}; room.skipDebateVotes.clear();
+    room.timeLeft = room.debateTime; // USA O TEMPO CONFIGURADO PELO HOST
 
-    io.to(roomCode).emit('startDay', {
-      killedPlayer: killedPlayerName,
-      playersList: Object.values(room.players).map(u => ({ id: u.id, name: u.name, avatar: u.avatar, alive: u.alive, faction: u.alive ? null : u.faction }))
-    });
-
+    io.to(roomCode).emit('startDay', { killedPlayer, playersList: Object.values(room.players) });
     io.to(roomCode).emit('updateSkipCount', 0);
     io.to(roomCode).emit('timerUpdate', room.timeLeft);
 
     clearInterval(room.timer);
     room.timer = setInterval(() => {
-      room.timeLeft -= 1;
+      room.timeLeft--;
       io.to(roomCode).emit('timerUpdate', room.timeLeft);
-
-      if (room.timeLeft <= 0) {
-        clearInterval(room.timer);
-        resolveVotes(roomCode);
-      }
+      if (room.timeLeft <= 0) { clearInterval(room.timer); resolveVotes(roomCode); }
     }, 1000);
   }
 
   socket.on('submitNightAction', ({ roomCode, actionType, targetId }) => {
-    const room = rooms[roomCode];
-    if (!room) return;
-    const player = room.players[socket.id];
-    if (!player || !player.alive || room.state !== 'NOITE') return;
+    const room = rooms[roomCode], p = room?.players[socket.id];
+    if (!p || !p.alive || room.state !== 'NOITE') return;
 
-    if (actionType === 'ZUNK_KILL' && player.faction === 'ZUNK') {
-      room.nightActions.zunkTarget = targetId;
-    } else if (actionType === 'SHIELD_PROTECT' && player.role === 'SHIELD_ENGINEER') {
-      room.nightActions.shieldTarget = targetId;
-    } else if (actionType === 'BIOLOGIST_SCAN' && player.role === 'BIOLOGIST') {
-      const target = room.players[targetId];
-      socket.emit('scanResult', { targetName: target ? target.name : 'Desconhecido', faction: target ? target.faction : 'N/A' });
-    }
+    if (actionType === 'ZUNK_KILL' && p.faction === 'ZUNK') room.nightActions.zunk = targetId;
+    else if (actionType === 'SHIELD_PROTECT' && p.role === 'SHIELD_ENGINEER') room.nightActions.shield = targetId;
+    else if (actionType === 'BIOLOGIST_SCAN' && p.role === 'BIOLOGIST') socket.emit('scanResult', { targetName: room.players[targetId]?.name, faction: room.players[targetId]?.faction });
 
-    let killedId = null;
-    if (room.nightActions.zunkTarget && room.nightActions.zunkTarget !== room.nightActions.shieldTarget) {
-      killedId = room.nightActions.zunkTarget;
-      if (room.players[killedId]) room.players[killedId].alive = false;
-    }
-
-    const killedName = killedId && room.players[killedId] ? room.players[killedId].name : null;
-    room.nightActions = { zunkTarget: null, shieldTarget: null, biologistTarget: null };
-
+    let kId = (room.nightActions.zunk && room.nightActions.zunk !== room.nightActions.shield) ? room.nightActions.zunk : null;
+    if (kId && room.players[kId]) room.players[kId].alive = false;
+    
+    room.nightActions = {};
     if (checkVictory(roomCode)) return;
-
-    startDayPhase(roomCode, killedName);
+    startDayPhase(roomCode, kId ? room.players[kId].name : null);
   });
 
   socket.on('submitVote', ({ roomCode, targetId }) => {
     const room = rooms[roomCode];
-    if (!room) return;
-    const player = room.players[socket.id];
-    if (!player || !player.alive || room.state !== 'DIA') return;
-
+    if (!room || room.state !== 'DIA' || !room.players[socket.id]?.alive) return;
     room.votes[socket.id] = targetId;
-    const alivePlayers = Object.values(room.players).filter(p => p.alive);
-
-    if (Object.keys(room.votes).length >= alivePlayers.length) {
-      clearInterval(room.timer);
-      resolveVotes(roomCode);
-    }
+    if (Object.keys(room.votes).length >= Object.values(room.players).filter(p => p.alive).length) { clearInterval(room.timer); resolveVotes(roomCode); }
   });
 
   socket.on('voteSkipDebate', ({ roomCode }) => {
     const room = rooms[roomCode];
-    if (!room) return;
-    const player = room.players[socket.id];
-    if (!player || !player.alive || room.state !== 'DIA') return;
-
+    if (!room || room.state !== 'DIA' || !room.players[socket.id]?.alive) return;
     room.skipDebateVotes.add(socket.id);
-    const alivePlayers = Object.values(room.players).filter(p => p.alive);
-
     io.to(roomCode).emit('updateSkipCount', room.skipDebateVotes.size);
-
-    if (room.skipDebateVotes.size >= Math.ceil(alivePlayers.length / 2)) {
-      clearInterval(room.timer);
-      io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'A maioria dos tripulantes votou para encerrar o debate antecipadamente!', type: 'system' });
-      resolveVotes(roomCode);
+    if (room.skipDebateVotes.size >= Math.ceil(Object.values(room.players).filter(p => p.alive).length / 2)) {
+      clearInterval(room.timer); io.to(roomCode).emit('chatMessage', { sender: 'SISTEMA', text: 'Debate encerrado por maioria!', type: 'system' }); resolveVotes(roomCode);
     }
   });
 
-  socket.on('sendChatMessage', ({ roomCode, text }) => {
-    const room = rooms[roomCode];
-    if (!room) return;
-    const player = room.players[socket.id];
-    if (!player) return;
-    io.to(roomCode).emit('chatMessage', { sender: player.name, text: text, type: 'normal' });
-  });
+  socket.on('sendChatMessage', ({ roomCode, text }) => { io.to(roomCode).emit('chatMessage', { sender: rooms[roomCode]?.players[socket.id]?.name, text }); });
 
   function resolveVotes(roomCode) {
     const room = rooms[roomCode];
     if (!room) return;
+    const counts = {};
+    Object.values(room.votes).forEach(t => { if (t !== 'SKIP') counts[t] = (counts[t] || 0) + 1; });
 
-    const voteCounts = {};
-    Object.values(room.votes).forEach(target => {
-      if (target !== 'SKIP') voteCounts[target] = (voteCounts[target] || 0) + 1;
-    });
+    let max = 0, eId = null, tie = false;
+    for (const [t, c] of Object.entries(counts)) { if (c > max) { max = c; eId = t; tie = false; } else if (c === max) tie = true; }
 
-    let maxVotes = 0;
-    let ejectedId = null;
-    let isTie = false;
-
-    for (const [targetId, count] of Object.entries(voteCounts)) {
-      if (count > maxVotes) {
-        maxVotes = count;
-        ejectedId = targetId;
-        isTie = false;
-      } else if (count === maxVotes) {
-        isTie = true;
-      }
-    }
-
-    let ejectedName = null;
-    let ejectedFaction = null;
-
-    if (!isTie && ejectedId && room.players[ejectedId]) {
-      room.players[ejectedId].alive = false;
-      ejectedName = room.players[ejectedId].name;
-      ejectedFaction = room.players[ejectedId].faction;
-    }
-
-    io.to(roomCode).emit('ejectionResult', { ejectedPlayer: ejectedName, ejectedFaction: ejectedFaction });
-
+    if (!tie && eId && room.players[eId]) room.players[eId].alive = false;
+    io.to(roomCode).emit('ejectionResult', { ejectedPlayer: (!tie && eId) ? room.players[eId].name : null, ejectedFaction: (!tie && eId) ? room.players[eId].faction : null });
+    
     if (checkVictory(roomCode)) return;
-
-    room.turn += 1;
-    setTimeout(() => { startNightPhase(roomCode); }, 4000);
+    room.turn++; setTimeout(() => startNightPhase(roomCode), 4000);
   }
 
-  function checkVictory(roomCode) {
-    const room = rooms[roomCode];
-    if (!room) return false;
-
-    const alive = Object.values(room.players).filter(p => p.alive);
-    const zunks = alive.filter(p => p.faction === 'ZUNK').length;
-    const rimks = alive.filter(p => p.faction === 'RIMK').length;
-
-    if (zunks === 0) {
-      room.state = 'FINISHED';
-      io.to(roomCode).emit('gameOver', { winner: 'RIMKS (Tripulação Limpa)' });
-      return true;
-    } else if (zunks >= rimks) {
-      room.state = 'FINISHED';
-      io.to(roomCode).emit('gameOver', { winner: 'ZUNKS (Infiltração Bem-Sucedida)' });
-      return true;
-    }
+  function checkVictory(code) {
+    const room = rooms[code];
+    const alv = Object.values(room.players).filter(p => p.alive);
+    const z = alv.filter(p => p.faction === 'ZUNK').length, r = alv.filter(p => p.faction === 'RIMK').length;
+    if (z === 0) { io.to(code).emit('gameOver', { winner: 'RIMKS' }); return true; }
+    if (z >= r) { io.to(code).emit('gameOver', { winner: 'ZUNKS' }); return true; }
     return false;
   }
 
   socket.on('disconnect', () => {
-    for (const roomCode in rooms) {
-      const room = rooms[roomCode];
-      if (room.players[socket.id]) {
-        delete room.players[socket.id];
-
-        if (Object.keys(room.players).length === 0) {
-          clearInterval(room.timer);
-          delete rooms[roomCode];
-        } else {
-          io.to(roomCode).emit('updateQueue', {
-            players: Object.values(room.players),
-            maxPlayers: room.maxPlayers
-          });
-        }
+    for (const code in rooms) {
+      if (rooms[code].players[socket.id]) {
+        delete rooms[code].players[socket.id];
+        if (Object.keys(rooms[code].players).length === 0) delete rooms[code];
+        else io.to(code).emit('updateQueue', { players: Object.values(rooms[code].players), maxPlayers: rooms[code].maxPlayers });
         break;
       }
     }
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Estação Alpha online na porta ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
