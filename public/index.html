@@ -10,7 +10,7 @@
       --matrix-dark-green: #003311;
       --cyan-glow: #00ffff;
       --bg-color: #020508;
-      --card-bg: rgba(10, 20, 25, 0.85);
+      --card-bg: rgba(10, 20, 25, 0.88);
       --alert-red: #ff3366;
       --gold-yellow: #ffcc00;
       --ghost-purple: #aa66ff;
@@ -32,14 +32,14 @@
 
     h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--matrix-green); margin: 5px 0; }
     
-    .container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 15px; position: relative; }
+    .container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
     
     .panel {
       background: var(--card-bg);
       border: 1px solid var(--matrix-green);
       border-radius: 10px;
       padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 255, 102, 0.12), inset 0 0 10px rgba(0, 255, 102, 0.05);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.12);
       backdrop-filter: blur(8px);
     }
     
@@ -64,7 +64,6 @@
       border-radius: 8px;
       border: 1px solid var(--matrix-green);
       overflow: hidden;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
       background: #000;
     }
     .avatar-box svg { width: 100%; height: 100%; }
@@ -118,22 +117,27 @@
     
     .hidden-form { display: none; background: #010c06; padding: 20px; border: 1px dashed var(--matrix-green); border-radius: 8px; margin-top: 15px; }
 
-    /* MANUAL E GUIA LATERAL */
+    /* CORREÇÃO DO GUIA LATERAL E MODAL (SEM BLOQUEIO DE CLIQUE) */
     .guide-sidebar {
       position: fixed;
-      left: -320px;
+      left: 0;
       top: 0;
       width: 310px;
       height: 100vh;
-      background: rgba(2, 10, 8, 0.95);
+      background: rgba(2, 10, 8, 0.96);
       border-right: 2px solid var(--matrix-green);
-      box-shadow: 5px 0 25px rgba(0, 255, 102, 0.2);
-      transition: 0.4s ease;
+      box-shadow: 5px 0 25px rgba(0, 255, 102, 0.3);
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+      pointer-events: none;
       z-index: 1000;
       padding: 20px;
       overflow-y: auto;
     }
-    .guide-sidebar.open { left: 0; }
+    .guide-sidebar.open {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
     .guide-toggle-btn {
       position: fixed;
       left: 10px;
@@ -156,6 +160,11 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      pointer-events: none;
+    }
+    .modal.open {
+      display: flex;
+      pointer-events: auto;
     }
     .modal-content {
       background: #040d0a;
@@ -402,20 +411,23 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
+    const socket = typeof io !== 'undefined' ? io() : null;
     let myPlayerData = {};
     let currentRoomCode = null;
 
     function toggleSidebar() {
-      document.getElementById('guideSidebar').classList.toggle('open');
+      const sb = document.getElementById('guideSidebar');
+      if (sb) sb.classList.toggle('open');
     }
 
     function openManualModal() {
-      document.getElementById('manualModal').style.display = 'flex';
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.add('open');
     }
 
     function closeManualModal() {
-      document.getElementById('manualModal').style.display = 'none';
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.remove('open');
     }
 
     function toggleForm(type) {
@@ -424,29 +436,26 @@
       const formCreate = document.getElementById('formCreate');
       const formJoin = document.getElementById('formJoin');
 
-      btnCreate.classList.remove('active');
-      btnJoin.classList.remove('active');
-      formCreate.style.display = 'none';
-      formJoin.style.display = 'none';
+      if (btnCreate) btnCreate.classList.remove('active');
+      if (btnJoin) btnJoin.classList.remove('active');
+      if (formCreate) formCreate.style.display = 'none';
+      if (formJoin) formJoin.style.display = 'none';
 
       if (type === 'create') {
-        btnCreate.classList.add('active');
-        formCreate.style.display = 'block';
+        if (btnCreate) btnCreate.classList.add('active');
+        if (formCreate) formCreate.style.display = 'block';
       } else if (type === 'join') {
-        btnJoin.classList.add('active');
-        formJoin.style.display = 'block';
+        if (btnJoin) btnJoin.classList.add('active');
+        if (formJoin) formJoin.style.display = 'block';
       }
     }
 
-    // GERADOR SVG DO AVATAR COMPLETO (Pele, Corpo, Trajes, Fundos e Insígnias)
     function generateAvatarSVG(c, extra) {
       if (!c) c = {};
       if (!extra) extra = {};
 
-      // Cor de Pele (Verde-Amarelado Rimk vs Branco Zunk revelado)
       const skinColor = extra.isZunkRevealed ? '#ffffff' : '#88c242';
 
-      // 1. FUNDOS DO CARTÃO
       let bgSVG = '<rect width="100" height="100" fill="#02080a" />';
       if (c.bg === 'control') {
         bgSVG = '<rect width="100" height="100" fill="#031520" /><line x1="0" y1="70" x2="100" y2="70" stroke="#00ffff" stroke-width="1"/><rect x="10" y="75" width="20" height="15" fill="#003344"/><rect x="40" y="75" width="20" height="15" fill="#004433"/>';
@@ -455,11 +464,9 @@
       } else if (c.bg === 'reactor') {
         bgSVG = '<rect width="100" height="100" fill="#1a0208" /><circle cx="50" cy="50" r="35" stroke="#ff3366" stroke-width="1" fill="none" opacity="0.4"/>';
       } else {
-        // Espaço Profundo
         bgSVG = '<rect width="100" height="100" fill="#010408" /><circle cx="20" cy="20" r="1" fill="#fff"/><circle cx="80" cy="30" r="1.5" fill="#00ffff"/><circle cx="40" cy="70" r="1" fill="#fff"/>';
       }
 
-      // 2. CORPO E TRAJES
       let suitColor = '#112211';
       let suitDetails = '';
       if (c.suit === 'space') {
@@ -478,7 +485,6 @@
 
       const bodySVG = '<path d="M 20 100 Q 20 65 50 65 Q 80 65 80 100 Z" fill="' + suitColor + '" />' + suitDetails;
 
-      // 3. BIGODES
       let m = '';
       if (c.moustache === 'classic') {
         m = '<path d="M 35 52 Q 50 46 65 52 Q 75 58 80 52 Q 65 56 50 54 Q 35 56 20 52 Q 25 58 35 52 Z" fill="#111" />';
@@ -488,7 +494,6 @@
         m = '<rect x="38" y="50" width="24" height="2" rx="1" fill="#111" />';
       }
 
-      // 4. ÓCULOS / ACESSÓRIOS DE OLHOS
       let g = '';
       if (c.glasses === 'visor') {
         g = '<rect x="22" y="30" width="56" height="12" rx="3" fill="#00ffff" opacity="0.85"/>';
@@ -498,7 +503,6 @@
         g = '<polygon points="22,30 47,30 42,42 26,42" fill="#111" stroke="#00ff66"/><polygon points="53,30 78,30 74,42 58,42" fill="#111" stroke="#00ff66"/>';
       }
 
-      // 5. CHAPÉU / CABEÇA
       let h = '';
       if (c.hat === 'cap') {
         h = '<path d="M 18 22 Q 50 8 82 22 L 86 26 L 14 26 Z" fill="#002244"/><rect x="14" y="24" width="72" height="3" fill="#ffcc00"/>';
@@ -510,7 +514,6 @@
         h = '<path d="M 15 25 Q 50 -5 85 25 Q 88 45 85 65 Q 50 85 15 65 Z" fill="none" stroke="#00ff66" stroke-width="2.5" opacity="0.5"/>';
       }
 
-      // 6. ELEMENTOS EXCLUSIVOS DA FUNÇÃO (VISÍVEL NO PRÓPRIO CARTÃO)
       let roleOverlay = '';
       if (extra.isPersonalRole) {
         if (extra.roleKey === 'BIOLOGIST') {
@@ -524,7 +527,6 @@
         }
       }
 
-      // COMPOSIÇÃO FINAL SVG
       return '<svg viewBox="0 0 100 100">' +
         bgSVG +
         bodySVG +
@@ -549,111 +551,119 @@
     }
 
     function updatePreview() {
-      document.getElementById('avatarPreview').innerHTML = generateAvatarSVG(getCustomizationFromUI());
+      const box = document.getElementById('avatarPreview');
+      if (box) box.innerHTML = generateAvatarSVG(getCustomizationFromUI());
     }
 
-    window.onload = function() {
+    window.addEventListener('DOMContentLoaded', function() {
       updatePreview();
-    };
+    });
 
     function createRoom() {
-      const name = document.getElementById('username').value.trim();
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
       if (!name) return alert('Por favor, digite seu nome de tripulante!');
       
-      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value);
-      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value);
+      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
+      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
       
-      socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
+      if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
     }
 
     function joinRoom() {
-      const name = document.getElementById('username').value.trim();
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
       if (!name) return alert('Por favor, digite seu nome!');
-      const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+      
+      const roomCodeInput = document.getElementById('roomCodeInput');
+      const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
       if (!roomCode) return alert('Digite o código da sala!');
 
-      socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
+      if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
     }
 
-    function startMatch() { if (currentRoomCode) socket.emit('startGame', { roomCode: currentRoomCode }); }
-    function voteSkipDebate() { if (currentRoomCode) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
+    function startMatch() { if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode }); }
+    function voteSkipDebate() { if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
 
-    socket.on('errorMsg', function(msg) { alert('⚠️ ' + msg); });
+    if (socket) {
+      socket.on('errorMsg', function(msg) { alert('⚠️ ' + msg); });
 
-    socket.on('roomJoined', function(data) {
-      currentRoomCode = data.roomCode;
-      document.getElementById('setupView').style.display = 'none';
-      document.getElementById('lobbyView').style.display = 'block';
-      document.getElementById('displayRoomCode').innerText = data.roomCode;
-      document.getElementById('hostControls').style.display = data.isHost ? 'block' : 'none';
-    });
+      socket.on('roomJoined', function(data) {
+        currentRoomCode = data.roomCode;
+        document.getElementById('setupView').style.display = 'none';
+        document.getElementById('lobbyView').style.display = 'block';
+        document.getElementById('displayRoomCode').innerText = data.roomCode;
+        document.getElementById('hostControls').style.display = data.isHost ? 'block' : 'none';
+      });
 
-    socket.on('updateQueue', function(data) {
-      document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
-      document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(function(p) {
-        return '<div class="player-card alive">' +
-          '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
-          '<b>' + p.name + '</b><br><small style="color:var(--cyan-glow);">' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
-        '</div>';
-      }).join('');
-    });
+      socket.on('updateQueue', function(data) {
+        document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
+        document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(function(p) {
+          return '<div class="player-card alive">' +
+            '<div class="avatar-box">' + generateAvatarSVG(p.avatar) + '</div>' +
+            '<b>' + p.name + '</b><br><small style="color:var(--cyan-glow);">' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
+          '</div>';
+        }).join('');
+      });
 
-    socket.on('gameStarted', function(data) {
-      document.getElementById('lobbyView').style.display = 'none';
-      document.getElementById('gameView').style.display = 'flex';
-      myPlayerData = data;
-      document.getElementById('myRole').innerText = data.role;
-      document.getElementById('myFaction').innerText = data.faction;
-      addChatMessage('SISTEMA', 'Missão iniciada! Sua função foi atribuída secretamente.', 'system');
-    });
+      socket.on('gameStarted', function(data) {
+        document.getElementById('lobbyView').style.display = 'none';
+        document.getElementById('gameView').style.display = 'flex';
+        myPlayerData = data;
+        document.getElementById('myRole').innerText = data.role;
+        document.getElementById('myFaction').innerText = data.faction;
+        addChatMessage('SISTEMA', 'Missão iniciada! Sua função foi atribuída secretamente.', 'system');
+      });
 
-    socket.on('startNight', function(data) {
-      document.getElementById('gameState').innerText = 'ECLIPSE (NOITE ' + data.turn + ')';
-      document.getElementById('skipDebateBox').style.display = 'none';
-      
-      updateChatState(false, '🔒 Chat bloqueado durante o Eclipse (Noite).');
-      renderGameCards(data.playersList);
-      renderNightActions(data.playersList);
-      addChatMessage('SISTEMA', 'O Eclipse começou. Comunicação bloqueada!', 'system');
-    });
+      socket.on('startNight', function(data) {
+        document.getElementById('gameState').innerText = 'ECLIPSE (NOITE ' + data.turn + ')';
+        document.getElementById('skipDebateBox').style.display = 'none';
+        
+        updateChatState(false, '🔒 Chat bloqueado durante o Eclipse (Noite).');
+        renderGameCards(data.playersList);
+        renderNightActions(data.playersList);
+        addChatMessage('SISTEMA', 'O Eclipse começou. Comunicação bloqueada!', 'system');
+      });
 
-    socket.on('startDay', function(data) {
-      document.getElementById('gameState').innerText = 'TRANSMISSÃO (DIA)';
-      document.getElementById('skipDebateBox').style.display = 'block';
-      
-      const isAlive = checkAmIAlive(data.playersList);
-      if (isAlive) {
-        updateChatState(true, '💬 Chat aberto para discussão.');
-      } else {
-        updateChatState(true, '👻 Você está na Frequência Fantasma (Chat dos Mortos).', true);
-      }
+      socket.on('startDay', function(data) {
+        document.getElementById('gameState').innerText = 'TRANSMISSÃO (DIA)';
+        document.getElementById('skipDebateBox').style.display = 'block';
+        
+        const isAlive = checkAmIAlive(data.playersList);
+        if (isAlive) {
+          updateChatState(true, '💬 Chat aberto para discussão.');
+        } else {
+          updateChatState(true, '👻 Você está na Frequência Fantasma (Chat dos Mortos).', true);
+        }
 
-      renderGameCards(data.playersList);
-      if (data.killedPlayer) addChatMessage('SISTEMA', data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
-      renderDayActions(data.playersList);
-    });
+        renderGameCards(data.playersList);
+        if (data.killedPlayer) addChatMessage('SISTEMA', data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
+        renderDayActions(data.playersList);
+      });
 
-    socket.on('timerUpdate', function(seconds) {
-      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-      const s = (seconds % 60).toString().padStart(2, '0');
-      document.getElementById('timerDisplay').innerText = m + ':' + s;
-    });
+      socket.on('timerUpdate', function(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = m + ':' + s;
+      });
 
-    socket.on('updateSkipCount', function(count) { document.getElementById('skipCount').innerText = count; });
-    socket.on('scanResult', function(res) { alert('[ESCÂNER BIOLÓGICO]: O tripulante ' + res.targetName + ' pertence à raça ' + res.faction + '!'); });
-    socket.on('chatMessage', function(data) { addChatMessage(data.sender, data.text, data.type, data.channel); });
+      socket.on('updateSkipCount', function(count) { document.getElementById('skipCount').innerText = count; });
+      socket.on('scanResult', function(res) { alert('[ESCÂNER BIOLÓGICO]: O tripulante ' + res.targetName + ' pertence à raça ' + res.faction + '!'); });
+      socket.on('chatMessage', function(data) { addChatMessage(data.sender, data.text, data.type, data.channel); });
 
-    socket.on('ejectionResult', function(data) {
-      if (data.ejectedPlayer) addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado da estação! Revelação de Raça: ' + data.ejectedFaction, 'alert');
-      else addChatMessage('SISTEMA', 'Impasse na votação. Ninguém foi ejetado nesta rodada.', 'system');
-    });
+      socket.on('ejectionResult', function(data) {
+        if (data.ejectedPlayer) addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado da estação! Revelação de Raça: ' + data.ejectedFaction, 'alert');
+        else addChatMessage('SISTEMA', 'Impasse na votação. Ninguém foi ejetado nesta rodada.', 'system');
+      });
 
-    socket.on('gameOver', function(data) {
-      alert('FIM DE PARTIDA!\n' + data.winner);
-      location.reload();
-    });
+      socket.on('gameOver', function(data) {
+        alert('FIM DE PARTIDA!\n' + data.winner);
+        location.reload();
+      });
+    }
 
     function checkAmIAlive(players) {
+      if (!socket) return false;
       const me = players.find(p => p.id === socket.id);
       return me ? me.alive : false;
     }
@@ -664,16 +674,18 @@
       const notice = document.getElementById('chatStatusNotice');
       const title = document.getElementById('chatTitle');
 
-      input.disabled = !enabled;
-      btn.disabled = !enabled;
-      notice.innerText = noticeText || '';
+      if (input) input.disabled = !enabled;
+      if (btn) btn.disabled = !enabled;
+      if (notice) notice.innerText = noticeText || '';
 
-      if (isGhost) {
-        title.innerText = '👻 FREQUÊNCIA FANTASMA (CHAT DOS MORTOS)';
-        title.style.color = 'var(--ghost-purple)';
-      } else {
-        title.innerText = 'COMUNICAÇÃO DE BORDO';
-        title.style.color = 'var(--matrix-green)';
+      if (title) {
+        if (isGhost) {
+          title.innerText = '👻 FREQUÊNCIA FANTASMA (CHAT DOS MORTOS)';
+          title.style.color = 'var(--ghost-purple)';
+        } else {
+          title.innerText = 'COMUNICAÇÃO DE BORDO';
+          title.style.color = 'var(--matrix-green)';
+        }
       }
     }
 
@@ -683,7 +695,7 @@
         let badge = '';
         let isZunkRevealed = false;
 
-        const isMe = (p.id === socket.id);
+        const isMe = socket ? (p.id === socket.id) : false;
 
         if (!p.alive) {
           if (p.faction === 'ZUNK') {
@@ -709,6 +721,7 @@
 
     function renderNightActions(players) {
       const panel = document.getElementById('actionPanel');
+      if (!socket) return;
       const me = players.find(p => p.id === socket.id);
       if (!me || !me.alive) return panel.innerHTML = '<p style="color:var(--ghost-purple)">Você foi eliminado. Acompanhe a partida em modo fantasma.</p>';
       
@@ -716,11 +729,22 @@
       panel.innerHTML = '<p style="color:var(--cyan-glow)">Selecione seu alvo para esta noite:</p>';
 
       if (myPlayerData.faction === 'ZUNK') {
-        aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">Desintegrar ' + t.name + '</button> ');
+        aliveTargets.forEach(t => {
+          const safeName = t.name.replace(/'/g, "\\'");
+          panel.innerHTML += '<button onclick="sendNightAction(\'ZUNK_KILL\', \'' + t.id + '\')">Desintegrar ' + safeName + '</button> ';
+        });
       } else if (myPlayerData.roleKey === 'SHIELD_ENGINEER') {
-        players.forEach(t => { if(t.alive) panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">Proteger ' + t.name + '</button> '; });
+        players.forEach(t => {
+          if (t.alive) {
+            const safeName = t.name.replace(/'/g, "\\'");
+            panel.innerHTML += '<button onclick="sendNightAction(\'SHIELD_PROTECT\', \'' + t.id + '\')">Proteger ' + safeName + '</button> ';
+          }
+        });
       } else if (myPlayerData.roleKey === 'BIOLOGIST') {
-        aliveTargets.forEach(t => panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">Escanear ' + t.name + '</button> '; });
+        aliveTargets.forEach(t => {
+          const safeName = t.name.replace(/'/g, "\\'");
+          panel.innerHTML += '<button onclick="sendNightAction(\'BIOLOGIST_SCAN\', \'' + t.id + '\')">Escanear ' + safeName + '</button> ';
+        });
       } else {
         panel.innerHTML = '<p>Aguarde em silêncio o encerramento do Eclipse...</p>';
       }
@@ -728,27 +752,31 @@
 
     function renderDayActions(players) {
       const panel = document.getElementById('actionPanel');
+      if (!socket) return;
       const me = players.find(p => p.id === socket.id);
       if (!me || !me.alive) return panel.innerHTML = '<p style="color:var(--ghost-purple)">Você está ejetado/falecido. Não pode votar.</p>';
       
       panel.innerHTML = '<p style="color:var(--cyan-glow)">Escolha em quem votar para ejetar da estação:</p>';
-      players.filter(p => p.alive).forEach(t => panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + t.name + '</button> ');
+      players.filter(p => p.alive).forEach(t => {
+        const safeName = t.name.replace(/'/g, "\\'");
+        panel.innerHTML += '<button onclick="sendVote(\'' + t.id + '\')">Ejetar ' + safeName + '</button> ';
+      });
       panel.innerHTML += '<br><br><button onclick="sendVote(\'SKIP\')" style="background:#443300;">Abster-se / Pular Voto</button>';
     }
 
     function sendNightAction(type, target) {
-      socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target });
+      if (socket) socket.emit('submitNightAction', { roomCode: currentRoomCode, actionType: type, targetId: target });
       document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Sua ordem da noite foi registrada!</p>';
     }
 
     function sendVote(target) {
-      socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target });
+      if (socket) socket.emit('submitVote', { roomCode: currentRoomCode, targetId: target });
       document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green)">Voto computado com sucesso!</p>';
     }
     
     function sendChat() {
       const txt = document.getElementById('chatInput').value.trim();
-      if (txt && currentRoomCode) {
+      if (txt && currentRoomCode && socket) {
         socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: txt });
         document.getElementById('chatInput').value = '';
       }
@@ -756,6 +784,7 @@
 
     function addChatMessage(sender, text, type, channel) {
       const box = document.getElementById('chatBox');
+      if (!box) return;
       let typeClass = type || 'normal';
       let tag = '[' + sender + ']';
       
