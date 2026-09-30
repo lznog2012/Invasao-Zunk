@@ -411,46 +411,85 @@
     </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = typeof io !== 'undefined' ? io() : null;
-    let myPlayerData = {};
-    let currentRoomCode = null;
+ <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = typeof io !== 'undefined' ? io() : null;
+  let myPlayerData = {};
+  let currentRoomCode = null;
 
-    function toggleSidebar() {
-      const sb = document.getElementById('guideSidebar');
-      if (sb) sb.classList.toggle('open');
+  // ==========================================
+  // 1. OUVINTES DO SOCKET.IO (RECEBIMENTO DE DADOS)
+  // ==========================================
+  if (socket) {
+    // Receber mensagens do Chat do Lobby (Pré-jogo)
+    socket.on('lobbyChatMessage', function(data) {
+      const box = document.getElementById('lobbyChatBox');
+      if (!box) return;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg';
+      msgDiv.innerHTML = `<b>${data.sender}:</b> ${data.text}`;
+
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
+    });
+
+    // Mantanha aqui seus outros ouvintes já existentes (ex: roomJoined, updateQueue, gameStarted, etc.)
+  }
+
+  // ==========================================
+  // 2. CONTROLES DE INTERFACE (MODAIS, SIDEBAR, MENU)
+  // ==========================================
+  function toggleSidebar() {
+    const sb = document.getElementById('guideSidebar');
+    if (sb) sb.classList.toggle('open');
+  }
+
+  function openManualModal() {
+    const modal = document.getElementById('manualModal');
+    if (modal) modal.classList.add('open');
+  }
+
+  function closeManualModal() {
+    const modal = document.getElementById('manualModal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  function toggleForm(type) {
+    const btnCreate = document.getElementById('btnMenuCreate');
+    const btnJoin = document.getElementById('btnMenuJoin');
+    const formCreate = document.getElementById('formCreate');
+    const formJoin = document.getElementById('formJoin');
+
+    if (btnCreate) btnCreate.classList.remove('active');
+    if (btnJoin) btnJoin.classList.remove('active');
+    if (formCreate) formCreate.style.display = 'none';
+    if (formJoin) formJoin.style.display = 'none';
+
+    if (type === 'create') {
+      if (btnCreate) btnCreate.classList.add('active');
+      if (formCreate) formCreate.style.display = 'block';
+    } else if (type === 'join') {
+      if (btnJoin) btnJoin.classList.add('active');
+      if (formJoin) formJoin.style.display = 'block';
     }
+  }
 
-    function openManualModal() {
-      const modal = document.getElementById('manualModal');
-      if (modal) modal.classList.add('open');
+  // ==========================================
+  // 3. AÇÕES DO JOGO E DO LOBBY
+  // ==========================================
+  function sendLobbyChat() {
+    const input = document.getElementById('lobbyChatInput');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (socket && currentRoomCode) {
+      socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text: text });
+      input.value = '';
     }
-
-    function closeManualModal() {
-      const modal = document.getElementById('manualModal');
-      if (modal) modal.classList.remove('open');
-    }
-
-    function toggleForm(type) {
-      const btnCreate = document.getElementById('btnMenuCreate');
-      const btnJoin = document.getElementById('btnMenuJoin');
-      const formCreate = document.getElementById('formCreate');
-      const formJoin = document.getElementById('formJoin');
-
-      if (btnCreate) btnCreate.classList.remove('active');
-      if (btnJoin) btnJoin.classList.remove('active');
-      if (formCreate) formCreate.style.display = 'none';
-      if (formJoin) formJoin.style.display = 'none';
-
-      if (type === 'create') {
-        if (btnCreate) btnCreate.classList.add('active');
-        if (formCreate) formCreate.style.display = 'block';
-      } else if (type === 'join') {
-        if (btnJoin) btnJoin.classList.add('active');
-        if (formJoin) formJoin.style.display = 'block';
-      }
-    }
+  }
+</script>
 
     // MONTA O AVATAR COM AS CAMADAS
     function generateAvatarHTML(c, extra) {
