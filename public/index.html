@@ -146,12 +146,12 @@
           <button onclick="sendLobbyChat()" style="white-space:nowrap; background:#004422;">ENVIAR</button>
         </div>
       </div>
-      <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
         <button id="btnReady" class="ready-btn" onclick="toggleReady()" style="flex:1; min-width:200px;">☐ MARCAR PRONTO</button>
         <button id="btnStartMatch" onclick="startMatch()" style="flex:1; min-width:200px; background:#008833; display:none;">🚀 INICIAR PARTIDA (HOST)</button>
+        <button id="btnAddBot" onclick="addBot()" style="display:none; background:#221144; border-color:var(--ghost-purple); color:var(--ghost-purple); flex:1; min-width:180px;">🤖 ADICIONAR BOT</button>
+        <button id="btnRemoveBot" onclick="removeBot()" style="display:none; background:#441122; border-color:var(--alert-red); color:var(--alert-red); flex:1; min-width:180px;">❌ REMOVER ÚLTIMO BOT</button>
       </div>
-      <p id="readyHint" style="text-align:center; color:#888; font-size:0.85em; margin-top:8px; font-style:italic;"></p>
-    </div>
 
     <!-- TELA 3 -->
     <div id="gameView" class="container" style="display:none;">
