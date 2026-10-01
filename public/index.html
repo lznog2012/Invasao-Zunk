@@ -330,7 +330,7 @@
 
       <div id="lobbyQueueGrid" class="cards-grid"></div>
       
-<!-- CHAT DA SALA DE ESPERA (PRÉ-JOGO) -->
+      <!-- CHAT DA SALA DE ESPERA (PRÉ-JOGO) -->
       <div style="margin-top: 20px; background: rgba(1, 10, 5, 0.85); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px;">
         <h4 style="margin-top: 0; color: var(--cyan-glow);">💬 FREQUÊNCIA DE ESPERA (CHAT PRÉ-JOGO)</h4>
         <div id="lobbyChatBox" class="chat-box" style="height: 140px; margin-bottom: 10px;"></div>
@@ -411,162 +411,28 @@
     </div>
   </div>
 
- <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = typeof io !== 'undefined' ? io() : null;
-  let myPlayerData = {};
-  let currentRoomCode = null;
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = typeof io !== 'undefined' ? io() : null;
+    let myPlayerData = {};
+    let currentRoomCode = null;
 
-  // ==========================================
-  // 1. OUVINTES DO SOCKET.IO (RECEBIMENTO DE DADOS)
-  // ==========================================
-  if (socket) {
-    // Receber mensagens do Chat do Lobby (Pré-jogo)
-    socket.on('lobbyChatMessage', function(data) {
-      const box = document.getElementById('lobbyChatBox');
-      if (!box) return;
-
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-msg';
-      msgDiv.innerHTML = `<b>${data.sender}:</b> ${data.text}`;
-
-      box.appendChild(msgDiv);
-      box.scrollTop = box.scrollHeight;
-    });
-
-    // Mantanha aqui seus outros ouvintes já existentes (ex: roomJoined, updateQueue, gameStarted, etc.)
-  }
-
-  // ==========================================
-  // 2. CONTROLES DE INTERFACE (MODAIS, SIDEBAR, MENU)
-  // ==========================================
-  function toggleSidebar() {
-    const sb = document.getElementById('guideSidebar');
-    if (sb) sb.classList.toggle('open');
-  }
-
-  function openManualModal() {
-    const modal = document.getElementById('manualModal');
-    if (modal) modal.classList.add('open');
-  }
-
-  function closeManualModal() {
-    const modal = document.getElementById('manualModal');
-    if (modal) modal.classList.remove('open');
-  }
-
-  function toggleForm(type) {
-    const btnCreate = document.getElementById('btnMenuCreate');
-    const btnJoin = document.getElementById('btnMenuJoin');
-    const formCreate = document.getElementById('formCreate');
-    const formJoin = document.getElementById('formJoin');
-
-    if (btnCreate) btnCreate.classList.remove('active');
-    if (btnJoin) btnJoin.classList.remove('active');
-    if (formCreate) formCreate.style.display = 'none';
-    if (formJoin) formJoin.style.display = 'none';
-
-    if (type === 'create') {
-      if (btnCreate) btnCreate.classList.add('active');
-      if (formCreate) formCreate.style.display = 'block';
-    } else if (type === 'join') {
-      if (btnJoin) btnJoin.classList.add('active');
-      if (formJoin) formJoin.style.display = 'block';
-    }
-  }
-
-  // ==========================================
-  // 3. AÇÕES DO JOGO E DO LOBBY
-  // ==========================================
-  function sendLobbyChat() {
-    const input = document.getElementById('lobbyChatInput');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    if (socket && currentRoomCode) {
-      socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text: text });
-      input.value = '';
-    }
-  }
-</script>
-
-    // MONTA O AVATAR COM AS CAMADAS
-    function generateAvatarHTML(c, extra) {
-      if (!c) c = {};
-      if (!extra) extra = {};
-
-      let baseImg = 'rimk.png';
-      if (extra.isZunkRevealed) {
-        baseImg = '2.png';
-      }
-
-      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
-      const bodyImg = `<img src="images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
-      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
-      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
-      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
-
-      return `
-        <div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">
-          ${bgImg}
-          ${bodyImg}
-          ${suitImg}
-          ${hairImg}
-          ${eyewearImg}
-        </div>
-      `;
-    }
-
-    function getCustomizationFromUI() {
-      const getVal = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value : 'none';
-      };
-      return {
-        facialHair: getVal('optFacialHair'),
-        eyewear: getVal('optEyewear'),
-        suit: getVal('optSuit'),
-        bg: getVal('optBg')
-      };
-    }
-
-    function updatePreview() {
-      const box = document.getElementById('avatarPreview');
-      if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
-    }
-
-    window.addEventListener('DOMContentLoaded', function() {
-      updatePreview();
-    });
-
-    function createRoom() {
-      const nameInput = document.getElementById('username');
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name) return alert('Por favor, digite seu nome de tripulante!');
-      
-      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
-      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
-      
-      if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
-    }
-
-    function joinRoom() {
-      const nameInput = document.getElementById('username');
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name) return alert('Por favor, digite seu nome!');
-      
-      const roomCodeInput = document.getElementById('roomCodeInput');
-      const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
-      if (!roomCode) return alert('Digite o código da sala!');
-
-      if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
-    }
-
-    function startMatch() { if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode }); }
-    function voteSkipDebate() { if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
-
+    // ==========================================
+    // 1. OUVINTES DO SOCKET.IO
+    // ==========================================
     if (socket) {
+      socket.on('lobbyChatMessage', function(data) {
+        const box = document.getElementById('lobbyChatBox');
+        if (!box) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg';
+        msgDiv.innerHTML = `<b>${data.sender}:</b> ${data.text}`;
+
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+      });
+
       socket.on('errorMsg', function(msg) { alert('⚠️ ' + msg); });
 
       socket.on('roomJoined', function(data) {
@@ -643,6 +509,133 @@
       });
     }
 
+    // ==========================================
+    // 2. CONTROLES DE INTERFACE & AUXILIARES
+    // ==========================================
+    function toggleSidebar() {
+      const sb = document.getElementById('guideSidebar');
+      if (sb) sb.classList.toggle('open');
+    }
+
+    function openManualModal() {
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeManualModal() {
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function toggleForm(type) {
+      const btnCreate = document.getElementById('btnMenuCreate');
+      const btnJoin = document.getElementById('btnMenuJoin');
+      const formCreate = document.getElementById('formCreate');
+      const formJoin = document.getElementById('formJoin');
+
+      if (btnCreate) btnCreate.classList.remove('active');
+      if (btnJoin) btnJoin.classList.remove('active');
+      if (formCreate) formCreate.style.display = 'none';
+      if (formJoin) formJoin.style.display = 'none';
+
+      if (type === 'create') {
+        if (btnCreate) btnCreate.classList.add('active');
+        if (formCreate) formCreate.style.display = 'block';
+      } else if (type === 'join') {
+        if (btnJoin) btnJoin.classList.add('active');
+        if (formJoin) formJoin.style.display = 'block';
+      }
+    }
+
+    function generateAvatarHTML(c, extra) {
+      if (!c) c = {};
+      if (!extra) extra = {};
+
+      let baseImg = 'rimk.png';
+      if (extra.isZunkRevealed) {
+        baseImg = '2.png';
+      }
+
+      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
+      const bodyImg = `<img src="images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
+      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
+      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
+      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
+
+      return `
+        <div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">
+          ${bgImg}
+          ${bodyImg}
+          ${suitImg}
+          ${hairImg}
+          ${eyewearImg}
+        </div>
+      `;
+    }
+
+    function getCustomizationFromUI() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : 'none';
+      };
+      return {
+        facialHair: getVal('optFacialHair'),
+        eyewear: getVal('optEyewear'),
+        suit: getVal('optSuit'),
+        bg: getVal('optBg')
+      };
+    }
+
+    function updatePreview() {
+      const box = document.getElementById('avatarPreview');
+      if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      updatePreview();
+    });
+
+    // ==========================================
+    // 3. AÇÕES DO JOGO E DO LOBBY
+    // ==========================================
+    function createRoom() {
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return alert('Por favor, digite seu nome de tripulante!');
+      
+      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
+      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
+      
+      if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
+    }
+
+    function joinRoom() {
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return alert('Por favor, digite seu nome!');
+      
+      const roomCodeInput = document.getElementById('roomCodeInput');
+      const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
+      if (!roomCode) return alert('Digite o código da sala!');
+
+      if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
+    }
+
+    function startMatch() { if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode }); }
+    function voteSkipDebate() { if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
+
+    function sendLobbyChat() {
+      const input = document.getElementById('lobbyChatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (socket && currentRoomCode) {
+        socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text: text });
+        input.value = '';
+      }
+    }
+
     function checkAmIAlive(players) {
       if (!socket) return false;
       const me = players.find(p => p.id === socket.id);
@@ -668,6 +661,39 @@
           title.style.color = 'var(--matrix-green)';
         }
       }
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (socket && currentRoomCode) {
+        socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: text });
+        input.value = '';
+      }
+    }
+
+    function addChatMessage(sender, text, type, channel) {
+      const box = document.getElementById('chatBox');
+      if (!box) return;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg' + (type ? ' ' + type : '');
+
+      if (type === 'system') {
+        msgDiv.innerHTML = `🤖 <b>[SISTEMA]:</b> ${text}`;
+      } else if (type === 'alert') {
+        msgDiv.innerHTML = `⚠️ <b>[ALERTA]:</b> ${text}`;
+      } else if (type === 'dead') {
+        msgDiv.innerHTML = `👻 <b>${sender} (Fantasma):</b> ${text}`;
+      } else {
+        msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
+      }
+
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
     }
 
     function renderGameCards(players) {
@@ -728,70 +754,34 @@
       }
     }
 
-    function sendNightAction(action, targetId) {
-      if (socket && currentRoomCode) {
-        socket.emit('nightAction', { roomCode: currentRoomCode, action, targetId });
-        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--cyan-glow);">Ação enviada com sucesso! Aguardando o fim do Eclipse...</p>';
-      }
-    }
-
     function renderDayActions(players) {
       const actionPanel = document.getElementById('actionPanel');
       if (!actionPanel) return;
 
       if (!checkAmIAlive(players)) {
-        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está morto e não pode votar na reunião.</p>';
+        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
         return;
       }
 
-      let targetsHTML = players.filter(p => p.alive).map(p => 
-        `<button onclick="voteEject('${p.id}')" style="background:#002211; border-color:var(--matrix-green); margin:3px;">VOTAR EM ${p.name}</button>`
+      let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p => 
+        `<button onclick="voteEject('${p.id}')" style="background:#442200; border-color:var(--gold-yellow); margin:3px;">VOTAR EM ${p.name}</button>`
       ).join('');
 
-      targetsHTML += `<button onclick="voteEject('skip')" style="background:#222; border-color:#888; margin:3px;">PULAR VOTO (ABSTER)</button>`;
+      actionPanel.innerHTML = `<h4>🗳 FASE DE VOTAÇÃO: ESCOLHA UM SUSPEITO PARA EJETAR</h4><div>${targetsHTML || 'Nenhum suspeito disponível.'}</div>`;
+    }
 
-      actionPanel.innerHTML = `<h4>🗳 VOTAÇÃO DE EMERGÊNCIA: QUEM DEVE SER EJETADO?</h4><div>${targetsHTML}</div>`;
+    function sendNightAction(action, targetId) {
+      if (socket && currentRoomCode) {
+        socket.emit('nightAction', { roomCode: currentRoomCode, action: action, targetId: targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">Ação enviada! Aguardando o fim do Eclipse...</p>';
+      }
     }
 
     function voteEject(targetId) {
       if (socket && currentRoomCode) {
-        socket.emit('voteEject', { roomCode: currentRoomCode, targetId });
-        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">Voto registrado com sucesso!</p>';
+        socket.emit('voteEject', { roomCode: currentRoomCode, targetId: targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green);">Voto computado com sucesso!</p>';
       }
-    }
-
-    function sendChat() {
-      const input = document.getElementById('chatInput');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
-
-      if (socket && currentRoomCode) {
-        socket.emit('sendChat', { roomCode: currentRoomCode, text });
-        input.value = '';
-      }
-    }
-
-    function addChatMessage(sender, text, type, channel) {
-      const box = document.getElementById('chatBox');
-      if (!box) return;
-
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-msg ' + (type || '');
-
-      if (type === 'system') {
-        msgDiv.innerHTML = `<b>[SISTEMA]</b> ${text}`;
-      } else if (type === 'alert') {
-        msgDiv.innerHTML = `<b>[ALERTA]</b> ${text}`;
-      } else if (channel === 'ghost' || type === 'dead') {
-        msgDiv.className = 'chat-msg dead';
-        msgDiv.innerHTML = `<b>👻 ${sender}:</b> ${text}`;
-      } else {
-        msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
-      }
-
-      box.appendChild(msgDiv);
-      box.scrollTop = box.scrollHeight;
     }
   </script>
 </body>
