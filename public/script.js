@@ -233,16 +233,16 @@ if (socket) {
 
   socket.on('errorMsg', msg => showToast('⚠️ ERRO', msg, 'zunk'));
 
-  socket.on('roomJoined', d => {
+   socket.on('roomJoined', d => {
     currentRoomCode = d.roomCode;
     myPlayerData.isHost = d.isHost;
     document.getElementById('setupView').style.display = 'none';
     document.getElementById('lobbyView').style.display = 'block';
     document.getElementById('displayRoomCode').innerText = d.roomCode;
     document.getElementById('btnStartMatch').style.display = d.isHost ? 'block' : 'none';
-  });
     document.getElementById('btnAddBot').style.display = d.isHost ? 'block' : 'none';
     document.getElementById('btnRemoveBot').style.display = d.isHost ? 'block' : 'none';
+  });
   
   socket.on('reconnected', d => {
     currentRoomCode = d.roomCode;
