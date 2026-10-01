@@ -17,7 +17,7 @@
     }
 
     * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
-    
+
     body {
       background: radial-gradient(circle at center, #0a1820 0%, #020508 100%);
       color: var(--matrix-green);
@@ -31,9 +31,9 @@
     }
 
     h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--matrix-green); margin: 5px 0; }
-    
+
     .container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
-    
+
     .panel {
       background: var(--card-bg);
       border: 1px solid var(--matrix-green);
@@ -42,9 +42,9 @@
       box-shadow: 0 0 20px rgba(0, 255, 102, 0.12);
       backdrop-filter: blur(8px);
     }
-    
+
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 15px; margin-top: 15px; }
-    
+
     .player-card {
       background: rgba(5, 15, 20, 0.9);
       border: 1px solid #005522;
@@ -56,7 +56,7 @@
     }
     .player-card.alive { border-color: var(--matrix-green); box-shadow: 0 0 10px rgba(0, 255, 102, 0.2); }
     .player-card.dead { border-color: var(--alert-red); opacity: 0.7; filter: grayscale(70%); }
-    
+
     .avatar-box {
       width: 120px;
       height: 120px;
@@ -69,7 +69,7 @@
     }
 
     .customizer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 10px 0; }
-    
+
     select, input[type="text"], input[type="number"] {
       background: #001100;
       border: 1px solid var(--matrix-green);
@@ -79,7 +79,7 @@
       border-radius: 4px;
       font-size: 0.95em;
     }
-    
+
     button {
       background: var(--matrix-dark-green);
       color: var(--matrix-green);
@@ -96,7 +96,7 @@
     button:disabled { opacity: 0.4; cursor: not-allowed; border-color: #444; color: #888; background: #111; }
 
     .code-display { font-size: 2.2em; color: var(--gold-yellow); text-shadow: 0 0 12px var(--gold-yellow); letter-spacing: 5px; font-weight: bold; }
-    
+
     .game-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
     @media (max-width: 850px) { .game-layout { grid-template-columns: 1fr; } }
 
@@ -114,7 +114,7 @@
     .action-menu { display: flex; gap: 15px; margin-top: 20px; }
     .action-menu button { flex: 1; padding: 15px; font-size: 1em; background: #002211; border: 2px solid var(--matrix-green); }
     .action-menu button:hover, .action-menu button.active { background: var(--matrix-green); color: #000; }
-    
+
     .hidden-form { display: none; background: #010c06; padding: 20px; border: 1px dashed var(--matrix-green); border-radius: 8px; margin-top: 15px; }
 
     .guide-sidebar {
@@ -176,9 +176,98 @@
       padding: 25px;
       box-shadow: 0 0 30px var(--matrix-green);
     }
+
+    /* ============ TOAST DE NOTIFICAÇÃO ============ */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      background: rgba(2, 20, 10, 0.96);
+      border: 2px solid var(--matrix-green);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: var(--matrix-green);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
+      min-width: 260px;
+      max-width: 380px;
+      font-size: 0.9em;
+      animation: slideIn 0.3s ease, fadeOut 0.4s ease 4.6s forwards;
+      pointer-events: auto;
+    }
+    .toast.zunk { border-color: var(--alert-red); color: #ff8899; box-shadow: 0 0 20px rgba(255, 51, 102, 0.5); }
+    .toast.gold { border-color: var(--gold-yellow); color: var(--gold-yellow); box-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
+    .toast.cyan { border-color: var(--cyan-glow); color: var(--cyan-glow); box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
+    .toast b { display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    @keyframes slideIn {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      to { transform: translateX(120%); opacity: 0; }
+    }
+
+    /* ============ PAINEL DE FIM DE JOGO ============ */
+    .game-over-panel {
+      display: none;
+      background: linear-gradient(135deg, rgba(20, 5, 5, 0.95), rgba(5, 20, 15, 0.95));
+      border: 2px solid var(--gold-yellow);
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 15px;
+      box-shadow: 0 0 40px rgba(255, 204, 0, 0.3);
+      animation: pulseGold 2s infinite alternate;
+    }
+    .game-over-panel.open { display: block; }
+    .game-over-panel h2 {
+      text-align: center;
+      color: var(--gold-yellow);
+      text-shadow: 0 0 15px var(--gold-yellow);
+      font-size: 1.8em;
+      margin: 0 0 15px 0;
+    }
+    .final-roster {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .final-card {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.85em;
+    }
+    .final-card.rimk { border-color: #aaff00; color: #aaff00; }
+    .final-card.zunk { border-color: var(--alert-red); color: var(--alert-red); }
+    .final-card.dead { opacity: 0.5; }
+    @keyframes pulseGold {
+      from { box-shadow: 0 0 25px rgba(255, 204, 0, 0.2); }
+      to { box-shadow: 0 0 40px rgba(255, 204, 0, 0.5); }
+    }
+
+    /* ============ ANIMAÇÃO DE EJEÇÃO ============ */
+    .player-card.ejecting {
+      animation: shake 0.5s ease 3;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px) rotate(-2deg); }
+      75% { transform: translateX(8px) rotate(2deg); }
+    }
   </style>
 </head>
 <body>
+
+  <div id="toastContainer" class="toast-container"></div>
 
   <!-- BOTÃO GUIA LATERAL -->
   <button class="guide-toggle-btn" onclick="toggleSidebar()">📘 MANUAL DA ESTAÇÃO</button>
@@ -187,7 +276,7 @@
   <div id="guideSidebar" class="guide-sidebar">
     <h3 style="color:var(--cyan-glow); margin-top:30px;">📘 GUIA DE FUNÇÕES</h3>
     <hr style="border-color:#004422;">
-    
+
     <p><b style="color:#aaff00;">🟢 TRIPULANTE RIMK</b><br>
     Habitante nativo da Estação Alpha. Seu objetivo é participar dos debates e votar para ejetar todos os Infiltrados Zunks.</p>
 
@@ -199,7 +288,7 @@
 
     <p><b style="color:var(--alert-red);">🔴 INFILTRADO ZUNK</b><br>
     Parasita alienígena disfarçado com pele verde de Rimk. Durante o Eclipse (Noite), escolhe um Rimk para desintegrar. Vence se igualar ou superar o número de Rimks.</p>
-    
+
     <button onclick="toggleSidebar()" style="width:100%; margin-top:20px;">FECHAR GUIA</button>
   </div>
 
@@ -224,7 +313,7 @@
         <div>
           <label>Nome do Tripulante:</label>
           <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom: 10px;">
-          
+
           <div class="customizer-grid">
             <div>
               <label>Pelo Facial / Bigode:</label>
@@ -251,538 +340,4 @@
               <label>Roupa / Traje:</label>
               <select id="optSuit" onchange="updatePreview()">
                 <option value="none">Básico</option>
-                <option value="14.png">Camisa Listrada</option>
-                <option value="15.png">Jaqueta Jeans</option>
-                <option value="16.png">Blusa Vermelha</option>
-                <option value="17.png">Traje Espacial</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Fundo do Cartão:</label>
-              <select id="optBg" onchange="updatePreview()">
-                <option value="none">Padrão Escuro</option>
-                <option value="3.jpg">Marte</option>
-                <option value="4.jpg">Espaço Sideral</option>
-                <option value="5.jpg">Nave RIMK</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr style="border-color: #003311; margin: 25px 0;">
-
-      <h3>[ 2. MODO DE ENTRADA ]</h3>
-      <div class="action-menu">
-        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
-        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
-      </div>
-
-      <!-- PARÂMETROS DO HOST -->
-      <div id="formCreate" class="hidden-form">
-        <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ PARÂMETROS DA PARTIDA</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div>
-            <label>Quantidade de Jogadores:</label>
-            <select id="maxPlayersInput">
-              <option value="5">5 Jogadores</option>
-              <option value="6">6 Jogadores</option>
-              <option value="7">7 Jogadores</option>
-            </select>
-          </div>
-          <div>
-            <label>Tempo de Discussão (em Minutos):</label>
-            <select id="debateMinutesInput">
-              <option value="1">1 Minuto</option>
-              <option value="2">2 Minutos</option>
-              <option value="3" selected>3 Minutos</option>
-              <option value="5">5 Minutos</option>
-              <option value="10">10 Minutos</option>
-            </select>
-          </div>
-        </div>
-        <button onclick="createRoom()" style="width: 100%; background: #006622;">GERAR CÓDIGO DA SALA E ABRIR FILA</button>
-      </div>
-
-      <!-- ENTRAR COM CÓDIGO -->
-      <div id="formJoin" class="hidden-form">
-        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 INSERIR CÓDIGO DA SALA</h4>
-        <label>Código da Sala (4 Dígitos):</label>
-        <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; font-size: 1.5em; text-align: center; letter-spacing: 5px; margin: 10px 0;">
-        <button onclick="joinRoom()" style="width: 100%; background: #003366; border-color: #0088cc;">CONECTAR À FILA DA SALA</button>
-      </div>
-    </div>
-
-    <!-- TELA 2: FILA DE ESPERA DA SALA -->
-    <div id="lobbyView" class="panel" style="display:none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <div>
-          <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
-          <p style="color:var(--cyan-glow); margin: 0;">Compartilhe este código para os tripulantes entrarem!</p>
-        </div>
-        <div>
-          <h4>TRIPULANTES NA FILA: <span id="queueCount">0 / 0</span></h4>
-        </div>
-      </div>
-
-      <hr style="border-color: #003311; margin: 15px 0;">
-
-      <div id="lobbyQueueGrid" class="cards-grid"></div>
-      
-      <!-- CHAT DA SALA DE ESPERA (PRÉ-JOGO) -->
-      <div style="margin-top: 20px; background: rgba(1, 10, 5, 0.85); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px;">
-        <h4 style="margin-top: 0; color: var(--cyan-glow);">💬 FREQUÊNCIA DE ESPERA (CHAT PRÉ-JOGO)</h4>
-        <div id="lobbyChatBox" class="chat-box" style="height: 140px; margin-bottom: 10px;"></div>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="lobbyChatInput" placeholder="Converse com os tripulantes na fila..." onkeypress="if(event.key==='Enter') sendLobbyChat()">
-          <button onclick="sendLobbyChat()" style="white-space: nowrap; background: #004422;">ENVIAR</button>
-        </div>
-      </div>
-      <div id="hostControls" style="margin-top: 20px; display: none;">
-        <button onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (COMANDO DO HOST)</button>
-      </div>
-    </div>
-
-    <!-- TELA 3: TELA DE JOGO -->
-    <div id="gameView" class="container" style="display:none;">
-      <div class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <div><span>SUA FUNÇÃO: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span></div>
-        <div><span>FASE ATUAL: <b id="gameState">ECLIPSE</b></span></div>
-        <div><span class="timer-badge" id="timerDisplay">00:00</span></div>
-      </div>
-
-      <div class="game-layout">
-        <div>
-          <div class="panel">
-            <h3>TRIPULAÇÃO DA ESTAÇÃO ALPHA</h3>
-            <div id="gameCardsGrid" class="cards-grid"></div>
-          </div>
-
-          <div class="panel" style="margin-top: 15px;">
-            <h3>PAINEL DE COMANDO</h3>
-            <div id="actionPanel"><p>Aguardando ordens do sistema...</p></div>
-            <div id="skipDebateBox" style="margin-top: 10px; display: none;">
-              <button onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
-                ⚡ VOTAR PARA ENCERRAR DISCUSSÃO (<span id="skipCount">0</span> Votos)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
-          <h3 id="chatTitle">COMUNICAÇÃO DE BORDO</h3>
-          <div id="chatBox" class="chat-box"></div>
-          
-          <div style="margin-top: 10px;">
-            <div style="display: flex; gap: 5px;">
-              <input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendChat()">
-              <button id="btnSendChat" onclick="sendChat()">ENVIAR</button>
-            </div>
-            <small id="chatStatusNotice" style="color:#888; font-style:italic; display:block; margin-top:4px;"></small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL MANUAL DE REGRAS -->
-  <div id="manualModal" class="modal">
-    <div class="modal-content">
-      <h2 style="color:var(--cyan-glow);">📖 MANUAL DO JOGO: ESTAÇÃO ALPHA</h2>
-      <hr style="border-color:var(--matrix-green);">
-      
-      <h4>🛸 LORE E CONTEXTO</h4>
-      <p>A Estação Alpha é um posto científico habitado pela raça de alienígenas pacíficos conhecidos como <b>Rimks</b> (caracterizados por sua cor verde). No entanto, parasitas metamorfos conhecidos como <b>Zunks</b> se infiltraram na tripulação usando biotecnologia disfarçada para imitar a aparência dos Rimks.</p>
-
-      <h4>🎯 OBJETIVOS DAS FACÇÕES</h4>
-      <ul>
-        <li><b style="color:#aaff00;">FACÇÃO RIMK:</b> Descobrir quem são os Infiltrados Zunks e ejetá-los da estação através do voto de maioria.</li>
-        <li><b style="color:var(--alert-red);">FACÇÃO ZUNK:</b> Eliminar os Rimks secretamente durante o Eclipse e manter o disfarce durante as discussões. Vencem ao atingir número igual ou superior ao dos Rimks. Ao serem ejetados, sua pele verdadeira (branca) é revelada!</li>
-      </ul>
-
-      <h4>⏳ FLUXO DE JOGO</h4>
-      <ol>
-        <li><b>O ECLIPSE (NOITE):</b> O sistema de comunicação é cortado. Zunks escolhem uma vítima, o Biólogo escolhe alguém para escanear e o Engenheiro escolhe quem proteger.</li>
-        <li><b>A TRANSMISSÃO (DIA):</b> O canal de comunicação acorda. É revelado se alguém foi eliminado. Os tripulantes vivos discutem no chat pelo tempo estipulado pelo Host e votam em quem ejetar.</li>
-      </ol>
-
-      <button onclick="closeManualModal()" style="width:100%; margin-top:15px; background:#aa0000; color:#fff;">ENTENDI! VOLTAR AO JOGO</button>
-    </div>
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = typeof io !== 'undefined' ? io() : null;
-    let myPlayerData = {};
-    let currentRoomCode = null;
-
-    // ==========================================
-    // 1. OUVINTES DO SOCKET.IO
-    // ==========================================
-    if (socket) {
-      socket.on('lobbyChatMessage', function(data) {
-        const box = document.getElementById('lobbyChatBox');
-        if (!box) return;
-
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-msg';
-        msgDiv.innerHTML = `<b>${data.sender}:</b> ${data.text}`;
-
-        box.appendChild(msgDiv);
-        box.scrollTop = box.scrollHeight;
-      });
-
-      socket.on('errorMsg', function(msg) { alert('⚠️ ' + msg); });
-
-      socket.on('roomJoined', function(data) {
-        currentRoomCode = data.roomCode;
-        document.getElementById('setupView').style.display = 'none';
-        document.getElementById('lobbyView').style.display = 'block';
-        document.getElementById('displayRoomCode').innerText = data.roomCode;
-        document.getElementById('hostControls').style.display = data.isHost ? 'block' : 'none';
-      });
-
-      socket.on('updateQueue', function(data) {
-        document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
-        document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(function(p) {
-          return '<div class="player-card alive">' +
-            '<div class="avatar-box">' + generateAvatarHTML(p.avatar) + '</div>' +
-            '<b>' + p.name + '</b><br><small style="color:var(--cyan-glow);">' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
-          '</div>';
-        }).join('');
-      });
-
-      socket.on('gameStarted', function(data) {
-        document.getElementById('lobbyView').style.display = 'none';
-        document.getElementById('gameView').style.display = 'flex';
-        myPlayerData = data;
-        document.getElementById('myRole').innerText = data.role;
-        document.getElementById('myFaction').innerText = data.faction;
-        addChatMessage('SISTEMA', 'Missão iniciada! Sua função foi atribuída secretamente.', 'system');
-      });
-
-      socket.on('startNight', function(data) {
-        document.getElementById('gameState').innerText = 'ECLIPSE (NOITE ' + data.turn + ')';
-        document.getElementById('skipDebateBox').style.display = 'none';
-        
-        updateChatState(false, '🔒 Chat bloqueado durante o Eclipse (Noite).');
-        renderGameCards(data.playersList);
-        renderNightActions(data.playersList);
-        addChatMessage('SISTEMA', 'O Eclipse começou. Comunicação bloqueada!', 'system');
-      });
-
-      socket.on('startDay', function(data) {
-        document.getElementById('gameState').innerText = 'TRANSMISSÃO (DIA)';
-        document.getElementById('skipDebateBox').style.display = 'block';
-        
-        const isAlive = checkAmIAlive(data.playersList);
-        if (isAlive) {
-          updateChatState(true, '💬 Chat aberto para discussão.');
-        } else {
-          updateChatState(true, '👻 Você está na Frequência Fantasma (Chat dos Mortos).', true);
-        }
-
-        renderGameCards(data.playersList);
-        if (data.killedPlayer) addChatMessage('SISTEMA', data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
-        renderDayActions(data.playersList);
-      });
-
-      socket.on('timerUpdate', function(seconds) {
-        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        document.getElementById('timerDisplay').innerText = m + ':' + s;
-      });
-
-      socket.on('updateSkipCount', function(count) { document.getElementById('skipCount').innerText = count; });
-      socket.on('scanResult', function(res) { alert('[ESCÂNER BIOLÓGICO]: O tripulante ' + res.targetName + ' pertence à raça ' + res.faction + '!'); });
-      socket.on('chatMessage', function(data) { addChatMessage(data.sender, data.text, data.type, data.channel); });
-
-      socket.on('ejectionResult', function(data) {
-        if (data.ejectedPlayer) addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado da estação! Revelação de Raça: ' + data.ejectedFaction, 'alert');
-        else addChatMessage('SISTEMA', 'Impasse na votação. Ninguém foi ejetado nesta rodada.', 'system');
-      });
-
-      socket.on('gameOver', function(data) {
-        alert('FIM DE PARTIDA!\n' + data.winner);
-        location.reload();
-      });
-    }
-
-    // ==========================================
-    // 2. CONTROLES DE INTERFACE & AUXILIARES
-    // ==========================================
-    function toggleSidebar() {
-      const sb = document.getElementById('guideSidebar');
-      if (sb) sb.classList.toggle('open');
-    }
-
-    function openManualModal() {
-      const modal = document.getElementById('manualModal');
-      if (modal) modal.classList.add('open');
-    }
-
-    function closeManualModal() {
-      const modal = document.getElementById('manualModal');
-      if (modal) modal.classList.remove('open');
-    }
-
-    function toggleForm(type) {
-      const btnCreate = document.getElementById('btnMenuCreate');
-      const btnJoin = document.getElementById('btnMenuJoin');
-      const formCreate = document.getElementById('formCreate');
-      const formJoin = document.getElementById('formJoin');
-
-      if (btnCreate) btnCreate.classList.remove('active');
-      if (btnJoin) btnJoin.classList.remove('active');
-      if (formCreate) formCreate.style.display = 'none';
-      if (formJoin) formJoin.style.display = 'none';
-
-      if (type === 'create') {
-        if (btnCreate) btnCreate.classList.add('active');
-        if (formCreate) formCreate.style.display = 'block';
-      } else if (type === 'join') {
-        if (btnJoin) btnJoin.classList.add('active');
-        if (formJoin) formJoin.style.display = 'block';
-      }
-    }
-
-    function generateAvatarHTML(c, extra) {
-      if (!c) c = {};
-      if (!extra) extra = {};
-
-      let baseImg = 'rimk.png';
-      if (extra.isZunkRevealed) {
-        baseImg = '2.png';
-      }
-
-      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
-      const bodyImg = `<img src="images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
-      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
-      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
-      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
-
-      return `
-        <div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">
-          ${bgImg}
-          ${bodyImg}
-          ${suitImg}
-          ${hairImg}
-          ${eyewearImg}
-        </div>
-      `;
-    }
-
-    function getCustomizationFromUI() {
-      const getVal = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value : 'none';
-      };
-      return {
-        facialHair: getVal('optFacialHair'),
-        eyewear: getVal('optEyewear'),
-        suit: getVal('optSuit'),
-        bg: getVal('optBg')
-      };
-    }
-
-    function updatePreview() {
-      const box = document.getElementById('avatarPreview');
-      if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
-    }
-
-    window.addEventListener('DOMContentLoaded', function() {
-      updatePreview();
-    });
-
-    // ==========================================
-    // 3. AÇÕES DO JOGO E DO LOBBY
-    // ==========================================
-    function createRoom() {
-      const nameInput = document.getElementById('username');
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name) return alert('Por favor, digite seu nome de tripulante!');
-      
-      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
-      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
-      
-      if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
-    }
-
-    function joinRoom() {
-      const nameInput = document.getElementById('username');
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name) return alert('Por favor, digite seu nome!');
-      
-      const roomCodeInput = document.getElementById('roomCodeInput');
-      const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
-      if (!roomCode) return alert('Digite o código da sala!');
-
-      if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
-    }
-
-    function startMatch() { if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode }); }
-    function voteSkipDebate() { if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
-
-    function sendLobbyChat() {
-      const input = document.getElementById('lobbyChatInput');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
-
-      if (socket && currentRoomCode) {
-        socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text: text });
-        input.value = '';
-      }
-    }
-
-    function checkAmIAlive(players) {
-      if (!socket) return false;
-      const me = players.find(p => p.id === socket.id);
-      return me ? me.alive : false;
-    }
-
-    function updateChatState(enabled, noticeText, isGhost) {
-      const input = document.getElementById('chatInput');
-      const btn = document.getElementById('btnSendChat');
-      const notice = document.getElementById('chatStatusNotice');
-      const title = document.getElementById('chatTitle');
-
-      if (input) input.disabled = !enabled;
-      if (btn) btn.disabled = !enabled;
-      if (notice) notice.innerText = noticeText || '';
-
-      if (title) {
-        if (isGhost) {
-          title.innerText = '👻 FREQUÊNCIA FANTASMA (CHAT DOS MORTOS)';
-          title.style.color = 'var(--ghost-purple)';
-        } else {
-          title.innerText = 'COMUNICAÇÃO DE BORDO';
-          title.style.color = 'var(--matrix-green)';
-        }
-      }
-    }
-
-    function sendChat() {
-      const input = document.getElementById('chatInput');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
-
-      if (socket && currentRoomCode) {
-        socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: text });
-        input.value = '';
-      }
-    }
-
-    function addChatMessage(sender, text, type, channel) {
-      const box = document.getElementById('chatBox');
-      if (!box) return;
-
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-msg' + (type ? ' ' + type : '');
-
-      if (type === 'system') {
-        msgDiv.innerHTML = `🤖 <b>[SISTEMA]:</b> ${text}`;
-      } else if (type === 'alert') {
-        msgDiv.innerHTML = `⚠️ <b>[ALERTA]:</b> ${text}`;
-      } else if (type === 'dead') {
-        msgDiv.innerHTML = `👻 <b>${sender} (Fantasma):</b> ${text}`;
-      } else {
-        msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
-      }
-
-      box.appendChild(msgDiv);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function renderGameCards(players) {
-      const container = document.getElementById('gameCardsGrid');
-      if (!container) return;
-
-      container.innerHTML = players.map(function(p) {
-        const status = p.alive ? 'alive' : 'dead';
-        let badge = p.alive ? '<span class="badge badge-rimk">VIVO</span>' : '<span class="badge badge-zunk">ELIMINADO</span>';
-        let isZunkRevealed = false;
-
-        if (!p.alive && p.faction === 'ZUNK') {
-          isZunkRevealed = true;
-          badge = '<span class="badge badge-zunk">ZUNK REVELADO</span>';
-        }
-
-        const isMe = socket ? (p.id === socket.id) : false;
-        const meStyle = isMe ? 'style="border-color: var(--cyan-glow);"' : '';
-
-        return `
-          <div class="player-card ${status}" ${meStyle}>
-            <div class="avatar-box">${generateAvatarHTML(p.avatar, { isZunkRevealed: isZunkRevealed })}</div>
-            <b>${p.name}</b> ${isMe ? '<small style="color:var(--cyan-glow);">(Você)</small>' : ''}<br>
-            ${badge}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderNightActions(players) {
-      const actionPanel = document.getElementById('actionPanel');
-      if (!actionPanel) return;
-
-      if (!checkAmIAlive(players)) {
-        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
-        return;
-      }
-
-      const role = myPlayerData.roleKey || myPlayerData.role;
-
-      if (role === 'ZUNK' || myPlayerData.faction === 'ZUNK') {
-        let targetsHTML = players.filter(p => p.alive && p.faction !== 'ZUNK').map(p => 
-          `<button onclick="sendNightAction('kill', '${p.id}')" style="background:#441122; border-color:var(--alert-red); margin:3px;">DESINTEGRAR ${p.name}</button>`
-        ).join('');
-        actionPanel.innerHTML = `<h4>🔴 AÇÃO ZUNK: ESCOLHA UM RIMK PARA ELIMINAR</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
-      } else if (role === 'BIOLOGIST' || role === 'BIÓLOGO') {
-        let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p => 
-          `<button onclick="sendNightAction('scan', '${p.id}')" style="background:#003344; border-color:var(--cyan-glow); margin:3px;">ESCANEAR ${p.name}</button>`
-        ).join('');
-        actionPanel.innerHTML = `<h4>🧪 AÇÃO DO BIÓLOGO: ESCANEAR RAÇA BIOLÓGICA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
-      } else if (role === 'SHIELD_ENGINEER' || role === 'ENGENHEIRO DE ESCUDO') {
-        let targetsHTML = players.filter(p => p.alive).map(p => 
-          `<button onclick="sendNightAction('shield', '${p.id}')" style="background:#003311; border-color:var(--matrix-green); margin:3px;">PROTEGER ${p.name}</button>`
-        ).join('');
-        actionPanel.innerHTML = `<h4>🛡 AÇÃO DO ENGENHEIRO: ATIVAR CAMPO DE FORÇA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
-      } else {
-        actionPanel.innerHTML = '<p>💤 Durante o Eclipse, aguarde as ações dos especialistas...</p>';
-      }
-    }
-
-    function renderDayActions(players) {
-      const actionPanel = document.getElementById('actionPanel');
-      if (!actionPanel) return;
-
-      if (!checkAmIAlive(players)) {
-        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
-        return;
-      }
-
-      let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p => 
-        `<button onclick="voteEject('${p.id}')" style="background:#442200; border-color:var(--gold-yellow); margin:3px;">VOTAR EM ${p.name}</button>`
-      ).join('');
-
-      actionPanel.innerHTML = `<h4>🗳 FASE DE VOTAÇÃO: ESCOLHA UM SUSPEITO PARA EJETAR</h4><div>${targetsHTML || 'Nenhum suspeito disponível.'}</div>`;
-    }
-
-    function sendNightAction(action, targetId) {
-      if (socket && currentRoomCode) {
-        socket.emit('nightAction', { roomCode: currentRoomCode, action: action, targetId: targetId });
-        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">Ação enviada! Aguardando o fim do Eclipse...</p>';
-      }
-    }
-
-    function voteEject(targetId) {
-      if (socket && currentRoomCode) {
-        socket.emit('voteEject', { roomCode: currentRoomCode, targetId: targetId });
-        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green);">Voto computado com sucesso!</p>';
-      }
-    }
-  </script>
-</body>
-</html>
+                <option value="14.png">Camisa Listrada</
