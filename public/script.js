@@ -613,6 +613,14 @@ function toggleReady() {
   if (currentRoomCode && socket) socket.emit('toggleReady', { roomCode: currentRoomCode });
 }
 
+function addBot() {
+  if (currentRoomCode && socket) socket.emit('addBot', { roomCode: currentRoomCode });
+}
+
+function removeBot() {
+  if (currentRoomCode && socket) socket.emit('removeBot', { roomCode: currentRoomCode });
+}
+
 function startMatch() {
   if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode });
 }
