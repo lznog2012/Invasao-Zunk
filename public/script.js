@@ -241,7 +241,9 @@ if (socket) {
     document.getElementById('displayRoomCode').innerText = d.roomCode;
     document.getElementById('btnStartMatch').style.display = d.isHost ? 'block' : 'none';
   });
-
+    document.getElementById('btnAddBot').style.display = d.isHost ? 'block' : 'none';
+    document.getElementById('btnRemoveBot').style.display = d.isHost ? 'block' : 'none';
+  
   socket.on('reconnected', d => {
     currentRoomCode = d.roomCode;
     myPlayerData.isHost = d.isHost;
