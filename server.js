@@ -188,8 +188,10 @@ io.on('connection', (socket) => {
     socket.emit('roomJoined', { roomCode: code, isHost: true });
     io.to(code).emit('updateQueue', { players: Object.values(rooms[code].players), maxPlayers: limit });
   });
+    broadcastStats();     ← ADICIONA ESSA LINHA
+  });
 
-  socket.on('joinRoom', ({ name, avatar, roomCode }) => {
+   socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
     if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já iniciada.');
@@ -202,6 +204,7 @@ io.on('connection', (socket) => {
     socket.currentRoom = roomCode;
     socket.emit('roomJoined', { roomCode, isHost: false });
     io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
+    broadcastStats();     ← ADICIONA ESSA LINHA
   });
 
   socket.on('addBot', ({ roomCode }) => {
