@@ -1,118 +1,121 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --matrix-green: #00ff66;
+  --matrix-dark-green: #003311;
+  --cyan-glow: #00ffff;
+  --bg-color: #020508;
+  --card-bg: rgba(10, 20, 25, 0.88);
+  --alert-red: #ff3366;
+  --gold-yellow: #ffcc00;
+  --ghost-purple: #aa66ff;
+  --green-light: #aaff00;
+  --green-dark: #00aa44;
+}
+* { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
 body {
-    background-color: #0a0a1a;
-    font-family: 'Press Start 2P', monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #fff;
+  background: radial-gradient(circle at center, #0a1820 0%, #020508 100%);
+  color: var(--matrix-green); margin: 0; padding: 15px;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; overflow-x: hidden;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: repeating-linear-gradient(0deg, rgba(0,255,102,0.03) 0, rgba(0,255,102,0.03) 1px, transparent 1px, transparent 3px);
+}
+h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--matrix-green); margin: 5px 0; }
+
+/* HEADER DA HOME */
+.home-header {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  animation: fadeInDown 0.6s ease;
+}
+.home-header h1 {
+  font-size: 2.4em;
+  margin: 0;
+  color: var(--matrix-green);
+  text-shadow: 0 0 20px var(--matrix-green), 0 0 40px rgba(0,255,102,0.4);
+}
+.home-header .subtitle {
+  color: var(--cyan-glow);
+  font-size: 0.95em;
+  letter-spacing: 4px;
+  margin-top: 8px;
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+.home-header .status-bar {
+  margin-top: 20px;
+  display: inline-flex;
+  gap: 20px;
+  padding: 8px 20px;
+  border: 1px solid var(--matrix-green);
+  border-radius: 20px;
+  background: rgba(0, 20, 10, 0.6);
+  font-size: 0.85em;
+}
+.status-item { display: flex; align-items: center; gap: 6px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--matrix-green);
+  box-shadow: 0 0 8px var(--matrix-green);
+  animation: pulseDot 1.5s infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Carcaça do Fliperama */
-.arcade-machine {
-    background: #222;
-    border-radius: 20px 20px 0 0;
-    padding: 30px;
-    box-shadow: 0 0 50px rgba(0, 255, 136, 0.2), inset 0 0 20px #000;
-    border: 4px solid #111;
-    width: 90%;
-    max-width: 800px;
+/* GRID DE JOGOS */
+.games-container {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+  padding: 0 15px;
 }
 
-.arcade-header {
-    text-align: center;
-    font-size: 24px;
-    color: #ff0055;
-    text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
-    margin-bottom: 20px;
-}
-
-/* Tela CRT */
-.arcade-screen {
-    background: #051014;
-    border: 15px solid #111;
-    border-radius: 10px 10px 30px 30px;
-    position: relative;
-    overflow: hidden;
-    padding: 40px 20px;
-    box-shadow: inset 0 0 30px #000;
-}
-
-/* Efeito de TV antiga (Scanline) */
-.scanline {
-    width: 100%;
-    height: 100px;
-    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,255,136,0.1) 50%, rgba(0,0,0,0) 100%);
-    position: absolute;
-    top: -100px;
-    left: 0;
-    animation: scan 4s infinite linear;
-    pointer-events: none;
-}
-@keyframes scan { 100% { top: 100%; } }
-
-.screen-content h1 {
-    text-align: center;
-    font-size: 18px;
-    color: #00ff88;
-    margin-bottom: 40px;
-    text-shadow: 0 0 5px #00ff88;
-}
-
-/* Cartões dos Jogos */
-.game-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
+/* CARD DE JOGO */
 .game-card {
-    background: rgba(0, 255, 136, 0.1);
-    border: 2px solid #00ff88;
-    padding: 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    position: relative;
-    transition: 0.3s;
+  position: relative;
+  background: var(--card-bg);
+  border: 2px solid var(--matrix-green);
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease backwards;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.game-card:nth-child(1) { animation-delay: 0.1s; }
+.game-card:nth-child(2) { animation-delay: 0.2s; }
+.game-card:nth-child(3) { animation-delay: 0.3s; }
+.game-card:nth-child(4) { animation-delay: 0.4s; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .game-card:hover {
-    background: rgba(0, 255, 136, 0.3);
-    transform: scale(1.02);
-    box-shadow: 0 0 15px #00ff88;
+  transform: translateY(-6px);
+  box-shadow: 0 0 30px rgba(0, 255, 102, 0.5), 0 0 60px rgba(0, 255, 102, 0.2);
+  border-color: var(--cyan-glow);
 }
-.game-card h2 { font-size: 14px; margin-bottom: 10px; }
-.game-card p { font-size: 10px; color: #aaa; }
-.profile-card { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
-.profile-card:hover { background: rgba(0, 212, 255, 0.3); box-shadow: 0 0 15px #00d4ff; }
-
-.status-badge {
-    position: absolute;
-    top: -10px;
-    right: 10px;
-    background: #ff0055;
-    padding: 5px 10px;
-    font-size: 8px;
-    border-radius: 3px;
-    animation: pulse 1.5s infinite;
+.game-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  filter: grayscale(40%);
 }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-/* Painel de Controle Falso */
-.arcade-controls {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-    padding: 0 40px;
+.game-card.disabled:hover {
+  transform: none;
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
+  border-color: var(--matrix-green);
 }
-.joystick {
-    width: 40px;
-    height: 40px;
-    background: #ff0055;
-    border-radius: 50%;
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5), 0 10px 0 #555;
-}
-.buttons { display: flex; gap: 15px; }
-.btn { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 5px 0 #333; }
-.btn.red { background: #ff0055; }
-.btn.blue { background: #00d4ff; }
