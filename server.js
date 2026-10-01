@@ -187,8 +187,7 @@ io.on('connection', (socket) => {
     socket.currentRoom = code;
     socket.emit('roomJoined', { roomCode: code, isHost: true });
     io.to(code).emit('updateQueue', { players: Object.values(rooms[code].players), maxPlayers: limit });
-  });
-    broadcastStats();     ← ADICIONA ESSA LINHA
+    broadcastStats();
   });
 
    socket.on('joinRoom', ({ name, avatar, roomCode }) => {
@@ -204,7 +203,7 @@ io.on('connection', (socket) => {
     socket.currentRoom = roomCode;
     socket.emit('roomJoined', { roomCode, isHost: false });
     io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
-    broadcastStats();     ← ADICIONA ESSA LINHA
+    broadcastStats();
   });
 
   socket.on('addBot', ({ roomCode }) => {
