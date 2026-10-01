@@ -267,11 +267,11 @@ if (socket) {
       const readyCls = p.ready ? ' ready' : '';
       const meCls = isMe ? ' me' : '';
       const disc = p.disconnected ? '<span class="disconnect-badge">⚠ Off</span>' : '';
-      return `<div class="player-card alive${readyCls}${meCls}">
+           return `<div class="player-card alive${readyCls}${meCls}">
         ${disc}
         <div class="avatar-box">${generateAvatarHTML(p.avatar)}</div>
         <b>${p.name}</b>${isMe ? ' <small style="color:var(--cyan-glow);">(Você)</small>' : ''}<br>
-        <small style="color:var(--cyan-glow);">${p.isHost ? '👑 HOST' : ''} ${p.ready ? '✔ PRONTO' : '⏳ Aguardando'}</small>
+        <small style="color:var(--cyan-glow);">${p.isBot ? '🤖 BOT' : (p.isHost ? '👑 HOST' : '')} ${p.ready ? '✔ PRONTO' : '⏳ Aguardando'}</small>
       </div>`;
     }).join('');
 
