@@ -1,51 +1,125 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estação Alpha - Arcade</title>
-    <link rel="stylesheet" href="home.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estação Alpha - Arcade Espacial</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛸</text></svg>">
+  <link rel="stylesheet" href="home.css">
 </head>
 <body>
-    <div class="arcade-machine">
-        <div class="arcade-header">ESTAÇÃO ALPHA</div>
-        <div class="arcade-screen">
-            <div class="screen-content">
-                <h1>SELECIONE O JOGO</h1>
-                
-                <div class="game-list">
-                    <!-- Jogo 1: Dedução -->
-                    <div class="game-card" onclick="window.location.href='/jogos/deducao/'">
-                        <h2>🛸 INVASÃO ZUNK</h2>
-                        <p>Rimks vs Zunks</p>
-                        <span class="status-badge">ONLINE</span>
-                    </div>
 
-                    <!-- Jogo 2: Ludo -->
-                    <div class="game-card" onclick="window.location.href='/jogos/ludo/'">
-                        <h2>🎲 LUDO ALIENÍGENA</h2>
-                        <p>Batalha de Tabuleiro</p>
-                        <span class="status-badge">NOVO</span>
-                    </div>
+  <!-- PERFIL (canto superior direito) -->
+  <div class="profile-corner" id="profileCorner" onclick="openProfileModal()">
+    <div class="avatar-mini" id="profileAvatar"></div>
+    <span class="profile-name empty" id="profileName">Definir perfil</span>
+  </div>
 
-                    <!-- Perfil -->
-                    <div class="game-card profile-card" onclick="alert('Sistema de Perfil em breve!')">
-                        <h2>🎨 SEU PERFIL</h2>
-                        <p>Ver histórico e avatar</p>
-                    </div>
-                </div>
-            </div>
-            <div class="scanline"></div>
-        </div>
-        <div class="arcade-controls">
-            <div class="joystick"></div>
-            <div class="buttons">
-                <div class="btn red"></div>
-                <div class="btn blue"></div>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <div class="home-header">
+    <h1>🛸 ESTAÇÃO ALPHA 🛸</h1>
+    <p class="subtitle">ARCADE ESPACIAL RIMKS vs ZUNKS</p>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <span class="status-dot"></span>
+        <span><b id="onlineCount">0</b> ONLINE</span>
+      </div>
+      <div class="status-item">
+        <span>🎮</span>
+        <span><b id="activeRooms">0</b> SALAS ATIVAS</span>
+      </div>
     </div>
-    <script src="home.js"></script>
+  </div>
+
+  <!-- GRID DE JOGOS -->
+  <div class="games-container">
+
+    <!-- CARD: DEDUÇÃO (ativo) -->
+    <a href="/jogos/deducao/" class="game-card">
+      <div class="game-card-banner">
+        <span class="emoji">🛸</span>
+      </div>
+      <div class="game-card-body">
+        <h3>Rimks vs Zunks</h3>
+        <p>
+          Zunks se infiltraram na Estação Alpha disfarçados de Rimks.
+          Debata, vote e descubra quem é alienígena de verdade antes que seja tarde.
+        </p>
+        <div class="game-card-tags">
+          <span class="game-tag">Dedução Social</span>
+          <span class="game-tag players">👥 5-7 jogadores</span>
+          <span class="game-tag duration">⏱ 10-20 min</span>
+        </div>
+        <div class="game-card-action">▶ JOGAR AGORA</div>
+      </div>
+    </a>
+
+    <!-- CARD: LUDO (em breve) -->
+    <div class="game-card disabled" onclick="mostrarEmBreve('Ludo Alienígena')">
+      <div class="game-card-ribbon">EM BREVE</div>
+      <div class="game-card-banner">
+        <span class="emoji">🎲</span>
+      </div>
+      <div class="game-card-body">
+        <h3>Ludo Alienígena</h3>
+        <p>
+          O clássico jogo de tabuleiro com skins dos Rimks e Zunks.
+          4 raças, timer de 30s por turno, capturas e chegadas dramáticas.
+        </p>
+        <div class="game-card-tags">
+          <span class="game-tag">Tabuleiro</span>
+          <span class="game-tag players">👥 2-4 jogadores</span>
+          <span class="game-tag duration">⏱ 15-30 min</span>
+        </div>
+        <div class="game-card-action">🚧 EM CONSTRUÇÃO</div>
+      </div>
+    </div>
+
+    <!-- SLOT: PRÓXIMO JOGO (placeholder) -->
+    <div class="game-card disabled" onclick="mostrarEmBreve('Próximo Jogo')">
+      <div class="game-card-banner" style="opacity: 0.4;">
+        <span class="emoji">❓</span>
+      </div>
+      <div class="game-card-body">
+        <h3>???</h3>
+        <p>
+          Um novo desafio chega em breve à Estação Alpha.
+          Fique ligado nas transmissões.
+        </p>
+        <div class="game-card-tags">
+          <span class="game-tag">Em breve</span>
+        </div>
+        <div class="game-card-action">🚧 MISTÉRIO</div>
+      </div>
+    </div>
+
+  </div>
+    <!-- FOOTER -->
+  <div class="home-footer">
+    <div class="line"></div>
+    ESTAÇÃO ALPHA © 2026 · SISTEMA DE ENTRETENIMENTO EMBARCADO
+  </div>
+
+  <!-- MODAL DE PERFIL -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <h2>👤 PERFIL DO TRIPULANTE</h2>
+      <p style="color: #88aa99; font-size: 0.88em; margin-top: 0;">
+        Seu nome e avatar serão usados em todos os jogos da Estação Alpha.
+      </p>
+
+      <label>Nome do Tripulante:</label>
+      <input type="text" id="modalUsername" placeholder="Ex: Capitão Zorblax" maxlength="20">
+
+      <div class="modal-actions">
+        <button class="danger" onclick="closeProfileModal()">CANCELAR</button>
+        <button onclick="saveProfileFromModal()">✔ SALVAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="home.js"></script>
 </body>
 </html>
