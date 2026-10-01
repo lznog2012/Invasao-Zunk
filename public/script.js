@@ -523,6 +523,7 @@ function renderGameCards(players, voteCounts) {
     let badge = p.alive ? '<span class="badge badge-rimk">VIVO</span>' : '<span class="badge badge-zunk">ELIMINADO</span>';
     if (isZunkRevealed) badge = '<span class="badge badge-zunk">ZUNK REVELADO</span>';
     if (p.isZunkAlly) badge += ' <span class="badge badge-ally">🟣 ALIADO</span>';
+    if (p.isBot) badge += ' <span class="badge" style="background:#221144;color:var(--ghost-purple);border:1px solid var(--ghost-purple);">🤖 BOT</span>';
     if (p.disconnected) badge += ' <span class="badge badge-zunk">⚠ DESCONECTADO</span>';
 
     const voteCount = voteCounts[p.id] || 0;
