@@ -129,6 +129,15 @@ function checkAllVoted(room, code) {
 // ============ CONNECTION ============
 io.on('connection', (socket) => {
 
+  socket.on('requestStats', () => {
+    socket.emit('statsUpdate', {
+      onlinePlayers: io.engine.clientsCount,
+      activeRooms: Object.keys(rooms).length
+    });
+  });
+
+  broadcastStats();
+    
   socket.on('identify', ({ clientId }) => {
     socket.clientId = clientId;
     if (!clientId) return;
