@@ -1,0 +1,118 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background-color: #0a0a1a;
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+}
+
+/* Carcaça do Fliperama */
+.arcade-machine {
+    background: #222;
+    border-radius: 20px 20px 0 0;
+    padding: 30px;
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.2), inset 0 0 20px #000;
+    border: 4px solid #111;
+    width: 90%;
+    max-width: 800px;
+}
+
+.arcade-header {
+    text-align: center;
+    font-size: 24px;
+    color: #ff0055;
+    text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+    margin-bottom: 20px;
+}
+
+/* Tela CRT */
+.arcade-screen {
+    background: #051014;
+    border: 15px solid #111;
+    border-radius: 10px 10px 30px 30px;
+    position: relative;
+    overflow: hidden;
+    padding: 40px 20px;
+    box-shadow: inset 0 0 30px #000;
+}
+
+/* Efeito de TV antiga (Scanline) */
+.scanline {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,255,136,0.1) 50%, rgba(0,0,0,0) 100%);
+    position: absolute;
+    top: -100px;
+    left: 0;
+    animation: scan 4s infinite linear;
+    pointer-events: none;
+}
+@keyframes scan { 100% { top: 100%; } }
+
+.screen-content h1 {
+    text-align: center;
+    font-size: 18px;
+    color: #00ff88;
+    margin-bottom: 40px;
+    text-shadow: 0 0 5px #00ff88;
+}
+
+/* Cartões dos Jogos */
+.game-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-card {
+    background: rgba(0, 255, 136, 0.1);
+    border: 2px solid #00ff88;
+    padding: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+}
+.game-card:hover {
+    background: rgba(0, 255, 136, 0.3);
+    transform: scale(1.02);
+    box-shadow: 0 0 15px #00ff88;
+}
+.game-card h2 { font-size: 14px; margin-bottom: 10px; }
+.game-card p { font-size: 10px; color: #aaa; }
+.profile-card { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+.profile-card:hover { background: rgba(0, 212, 255, 0.3); box-shadow: 0 0 15px #00d4ff; }
+
+.status-badge {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: #ff0055;
+    padding: 5px 10px;
+    font-size: 8px;
+    border-radius: 3px;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Painel de Controle Falso */
+.arcade-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding: 0 40px;
+}
+.joystick {
+    width: 40px;
+    height: 40px;
+    background: #ff0055;
+    border-radius: 50%;
+    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5), 0 10px 0 #555;
+}
+.buttons { display: flex; gap: 15px; }
+.btn { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 5px 0 #333; }
+.btn.red { background: #ff0055; }
+.btn.blue { background: #00d4ff; }
