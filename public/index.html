@@ -341,3 +341,583 @@
               <select id="optSuit" onchange="updatePreview()">
                 <option value="none">Básico</option>
                 <option value="14.png">Camisa Listrada</
+                                  <option value="15.png">Jaqueta Jeans</option>
+                <option value="16.png">Blusa Vermelha</option>
+                <option value="17.png">Traje Espacial</option>
+              </select>
+            </div>
+            <div>
+              <label>Fundo do Cartão:</label>
+              <select id="optBg" onchange="updatePreview()">
+                <option value="none">Padrão Escuro</option>
+                <option value="3.jpg">Marte</option>
+                <option value="4.jpg">Espaço Sideral</option>
+                <option value="5.jpg">Nave RIMK</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border-color: #003311; margin: 25px 0;">
+
+      <h3>[ 2. MODO DE ENTRADA ]</h3>
+      <div class="action-menu">
+        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
+        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
+      </div>
+
+      <div id="formCreate" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ PARÂMETROS DA PARTIDA</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div>
+            <label>Quantidade de Jogadores:</label>
+            <select id="maxPlayersInput">
+              <option value="5">5 Jogadores</option>
+              <option value="6">6 Jogadores</option>
+              <option value="7">7 Jogadores</option>
+            </select>
+          </div>
+          <div>
+            <label>Tempo de Discussão (em Minutos):</label>
+            <select id="debateMinutesInput">
+              <option value="1">1 Minuto</option>
+              <option value="2">2 Minutos</option>
+              <option value="3" selected>3 Minutos</option>
+              <option value="5">5 Minutos</option>
+              <option value="10">10 Minutos</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="createRoom()" style="width: 100%; background: #006622;">GERAR CÓDIGO DA SALA E ABRIR FILA</button>
+      </div>
+
+      <div id="formJoin" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 INSERIR CÓDIGO DA SALA</h4>
+        <label>Código da Sala (4 Dígitos):</label>
+        <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform: uppercase; font-size: 1.5em; text-align: center; letter-spacing: 5px; margin: 10px 0;">
+        <button onclick="joinRoom()" style="width: 100%; background: #003366; border-color: #0088cc;">CONECTAR À FILA DA SALA</button>
+      </div>
+    </div>
+
+    <div id="lobbyView" class="panel" style="display:none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+          <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
+          <p style="color:var(--cyan-glow); margin: 0;">Compartilhe este código para os tripulantes entrarem!</p>
+        </div>
+        <div>
+          <h4>TRIPULANTES NA FILA: <span id="queueCount">0 / 0</span></h4>
+        </div>
+      </div>
+
+      <hr style="border-color: #003311; margin: 15px 0;">
+
+      <div id="lobbyQueueGrid" class="cards-grid"></div>
+
+      <div style="margin-top: 20px; background: rgba(1, 10, 5, 0.85); border: 1px solid var(--matrix-green); border-radius: 8px; padding: 15px;">
+        <h4 style="margin-top: 0; color: var(--cyan-glow);">💬 FREQUÊNCIA DE ESPERA (CHAT PRÉ-JOGO)</h4>
+        <div id="lobbyChatBox" class="chat-box" style="height: 140px; margin-bottom: 10px;"></div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="lobbyChatInput" placeholder="Converse com os tripulantes na fila..." onkeypress="if(event.key==='Enter') sendLobbyChat()">
+          <button onclick="sendLobbyChat()" style="white-space: nowrap; background: #004422;">ENVIAR</button>
+        </div>
+      </div>
+      <div id="hostControls" style="margin-top: 20px; display: none;">
+        <button onclick="startMatch()" style="width: 100%; background: #008833; font-size: 1.2em;">🚀 INICIAR PARTIDA (COMANDO DO HOST)</button>
+      </div>
+    </div>
+
+    <div id="gameView" class="container" style="display:none;">
+      <div class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div><span>SUA FUNÇÃO: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span></div>
+        <div><span>FASE ATUAL: <b id="gameState">ECLIPSE</b></span></div>
+        <div><span class="timer-badge" id="timerDisplay">00:00</span></div>
+      </div>
+
+      <div class="game-layout">
+        <div>
+          <div class="panel">
+            <h3>TRIPULAÇÃO DA ESTAÇÃO ALPHA</h3>
+            <div id="gameCardsGrid" class="cards-grid"></div>
+          </div>
+
+          <div class="panel" style="margin-top: 15px;">
+            <h3>PAINEL DE COMANDO</h3>
+            <div id="actionPanel"><p>Aguardando ordens do sistema...</p></div>
+            <div id="skipDebateBox" style="margin-top: 10px; display: none;">
+              <button onclick="voteSkipDebate()" style="background: #aa6600; width: 100%;">
+                ⚡ VOTAR PARA ENCERRAR DISCUSSÃO (<span id="skipCount">0</span> Votos)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <h3 id="chatTitle">COMUNICAÇÃO DE BORDO</h3>
+          <div id="chatBox" class="chat-box"></div>
+          <div style="margin-top: 10px;">
+            <div style="display: flex; gap: 5px;">
+              <input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendChat()">
+              <button id="btnSendChat" onclick="sendChat()">ENVIAR</button>
+            </div>
+            <small id="chatStatusNotice" style="color:#888; font-style:italic; display:block; margin-top:4px;"></small>
+          </div>
+        </div>
+      </div>
+
+      <div id="gameOverPanel" class="game-over-panel">
+        <h2 id="gameOverTitle">FIM DE PARTIDA</h2>
+        <p id="gameOverMessage" style="text-align:center; font-size:1.1em;"></p>
+        <h4 style="text-align:center; color:var(--cyan-glow); margin-top:20px;">📋 REVELAÇÃO COMPLETA DA TRIPULAÇÃO</h4>
+        <div id="finalRoster" class="final-roster"></div>
+        <div id="playAgainControls" style="margin-top:20px; text-align:center;">
+          <button id="btnPlayAgain" onclick="playAgain()" style="background:#008833; font-size:1.1em; padding:14px 30px; display:none;">
+            🔄 JOGAR NOVAMENTE (NOVA DISTRIBUIÇÃO)
+          </button>
+          <p id="playAgainHint" style="color:#888; font-size:0.85em; margin-top:8px; font-style:italic;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="manualModal" class="modal">
+    <div class="modal-content">
+      <h2 style="color:var(--cyan-glow);">📖 MANUAL DO JOGO: ESTAÇÃO ALPHA</h2>
+      <hr style="border-color:var(--matrix-green);">
+      <h4>🛸 LORE E CONTEXTO</h4>
+      <p>A Estação Alpha é um posto científico habitado pela raça de alienígenas pacíficos conhecidos como <b>Rimks</b> (caracterizados por sua cor verde). No entanto, parasitas metamorfos conhecidos como <b>Zunks</b> se infiltraram na tripulação usando biotecnologia disfarçada para imitar a aparência dos Rimks.</p>
+      <h4>🎯 OBJETIVOS DAS FACÇÕES</h4>
+      <ul>
+        <li><b style="color:#aaff00;">FACÇÃO RIMK:</b> Descobrir quem são os Infiltrados Zunks e ejetá-los da estação através do voto de maioria.</li>
+        <li><b style="color:var(--alert-red);">FACÇÃO ZUNK:</b> Eliminar os Rimks secretamente durante o Eclipse e manter o disfarce durante as discussões. Vencem ao atingir número igual ou superior ao dos Rimks. Ao serem ejetados, sua pele verdadeira (branca) é revelada!</li>
+      </ul>
+      <h4>⏳ FLUXO DE JOGO</h4>
+      <ol>
+        <li><b>O ECLIPSE (NOITE):</b> O sistema de comunicação é cortado. Zunks escolhem uma vítima, o Biólogo escolhe alguém para escanear e o Engenheiro escolhe quem proteger.</li>
+        <li><b>A TRANSMISSÃO (DIA):</b> O canal de comunicação acorda. É revelado se alguém foi eliminado. Os tripulantes vivos discutem no chat pelo tempo estipulado pelo Host e votam em quem ejetar.</li>
+      </ol>
+      <button onclick="closeManualModal()" style="width:100%; margin-top:15px; background:#aa0000; color:#fff;">ENTENDI! VOLTAR AO JOGO</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = typeof io !== 'undefined' ? io() : null;
+    let myPlayerData = {};
+    let currentRoomCode = null;
+    let myVote = null;
+
+    function showToast(title, message, type) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.innerHTML = `<b>${title}</b>${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    function playBeep(freq, duration, type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type || 'square';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.05;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    if (socket) {
+      socket.on('lobbyChatMessage', function(data) {
+        const box = document.getElementById('lobbyChatBox');
+        if (!box) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg';
+        msgDiv.innerHTML = `<b>${data.sender}:</b> ${data.text}`;
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+      });
+
+      socket.on('errorMsg', function(msg) { showToast('⚠️ ERRO', msg, 'zunk'); });
+
+      socket.on('roomJoined', function(data) {
+        currentRoomCode = data.roomCode;
+        myPlayerData.isHost = data.isHost;
+        document.getElementById('setupView').style.display = 'none';
+        document.getElementById('lobbyView').style.display = 'block';
+        document.getElementById('displayRoomCode').innerText = data.roomCode;
+        document.getElementById('hostControls').style.display = data.isHost ? 'block' : 'none';
+      });
+
+      socket.on('updateQueue', function(data) {
+        document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
+        document.getElementById('lobbyQueueGrid').innerHTML = data.players.map(function(p) {
+          return '<div class="player-card alive">' +
+            '<div class="avatar-box">' + generateAvatarHTML(p.avatar) + '</div>' +
+            '<b>' + p.name + '</b><br><small style="color:var(--cyan-glow);">' + (p.isHost ? '👑 HOST DA SALA' : '🟢 Na Fila') + '</small>' +
+          '</div>';
+        }).join('');
+      });
+
+      socket.on('gameStarted', function(data) {
+        document.getElementById('lobbyView').style.display = 'none';
+        document.getElementById('gameView').style.display = 'flex';
+        const wasHost = myPlayerData.isHost;
+        myPlayerData = data;
+        myPlayerData.isHost = wasHost;
+        document.getElementById('myRole').innerText = data.role;
+        document.getElementById('myFaction').innerText = data.faction;
+        document.getElementById('gameOverPanel').classList.remove('open');
+        addChatMessage('SISTEMA', 'Missão iniciada! Sua função foi atribuída secretamente.', 'system');
+        playBeep(880, 0.2);
+      });
+
+      socket.on('startNight', function(data) {
+        document.getElementById('gameState').innerText = 'ECLIPSE (NOITE ' + data.turn + ')';
+        document.getElementById('skipDebateBox').style.display = 'none';
+        myVote = null;
+        updateChatState(false, '🔒 Chat bloqueado durante o Eclipse (Noite).');
+        renderGameCards(data.playersList);
+        renderNightActions(data.playersList);
+        addChatMessage('SISTEMA', 'O Eclipse começou. Comunicação bloqueada!', 'system');
+        playBeep(180, 0.4, 'sawtooth');
+      });
+
+      socket.on('startDay', function(data) {
+        document.getElementById('gameState').innerText = 'TRANSMISSÃO (DIA)';
+        document.getElementById('skipDebateBox').style.display = 'block';
+        myVote = null;
+        const isAlive = checkAmIAlive(data.playersList);
+        if (isAlive) updateChatState(true, '💬 Chat aberto para discussão.');
+        else updateChatState(true, '👻 Você está na Frequência Fantasma (Chat dos Mortos).', true);
+        renderGameCards(data.playersList);
+        if (data.killedPlayer) {
+          addChatMessage('SISTEMA', data.killedPlayer + ' foi desintegrado nesta noite!', 'alert');
+          showToast('☠️ VÍTIMA DO ECLIPSE', `<b>${data.killedPlayer}</b> foi eliminado durante a noite.`, 'zunk');
+        }
+        renderDayActions(data.playersList);
+        playBeep(440, 0.3);
+      });
+
+      socket.on('playersUpdated', function(data) { renderGameCards(data.playersList); });
+
+      socket.on('timerUpdate', function(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = m + ':' + s;
+      });
+
+      socket.on('updateSkipCount', function(count) { document.getElementById('skipCount').innerText = count; });
+
+      socket.on('scanResult', function(res) {
+        const t = res.faction === 'INFILTRADO ZUNK' ? 'zunk' : 'cyan';
+        showToast('🧪 ESCÂNER BIOLÓGICO', `<b>${res.targetName}</b> pertence à raça <b>${res.faction}</b>!`, t);
+        playBeep(880, 0.15);
+      });
+
+      socket.on('chatMessage', function(data) { addChatMessage(data.sender, data.text, data.type, data.channel); });
+
+      socket.on('ejectionResult', function(data) {
+        if (data.ejectedPlayer) {
+          addChatMessage('SISTEMA', data.ejectedPlayer + ' foi ejetado! Revelação de Raça: ' + data.ejectedFaction, 'alert');
+          showToast('🚀 EJEÇÃO', `<b>${data.ejectedPlayer}</b> era <b>${data.ejectedFaction}</b>`, data.ejectedFaction === 'INFILTRADO ZUNK' ? 'zunk' : 'cyan');
+          playBeep(220, 0.5, 'triangle');
+        } else {
+          addChatMessage('SISTEMA', 'Impasse na votação. Ninguém foi ejetado.', 'system');
+          showToast('⚖️ IMPASSE', 'A votação empatou. Ninguém foi ejetado.', 'gold');
+        }
+        if (data.playersList) renderGameCards(data.playersList);
+        myVote = null;
+      });
+
+      socket.on('gameOver', function(data) {
+        document.getElementById('timerDisplay').innerText = '--:--';
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">🏁 Partida encerrada. Confira o resultado abaixo e converse no chat!</p>';
+        document.getElementById('skipDebateBox').style.display = 'none';
+
+        const panel = document.getElementById('gameOverPanel');
+        const title = document.getElementById('gameOverTitle');
+        const msg = document.getElementById('gameOverMessage');
+        const roster = document.getElementById('finalRoster');
+        const hint = document.getElementById('playAgainHint');
+        const btn = document.getElementById('btnPlayAgain');
+
+        const isZunk = data.winner === 'ZUNK';
+        title.innerText = isZunk ? '👽 VITÓRIA DOS ZUNKS 👽' : '🛸 VITÓRIA DOS RIMKS 🛸';
+        title.style.color = isZunk ? 'var(--alert-red)' : 'var(--matrix-green)';
+        msg.innerText = data.winnerText;
+
+        roster.innerHTML = (data.allPlayers || []).map(p => {
+          const isZ = p.faction === 'ZUNK';
+          const cls = isZ ? 'zunk' : 'rimk';
+          const dead = p.alive ? '' : ' dead';
+          const status = p.alive ? '🟢 Vivo' : '💀 Eliminado';
+          const avatarHTML = generateAvatarHTML(p.avatar, { isZunkRevealed: isZ });
+          return `<div class="final-card ${cls}${dead}">
+            <div style="width:70px; height:70px; margin:0 auto 6px auto; border-radius:6px; overflow:hidden; border:1px solid ${isZ ? 'var(--alert-red)' : '#aaff00'};">
+              ${avatarHTML}
+            </div>
+            <b>${p.name}</b><br>
+            <small>${isZ ? '🔴 ZUNK (PELE REVELADA)' : '🟢 RIMK'}</small><br>
+            <small>${status}</small>
+          </div>`;
+        }).join('');
+
+        panel.classList.add('open');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        updateChatState(true, '💬 Chat liberado para comentar a partida!', false);
+
+        if (socket && myPlayerData && myPlayerData.isHost) {
+          btn.style.display = 'inline-block';
+          hint.innerText = 'Você é o Host. Clique para reiniciar com os mesmos jogadores.';
+        } else {
+          btn.style.display = 'none';
+          hint.innerText = 'Aguarde o Host iniciar uma nova rodada...';
+        }
+
+        addChatMessage('SISTEMA', data.winnerText, 'alert');
+        showToast(isZunk ? '👽 ZUNKS VENCERAM' : '🛸 RIMKS VENCERAM', 'Confira o resultado abaixo.', isZunk ? 'zunk' : 'gold');
+        playBeep(isZunk ? 150 : 660, 0.6, 'sawtooth');
+      });
+
+      socket.on('gameRestarted', function(data) {
+        document.getElementById('gameOverPanel').classList.remove('open');
+        document.getElementById('chatBox').innerHTML = '';
+        document.getElementById('finalRoster').innerHTML = '';
+        addChatMessage('SISTEMA', 'Nova partida iniciando... redistribuindo papéis!', 'system');
+        showToast('🔄 NOVA PARTIDA', 'Papéis sendo redistribuídos...', 'cyan');
+        playBeep(440, 0.3);
+      });
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('guideSidebar');
+      if (sb) sb.classList.toggle('open');
+    }
+
+    function openManualModal() {
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeManualModal() {
+      const modal = document.getElementById('manualModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function toggleForm(type) {
+      const btnCreate = document.getElementById('btnMenuCreate');
+      const btnJoin = document.getElementById('btnMenuJoin');
+      const formCreate = document.getElementById('formCreate');
+      const formJoin = document.getElementById('formJoin');
+      if (btnCreate) btnCreate.classList.remove('active');
+      if (btnJoin) btnJoin.classList.remove('active');
+      if (formCreate) formCreate.style.display = 'none';
+      if (formJoin) formJoin.style.display = 'none';
+      if (type === 'create') {
+        if (btnCreate) btnCreate.classList.add('active');
+        if (formCreate) formCreate.style.display = 'block';
+      } else if (type === 'join') {
+        if (btnJoin) btnJoin.classList.add('active');
+        if (formJoin) formJoin.style.display = 'block';
+      }
+    }
+
+    function generateAvatarHTML(c, extra) {
+      if (!c) c = {};
+      if (!extra) extra = {};
+      let baseImg = 'rimk.png';
+      if (extra.isZunkRevealed) baseImg = '2.png';
+      const bgImg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1;" />` : '';
+      const bodyImg = `<img src="images/${baseImg}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 2;" />`;
+      const suitImg = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 3;" />` : '';
+      const hairImg = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 4;" />` : '';
+      const eyewearImg = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: contain; z-index: 5;" />` : '';
+      return `<div style="position: relative; width: 100%; height: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #000;">${bgImg}${bodyImg}${suitImg}${hairImg}${eyewearImg}</div>`;
+    }
+
+    function getCustomizationFromUI() {
+      const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : 'none'; };
+      return { facialHair: getVal('optFacialHair'), eyewear: getVal('optEyewear'), suit: getVal('optSuit'), bg: getVal('optBg') };
+    }
+
+    function updatePreview() {
+      const box = document.getElementById('avatarPreview');
+      if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
+    }
+
+    window.addEventListener('DOMContentLoaded', function() { updatePreview(); });
+
+    function createRoom() {
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return showToast('⚠️ ERRO', 'Por favor, digite seu nome de tripulante!', 'zunk');
+      const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
+      const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
+      if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
+    }
+
+    function joinRoom() {
+      const nameInput = document.getElementById('username');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return showToast('⚠️ ERRO', 'Por favor, digite seu nome!', 'zunk');
+      const roomCodeInput = document.getElementById('roomCodeInput');
+      const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
+      if (!roomCode) return showToast('⚠️ ERRO', 'Digite o código da sala!', 'zunk');
+      if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
+    }
+
+    function startMatch() { if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode }); }
+    function voteSkipDebate() { if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode }); }
+    function playAgain() { if (!currentRoomCode || !socket) return; socket.emit('playAgain', { roomCode: currentRoomCode }); }
+
+    function sendLobbyChat() {
+      const input = document.getElementById('lobbyChatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      if (socket && currentRoomCode) {
+        socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text: text });
+        input.value = '';
+      }
+    }
+
+    function checkAmIAlive(players) {
+      if (!socket) return false;
+      const me = players.find(p => p.id === socket.id);
+      return me ? me.alive : false;
+    }
+
+    function updateChatState(enabled, noticeText, isGhost) {
+      const input = document.getElementById('chatInput');
+      const btn = document.getElementById('btnSendChat');
+      const notice = document.getElementById('chatStatusNotice');
+      const title = document.getElementById('chatTitle');
+      if (input) input.disabled = !enabled;
+      if (btn) btn.disabled = !enabled;
+      if (notice) notice.innerText = noticeText || '';
+      if (title) {
+        if (isGhost) {
+          title.innerText = '👻 FREQUÊNCIA FANTASMA (CHAT DOS MORTOS)';
+          title.style.color = 'var(--ghost-purple)';
+        } else {
+          title.innerText = 'COMUNICAÇÃO DE BORDO';
+          title.style.color = 'var(--matrix-green)';
+        }
+      }
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      if (socket && currentRoomCode) {
+        socket.emit('sendChatMessage', { roomCode: currentRoomCode, text: text });
+        input.value = '';
+      }
+    }
+
+    function addChatMessage(sender, text, type, channel) {
+      const box = document.getElementById('chatBox');
+      if (!box) return;
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg' + (type ? ' ' + type : '');
+      if (type === 'system') msgDiv.innerHTML = `🤖 <b>[SISTEMA]:</b> ${text}`;
+      else if (type === 'alert') msgDiv.innerHTML = `⚠️ <b>[ALERTA]:</b> ${text}`;
+      else if (type === 'dead') msgDiv.innerHTML = `👻 <b>${sender} (Fantasma):</b> ${text}`;
+      else msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderGameCards(players) {
+      const container = document.getElementById('gameCardsGrid');
+      if (!container) return;
+      container.innerHTML = players.map(function(p) {
+        const status = p.alive ? 'alive' : 'dead';
+        let badge = p.alive ? '<span class="badge badge-rimk">VIVO</span>' : '<span class="badge badge-zunk">ELIMINADO</span>';
+        let isZunkRevealed = false;
+        if (!p.alive && p.faction === 'ZUNK') {
+          isZunkRevealed = true;
+          badge = '<span class="badge badge-zunk">ZUNK REVELADO</span>';
+        }
+        const isMe = socket ? (p.id === socket.id) : false;
+        const meStyle = isMe ? 'style="border-color: var(--cyan-glow);"' : '';
+        return `
+          <div class="player-card ${status}" ${meStyle}>
+            <div class="avatar-box">${generateAvatarHTML(p.avatar, { isZunkRevealed: isZunkRevealed })}</div>
+            <b>${p.name}</b> ${isMe ? '<small style="color:var(--cyan-glow);">(Você)</small>' : ''}<br>
+            ${badge}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderNightActions(players) {
+      const actionPanel = document.getElementById('actionPanel');
+      if (!actionPanel) return;
+      if (!checkAmIAlive(players)) {
+        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
+        return;
+      }
+      const role = myPlayerData.roleKey || myPlayerData.role;
+      if (role === 'ZUNK' || myPlayerData.faction === 'ZUNK') {
+        let targetsHTML = players.filter(p => p.alive && p.faction !== 'ZUNK').map(p =>
+          `<button onclick="sendNightAction('kill', '${p.id}')" style="background:#441122; border-color:var(--alert-red); margin:3px;">DESINTEGRAR ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🔴 AÇÃO ZUNK: ESCOLHA UM RIMK PARA ELIMINAR</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
+      } else if (role === 'BIOLOGIST' || role === 'BIÓLOGO') {
+        let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p =>
+          `<button onclick="sendNightAction('scan', '${p.id}')" style="background:#003344; border-color:var(--cyan-glow); margin:3px;">ESCANEAR ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🧪 AÇÃO DO BIÓLOGO: ESCANEAR RAÇA BIOLÓGICA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
+      } else if (role === 'SHIELD_ENGINEER' || role === 'ENGENHEIRO DE ESCUDO') {
+        let targetsHTML = players.filter(p => p.alive).map(p =>
+          `<button onclick="sendNightAction('shield', '${p.id}')" style="background:#003311; border-color:var(--matrix-green); margin:3px;">PROTEGER ${p.name}</button>`
+        ).join('');
+        actionPanel.innerHTML = `<h4>🛡 AÇÃO DO ENGENHEIRO: ATIVAR CAMPO DE FORÇA</h4><div>${targetsHTML || 'Nenhum alvo disponível.'}</div>`;
+      } else {
+        actionPanel.innerHTML = '<p>💤 Durante o Eclipse, aguarde as ações dos especialistas...</p>';
+      }
+    }
+
+    function renderDayActions(players) {
+      const actionPanel = document.getElementById('actionPanel');
+      if (!actionPanel) return;
+      if (!checkAmIAlive(players)) {
+        actionPanel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
+        return;
+      }
+      let targetsHTML = players.filter(p => p.alive && p.id !== socket.id).map(p => {
+        const voted = myVote === p.id;
+        return `<button onclick="voteEject('${p.id}')" style="background:${voted ? 'var(--gold-yellow)' : '#442200'}; color:${voted ? '#000' : 'var(--gold-yellow)'}; border-color:var(--gold-yellow); margin:3px;">
+          ${voted ? '✅ VOCÊ VOTOU EM' : 'VOTAR EM'} ${p.name}
+        </button>`;
+      }).join('');
+      actionPanel.innerHTML = `<h4>🗳 FASE DE VOTAÇÃO: ESCOLHA UM SUSPEITO PARA EJETAR</h4><div>${targetsHTML || 'Nenhum suspeito disponível.'}</div>`;
+    }
+
+    function sendNightAction(action, targetId) {
+      if (socket && currentRoomCode) {
+        socket.emit('nightAction', { roomCode: currentRoomCode, action: action, targetId: targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--gold-yellow);">Ação enviada! Aguardando o fim do Eclipse...</p>';
+      }
+    }
+
+    function voteEject(targetId) {
+      if (socket && currentRoomCode) {
+        myVote = targetId;
+        socket.emit('voteEject', { roomCode: currentRoomCode, targetId: targetId });
+        document.getElementById('actionPanel').innerHTML = '<p style="color:var(--matrix-green);">✅ Voto computado! Aguardando os demais tripulantes...</p>';
+      }
+    }
+  </script>
+</body>
+</html>
