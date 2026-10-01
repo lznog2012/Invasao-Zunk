@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estação Alpha - Arcade</title>
+    <link rel="stylesheet" href="home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="arcade-machine">
+        <div class="arcade-header">ESTAÇÃO ALPHA</div>
+        <div class="arcade-screen">
+            <div class="screen-content">
+                <h1>SELECIONE O JOGO</h1>
+                
+                <div class="game-list">
+                    <!-- Jogo 1: Dedução -->
+                    <div class="game-card" onclick="window.location.href='/jogos/deducao/'">
+                        <h2>🛸 INVASÃO ZUNK</h2>
+                        <p>Rimks vs Zunks</p>
+                        <span class="status-badge">ONLINE</span>
+                    </div>
+
+                    <!-- Jogo 2: Ludo -->
+                    <div class="game-card" onclick="window.location.href='/jogos/ludo/'">
+                        <h2>🎲 LUDO ALIENÍGENA</h2>
+                        <p>Batalha de Tabuleiro</p>
+                        <span class="status-badge">NOVO</span>
+                    </div>
+
+                    <!-- Perfil -->
+                    <div class="game-card profile-card" onclick="alert('Sistema de Perfil em breve!')">
+                        <h2>🎨 SEU PERFIL</h2>
+                        <p>Ver histórico e avatar</p>
+                    </div>
+                </div>
+            </div>
+            <div class="scanline"></div>
+        </div>
+        <div class="arcade-controls">
+            <div class="joystick"></div>
+            <div class="buttons">
+                <div class="btn red"></div>
+                <div class="btn blue"></div>
+            </div>
+        </div>
+    </div>
+    <script src="home.js"></script>
+</body>
+</html>
