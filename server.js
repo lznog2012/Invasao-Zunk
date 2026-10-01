@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
 // Agora a raiz '/' carrega o index.html da pasta public automaticamente
 // Rotas específicas para os jogos:
 app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'deducao', 'index.html')));
