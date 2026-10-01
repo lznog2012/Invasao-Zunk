@@ -366,6 +366,7 @@ io.on('connection', (socket) => {
         if (humansLeft === 0) {
           clearInterval(room.timer);
           delete rooms[code];
+             broadcastStats();
         } else {
           if (room.hostId === socket.id) {
             const nh = Object.values(room.players).find(pl => !pl.isBot)?.id;
