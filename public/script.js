@@ -502,3 +502,181 @@ function checkAmIAlive(players) {
   const me = players.find(p => p.id === socket.id);
   return me ? me.alive : false;
 }
+// ========== RENDER ==========
+function renderGameCards(players, voteCounts) {
+  const container = document.getElementById('gameCardsGrid');
+  if (!container) return;
+  currentPlayers = players;
+  voteCounts = voteCounts || {};
+
+  container.innerHTML = players.map(p => {
+    const isMe = socket && p.id === socket.id;
+    const isZunkRevealed = !p.alive && p.faction === 'ZUNK';
+    let cls = p.alive ? 'alive' : 'dead';
+    if (isMe) cls += ' me';
+    if (isZunkRevealed) cls += ' zunk-revealed';
+    if (p.isZunkAlly) cls += ' zunk-ally';
+    if (p.disconnected) cls += ' dead';
+
+    let badge = p.alive ? '<span class="badge badge-rimk">VIVO</span>' : '<span class="badge badge-zunk">ELIMINADO</span>';
+    if (isZunkRevealed) badge = '<span class="badge badge-zunk">ZUNK REVELADO</span>';
+    if (p.isZunkAlly) badge += ' <span class="badge badge-ally">🟣 ALIADO</span>';
+    if (p.disconnected) badge += ' <span class="badge badge-zunk">⚠ DESCONECTADO</span>';
+
+    const voteCount = voteCounts[p.id] || 0;
+    const voteHTML = voteCount > 0 ? `<div class="vote-count">${voteCount}</div>` : '';
+    const discBadge = p.disconnected ? '<span class="disconnect-badge">⚠ Off</span>' : '';
+
+    return `<div class="player-card ${cls}" data-player-id="${p.id}">
+      ${voteHTML}
+      ${discBadge}
+      <div class="avatar-box">${generateAvatarHTML(p.avatar, { isZunkRevealed: isZunkRevealed })}</div>
+      <b>${p.name}</b>${isMe ? ' <small style="color:var(--cyan-glow);">(Você)</small>' : ''}<br>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+function renderNightActions(players) {
+  const panel = document.getElementById('actionPanel');
+  if (!panel) return;
+
+  if (!checkAmIAlive(players)) {
+    panel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
+    return;
+  }
+
+  const role = myPlayerData.roleKey || myPlayerData.role;
+
+  if (role === 'ZUNK' || myPlayerData.faction === 'ZUNK') {
+    const targets = players.filter(p => p.alive && p.faction !== 'ZUNK' && p.id !== socket.id);
+    const html = targets.map(p =>
+      `<button onclick="sendNightAction('kill', '${p.id}')" style="background:#441122;border-color:var(--alert-red);margin:3px;">DESINTEGRAR ${p.name}</button>`
+    ).join('');
+    panel.innerHTML = `<h4>🔴 AÇÃO ZUNK: ESCOLHA UM RIMK PARA ELIMINAR</h4><div>${html || 'Nenhum alvo.'}</div>`;
+  } else if (role === 'BIOLOGIST' || myPlayerData.role === 'Biólogo') {
+    const targets = players.filter(p => p.alive && p.id !== socket.id);
+    const html = targets.map(p =>
+      `<button onclick="sendNightAction('scan', '${p.id}')" style="background:#003344;border-color:var(--cyan-glow);margin:3px;">ESCANEAR ${p.name}</button>`
+    ).join('');
+    panel.innerHTML = `<h4>🧪 AÇÃO DO BIÓLOGO: ESCANEAR RAÇA</h4><div>${html || 'Nenhum alvo.'}</div>`;
+  } else if (role === 'SHIELD_ENGINEER' || myPlayerData.role === 'Engenheiro de Escudo') {
+    const targets = players.filter(p => p.alive);
+    const html = targets.map(p =>
+      `<button onclick="sendNightAction('shield', '${p.id}')" style="background:#003311;border-color:var(--matrix-green);margin:3px;">PROTEGER ${p.name}</button>`
+    ).join('');
+    panel.innerHTML = `<h4>🛡 AÇÃO DO ENGENHEIRO: CAMPO DE FORÇA</h4><div>${html || 'Nenhum alvo.'}</div>`;
+  } else {
+    panel.innerHTML = '<p>💤 Durante o Eclipse, aguarde as ações dos especialistas...</p>';
+  }
+}
+
+function renderDayActions(players) {
+  const panel = document.getElementById('actionPanel');
+  if (!panel) return;
+
+  if (!checkAmIAlive(players)) {
+    panel.innerHTML = '<p style="color:var(--ghost-purple);">👻 Você está eliminado e observando como fantasma.</p>';
+    return;
+  }
+
+  const targets = players.filter(p => p.alive && p.id !== socket.id);
+  const html = targets.map(p => {
+    const voted = myVote === p.id;
+    return `<button onclick="voteEject('${p.id}')" style="background:${voted ? 'var(--gold-yellow)' : '#442200'};color:${voted ? '#000' : 'var(--gold-yellow)'};border-color:var(--gold-yellow);margin:3px;">
+      ${voted ? '✅ VOCÊ VOTOU EM' : 'VOTAR EM'} ${p.name}
+    </button>`;
+  }).join('');
+  panel.innerHTML = `<h4>🗳 FASE DE VOTAÇÃO: ESCOLHA UM SUSPEITO</h4><div>${html || 'Nenhum suspeito.'}</div>`;
+}
+
+// ========== AÇÕES ==========
+function createRoom() {
+  const name = document.getElementById('username').value.trim();
+  if (!name) return showToast('⚠️ ERRO', 'Digite seu nome!', 'zunk');
+  saveProfile();
+  const maxPlayers = parseInt(document.getElementById('maxPlayersInput').value) || 5;
+  const debateMinutes = parseInt(document.getElementById('debateMinutesInput').value) || 3;
+  if (socket) socket.emit('createRoom', { name, avatar: getCustomizationFromUI(), maxPlayers, debateMinutes });
+}
+
+function joinRoom() {
+  const name = document.getElementById('username').value.trim();
+  if (!name) return showToast('⚠️ ERRO', 'Digite seu nome!', 'zunk');
+  const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if (!roomCode) return showToast('⚠️ ERRO', 'Digite o código!', 'zunk');
+  saveProfile();
+  if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
+}
+
+function toggleReady() {
+  if (currentRoomCode && socket) socket.emit('toggleReady', { roomCode: currentRoomCode });
+}
+
+function startMatch() {
+  if (currentRoomCode && socket) socket.emit('startGame', { roomCode: currentRoomCode });
+}
+
+function voteSkipDebate() {
+  if (currentRoomCode && socket) socket.emit('voteSkipDebate', { roomCode: currentRoomCode });
+}
+
+function playAgain() {
+  if (currentRoomCode && socket) socket.emit('playAgain', { roomCode: currentRoomCode });
+}
+
+function sendNightAction(action, targetId) {
+  if (socket && currentRoomCode) {
+    socket.emit('nightAction', { roomCode: currentRoomCode, action, targetId });
+    // animação scan se for biólogo
+    if (action === 'scan') {
+      const card = document.querySelector(`[data-player-id="${targetId}"]`);
+      if (card) {
+        card.classList.add('scanning');
+        setTimeout(() => card.classList.remove('scanning'), 1200);
+      }
+    }
+  }
+}
+
+function voteEject(targetId) {
+  if (socket && currentRoomCode) {
+    myVote = targetId;
+    socket.emit('voteEject', { roomCode: currentRoomCode, targetId });
+  }
+}
+
+function sendLobbyChat() {
+  const input = document.getElementById('lobbyChatInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  if (socket && currentRoomCode) {
+    socket.emit('sendLobbyChat', { roomCode: currentRoomCode, text });
+    input.value = '';
+  }
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  if (socket && currentRoomCode) {
+    socket.emit('sendChatMessage', { roomCode: currentRoomCode, text });
+    input.value = '';
+  }
+}
+
+// ========== INIT ==========
+window.addEventListener('DOMContentLoaded', () => {
+  loadProfile();
+  updatePreview();
+  renderHistoryStats('historyStats');
+  document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : '🔇';
+  // Tenta iniciar áudio após primeiro clique (navegadores exigem interação)
+  const startOnce = () => { initAudio(); startAmbient(); document.removeEventListener('click', startOnce); };
+  document.addEventListener('click', startOnce);
+  // Salva nome ao digitar
+  document.getElementById('username').addEventListener('change', saveProfile);
+});
