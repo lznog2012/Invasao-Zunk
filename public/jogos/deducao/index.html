@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estação Alpha - Rimks vs Zunks</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛸</text></svg>">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <button class="guide-toggle-btn" onclick="toggleSidebar()">📘 MANUAL</button>
+  <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Som ligado/desligado">🔊</button>
+
+  <div id="guideSidebar" class="guide-sidebar">
+    <h3 style="color:var(--cyan-glow); margin-top:30px;">📘 GUIA DE FUNÇÕES</h3>
+    <hr style="border-color:#004422;">
+    <p><b style="color:#aaff00;">🟢 TRIPULANTE RIMK</b><br>Habitante nativo. Objetivo: debater e votar para ejetar todos os Zunks.</p>
+    <p><b style="color:#00ffff;">🧪 BIÓLOGO</b><br>Durante o Eclipse, escaneia a raça de um tripulante.</p>
+    <p><b style="color:#ffaa00;">🛡 ENGENHEIRO</b><br>Durante o Eclipse, protege alguém de um ataque.</p>
+    <p><b style="color:var(--alert-red);">🔴 INFILTRADO ZUNK</b><br>Disfarçado. Elimina Rimks durante o Eclipse. Vence ao igualar/superar os Rimks.</p>
+    <button onclick="toggleSidebar()" style="width:100%; margin-top:20px;">FECHAR</button>
+  </div>
+
+  <div class="container">
+    <div style="text-align:center; margin-top:15px;">
+      <h1>🛸 ESTAÇÃO ALPHA: RIMKS VS ZUNKS 🛸</h1>
+      <p style="color:var(--cyan-glow); margin:0; font-size:0.9em;">SISTEMA DE SEGURANÇA E DEDUÇÃO EMBARCADO</p>
+    </div>
+
+    <div id="setupView" class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <h3>[ 1. IDENTIFICAÇÃO E VISUAL ]</h3>
+        <button onclick="openManualModal()" style="background:#003344; border-color:var(--cyan-glow); color:var(--cyan-glow);">📖 COMO JOGAR</button>
+      </div>
+      <div style="display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:center; margin-top:15px;">
+        <div style="text-align:center;">
+          <div class="avatar-box" id="avatarPreview"></div>
+          <small style="color:var(--matrix-green);">Prévia do Rimk</small>
+        </div>
+        <div>
+          <label>Nome do Tripulante:</label>
+          <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom:10px;">
+          <div class="customizer-grid">
+            <div>
+              <label>Pelo Facial:</label>
+              <select id="optFacialHair" onchange="updatePreview()">
+                <option value="none">Nenhum</option>
+                <option value="9.png">Bigode RIMK</option>
+                <option value="10.png">Bigode Ralo</option>
+                <option value="11.png">Bigode Fino</option>
+                <option value="12.png">Bigode Imperial</option>
+                <option value="13.png">Barba Sábia</option>
+              </select>
+            </div>
+            <div>
+              <label>Acessório / Olhos:</label>
+              <select id="optEyewear" onchange="updatePreview()">
+                <option value="none">Nenhum</option>
+                <option value="6.png">Óculos Escuros</option>
+                <option value="7.png">Monóculo</option>
+              </select>
+            </div>
+            <div>
+              <label>Roupa / Traje:</label>
+              <select id="optSuit" onchange="updatePreview()">
+                <option value="none">Básico</option>
+                <option value="14.png">Camisa Listrada</option>
+                <option value="15.png">Jaqueta Jeans</option>
+                <option value="16.png">Blusa Vermelha</option>
+                <option value="17.png">Traje Espacial</option>
+              </select>
+            </div>
+            <div>
+              <label>Fundo do Cartão:</label>
+              <select id="optBg" onchange="updatePreview()">
+                <option value="none">Padrão Escuro</option>
+                <option value="3.jpg">Marte</option>
+                <option value="4.jpg">Espaço Sideral</option>
+                <option value="5.jpg">Nave RIMK</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr style="border-color:#003311; margin:25px 0;">
+      <h3>[ 2. MODO DE ENTRADA ]</h3>
+      <div class="action-menu">
+        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR NOVA SALA</button>
+        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA EXISTENTE</button>
+      </div>
+      <div id="formCreate" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ PARÂMETROS DA PARTIDA</h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+          <div>
+            <label>Quantidade de Jogadores:</label>
+            <select id="maxPlayersInput">
+              <option value="5">5 Jogadores</option>
+              <option value="6">6 Jogadores</option>
+              <option value="7">7 Jogadores</option>
+            </select>
+          </div>
+          <div>
+            <label>Tempo de Discussão (min):</label>
+            <select id="debateMinutesInput">
+              <option value="1">1 Minuto</option>
+              <option value="2">2 Minutos</option>
+              <option value="3" selected>3 Minutos</option>
+              <option value="5">5 Minutos</option>
+              <option value="10">10 Minutos</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="createRoom()" style="width:100%; background:#006622;">GERAR CÓDIGO DA SALA</button>
+      </div>
+      <div id="formJoin" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 INSERIR CÓDIGO DA SALA</h4>
+        <label>Código (4 dígitos):</label>
+        <input type="text" id="roomCodeInput" placeholder="EX: A8F3" style="text-transform:uppercase; font-size:1.5em; text-align:center; letter-spacing:5px; margin:10px 0;">
+        <button onclick="joinRoom()" style="width:100%; background:#003366; border-color:#0088cc;">CONECTAR À SALA</button>
+      </div>
+      <div id="historyPreview" class="history-box" style="display:none;">
+        <h4>🏆 SEU HISTÓRICO</h4>
+        <div id="historyStats" class="history-stats"></div>
+      </div>
+    </div>
+
+    <div id="lobbyView" class="panel" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <div>
+          <h3>CÓDIGO DA SALA: <span class="code-display" id="displayRoomCode">----</span></h3>
+          <p style="color:var(--cyan-glow); margin:0;">Compartilhe este código!</p>
+        </div>
+        <div><h4>TRIPULANTES: <span id="queueCount">0 / 0</span></h4></div>
+      </div>
+      <hr style="border-color:#003311; margin:15px 0;">
+      <div id="lobbyQueueGrid" class="cards-grid"></div>
+      <div style="margin-top:20px; background:rgba(1,10,5,0.85); border:1px solid var(--matrix-green); border-radius:8px; padding:15px;">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">💬 FREQUÊNCIA DE ESPERA</h4>
+        <div id="lobbyChatBox" class="chat-box" style="height:140px; margin-bottom:10px;"></div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="lobbyChatInput" placeholder="Converse com a tripulação..." onkeypress="if(event.key==='Enter') sendLobbyChat()">
+          <button onclick="sendLobbyChat()" style="white-space:nowrap; background:#004422;">ENVIAR</button>
+        </div>
+      </div>
+      <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="btnReady" class="ready-btn" onclick="toggleReady()" style="flex:1; min-width:200px;">☐ MARCAR PRONTO</button>
+        <button id="btnStartMatch" onclick="startMatch()" style="flex:1; min-width:200px; background:#008833; display:none;">🚀 INICIAR PARTIDA (HOST)</button>
+        <button id="btnAddBot" onclick="addBot()" style="display:none; background:#221144; border-color:var(--ghost-purple); color:var(--ghost-purple); flex:1; min-width:180px;">🤖 ADICIONAR BOT</button>
+        <button id="btnRemoveBot" onclick="removeBot()" style="display:none; background:#441122; border-color:var(--alert-red); color:var(--alert-red); flex:1; min-width:180px;">❌ REMOVER ÚLTIMO BOT</button>
+      </div>
+      <p id="readyHint" style="text-align:center; color:#888; font-size:0.85em; margin-top:8px; font-style:italic;"></p>
+    </div>
+
+    <div id="gameView" class="container" style="display:none;">
+      <div class="panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div><span>FUNÇÃO: <b id="myRole" style="color:#fff;">---</b> (<span id="myFaction">---</span>)</span></div>
+        <div><span>FASE: <b id="gameState">ECLIPSE</b></span></div>
+        <div><span class="timer-badge" id="timerDisplay">00:00</span></div>
+      </div>
+      <div class="game-layout">
+        <div>
+          <div class="panel">
+            <h3>TRIPULAÇÃO DA ESTAÇÃO ALPHA</h3>
+            <div id="gameCardsGrid" class="cards-grid"></div>
+          </div>
+          <div class="panel" style="margin-top:15px;">
+            <h3>PAINEL DE COMANDO</h3>
+            <div id="actionPanel"><p>Aguardando ordens do sistema...</p></div>
+            <div id="skipDebateBox" style="margin-top:10px; display:none;">
+              <button onclick="voteSkipDebate()" style="background:#aa6600; width:100%;">
+                ⚡ ENCERRAR DISCUSSÃO (<span id="skipCount">0</span>)
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <h3 id="chatTitle">COMUNICAÇÃO DE BORDO</h3>
+          <div id="chatBox" class="chat-box"></div>
+          <div style="margin-top:10px;">
+            <div style="display:flex; gap:5px;">
+              <input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendChat()">
+              <button id="btnSendChat" onclick="sendChat()">ENVIAR</button>
+            </div>
+            <small id="chatStatusNotice" style="color:#888; font-style:italic; display:block; margin-top:4px;"></small>
+          </div>
+        </div>
+      </div>
+      <div id="gameOverPanel" class="game-over-panel">
+        <h2 id="gameOverTitle">FIM DE PARTIDA</h2>
+        <p id="gameOverMessage" style="text-align:center; font-size:1.1em;"></p>
+        <h4 style="text-align:center; color:var(--cyan-glow); margin-top:20px;">📋 REVELAÇÃO DA TRIPULAÇÃO</h4>
+        <div id="finalRoster" class="final-roster"></div>
+        <div id="matchHistoryBox" class="history-box" style="display:none;">
+          <h4>🏆 SUAS ESTATÍSTICAS</h4>
+          <div id="matchHistoryStats" class="history-stats"></div>
+        </div>
+        <div style="margin-top:20px; text-align:center;">
+          <button id="btnPlayAgain" class="play-again" onclick="playAgain()" style="display:none;">🔄 JOGAR NOVAMENTE</button>
+          <p id="playAgainHint" style="color:#888; font-size:0.85em; margin-top:8px; font-style:italic;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="manualModal" class="modal">
+    <div class="modal-content">
+      <h2 style="color:var(--cyan-glow);">📖 MANUAL DO JOGO</h2>
+      <hr style="border-color:var(--matrix-green);">
+      <h4>🛸 LORE</h4>
+      <p>A Estação Alpha é habitada pelos <b>Rimks</b> (alienígenas verdes pacíficos). Parasitas metamorfos <b>Zunks</b> se infiltraram imitando sua aparência.</p>
+      <h4>🎯 OBJETIVOS</h4>
+      <ul>
+        <li><b style="color:#aaff00;">RIMK:</b> Descobrir e ejetar todos os Zunks.</li>
+        <li><b style="color:var(--alert-red);">ZUNK:</b> Eliminar Rimks durante o Eclipse. Vence ao empatar em número. Ao ser ejetado, sua pele branca é revelada!</li>
+      </ul>
+      <h4>⏳ FLUXO</h4>
+      <ol>
+        <li><b>ECLIPSE (NOITE):</b> Zunks escolhem vítima, Biólogo escaneia, Engenheiro protege.</li>
+        <li><b>TRANSMISSÃO (DIA):</b> Discutam e votem em quem ejetar.</li>
+      </ol>
+      <button onclick="closeManualModal()" style="width:100%; margin-top:15px; background:#aa0000; color:#fff;">ENTENDI!</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
