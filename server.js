@@ -33,40 +33,22 @@ const ROLE_MAP = {
   RIMK_CREW: { name: 'Tripulante Rimk', faction: 'RIMK' }
 };
 
-// Distribuição Dinâmica: Garante exatamente N papéis para N jogadores e sempre inclui 1+ Zunks
 function assignRoles(room) {
   const playerIds = Object.keys(room.players);
   const count = playerIds.length;
-  let rolesPool = [];
+  let rolesPool = ['ZUNK'];
 
-  // Sempre garante pelo menos 1 Zunk
-  rolesPool.push('ZUNK');
+  if (count >= 7) rolesPool.push('ZUNK');
+  if (count >= 4) rolesPool.push('BIOLOGIST');
+  if (count >= 5) rolesPool.push('SHIELD_ENGINEER');
 
-  // Se forem 7 jogadores, adiciona o 2º Zunk
-  if (count >= 7) {
-    rolesPool.push('ZUNK');
-  }
+  while (rolesPool.length < count) rolesPool.push('RIMK_CREW');
 
-  // Adiciona os papéis especiais conforme o tamanho da sala
-  if (count >= 4) {
-    rolesPool.push('BIOLOGIST');
-  }
-  if (count >= 5) {
-    rolesPool.push('SHIELD_ENGINEER');
-  }
-
-  // Preenche as vagas restantes exatamente com Tripulantes
-  while (rolesPool.length < count) {
-    rolesPool.push('RIMK_CREW');
-  }
-
-  // Embaralha a lista proporcional de papéis
   for (let i = rolesPool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rolesPool[i], rolesPool[j]] = [rolesPool[j], rolesPool[i]];
   }
 
-  // Atribui 1 para 1 a cada jogador
   playerIds.forEach((id, index) => {
     const roleKey = rolesPool[index];
     const roleInfo = ROLE_MAP[roleKey];
@@ -130,7 +112,6 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
   });
 
-  // CHAT DO LOBBY (PRÉ-JOGO)
   socket.on('sendLobbyChat', ({ roomCode, text }) => {
     const room = rooms[roomCode];
     if (!room || room.state !== 'LOBBY') return;
@@ -145,6 +126,7 @@ io.on('connection', (socket) => {
     if (!room || room.hostId !== socket.id) return;
 
     assignRoles(room);
+    room.turn = 1;
 
     Object.keys(room.players).forEach(id => {
       io.to(id).emit('gameStarted', {
@@ -156,6 +138,37 @@ io.on('connection', (socket) => {
     });
 
     startNightPhase(roomCode);
+  });
+
+  // 🔄 Reiniciar partida com os mesmos jogadores
+  socket.on('playAgain', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('errorMsg', 'Apenas o Host pode iniciar nova rodada.');
+
+    clearInterval(room.timer);
+
+    assignRoles(room);
+    room.turn = 1;
+    room.nightActions = {};
+    room.votes = {};
+    room.skipDebateVotes.clear();
+    room.state = 'LOBBY';
+
+    io.to(roomCode).emit('gameRestarted', { playersList: getPublicPlayersList(room.players) });
+
+    // Envia os novos papéis individualmente após 2.5 segundos
+    setTimeout(() => {
+      Object.keys(room.players).forEach(id => {
+        io.to(id).emit('gameStarted', {
+          roleKey: room.players[id].roleKey,
+          role: room.players[id].role,
+          faction: room.players[id].faction,
+          playersList: getPublicPlayersList(room.players)
+        });
+      });
+      startNightPhase(roomCode);
+    }, 2500);
   });
 
   const handleNightAction = ({ roomCode, action, actionType, targetId }) => {
@@ -223,7 +236,8 @@ io.on('connection', (socket) => {
         }
       });
     } else {
-      if (room.state !== 'DIA') return;
+      // Permite chat no DIA e também quando a partida terminou (state = END)
+      if (room.state !== 'DIA' && room.state !== 'END') return;
       io.to(roomCode).emit('chatMessage', { sender: p.name, text, type: 'normal', channel: 'alive' });
     }
   };
@@ -239,6 +253,17 @@ io.on('connection', (socket) => {
           clearInterval(rooms[code].timer);
           delete rooms[code];
         } else {
+          if (rooms[code].hostId === socket.id) {
+            // Passa o host pra outro jogador
+            const newHostId = Object.keys(rooms[code].players)[0];
+            rooms[code].hostId = newHostId;
+            rooms[code].players[newHostId].isHost = true;
+            io.to(code).emit('chatMessage', {
+              sender: 'SISTEMA',
+              text: `${rooms[code].players[newHostId].name} agora é o novo Host.`,
+              type: 'system'
+            });
+          }
           io.to(code).emit('updateQueue', { players: Object.values(rooms[code].players), maxPlayers: rooms[code].maxPlayers });
         }
         break;
@@ -287,8 +312,10 @@ function resolveNightPhase(roomCode) {
 
   const killedName = (killedId && room.players[killedId]) ? room.players[killedId].name : null;
 
-  if (checkVictory(roomCode)) return;
+  // Atualiza os cards imediatamente (com a revelação do Zunk se for o caso)
+  io.to(roomCode).emit('playersUpdated', { playersList: getPublicPlayersList(room.players) });
 
+  if (checkVictory(roomCode)) return;
   startDayPhase(roomCode, killedName);
 }
 
@@ -343,7 +370,8 @@ function resolveVotes(roomCode) {
 
   io.to(roomCode).emit('ejectionResult', {
     ejectedPlayer: ejectedPlayer ? ejectedPlayer.name : null,
-    ejectedFaction: ejectedFactionName
+    ejectedFaction: ejectedFactionName,
+    playersList: getPublicPlayersList(room.players)
   });
 
   if (checkVictory(roomCode)) return;
@@ -362,12 +390,28 @@ function checkVictory(code) {
 
   if (z === 0) {
     clearInterval(room.timer);
-    io.to(code).emit('gameOver', { winner: 'OS RIMKS VENCERAM! Todos os Infiltrados Zunks foram ejetados.' });
+    room.state = 'END';
+    io.to(code).emit('gameOver', {
+      winner: 'RIMK',
+      winnerText: '🛸 OS RIMKS VENCERAM! Todos os Infiltrados Zunks foram ejetados.',
+      allPlayers: getPublicPlayersList(room.players).map(p => ({
+        ...p,
+        faction: room.players[p.id].faction
+      }))
+    });
     return true;
   }
   if (z >= r) {
     clearInterval(room.timer);
-    io.to(code).emit('gameOver', { winner: 'OS ZUNKS VENCERAM! A estação Alpha caiu sob controle dos Zunks.' });
+    room.state = 'END';
+    io.to(code).emit('gameOver', {
+      winner: 'ZUNK',
+      winnerText: '👽 OS ZUNKS VENCERAM! A estação Alpha caiu sob controle dos Zunks.',
+      allPlayers: getPublicPlayersList(room.players).map(p => ({
+        ...p,
+        faction: room.players[p.id].faction
+      }))
+    });
     return true;
   }
   return false;
