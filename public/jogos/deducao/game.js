@@ -194,11 +194,11 @@ function generateAvatarHTML(c, extra) {
   if (!extra) extra = {};
   let base = 'rimk.png';
   if (extra.isZunkRevealed) base = '2.png';
-  const bg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : '';
-  const body = `<img src="images/${base}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
-  const suit = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:3;" />` : '';
-  const hair = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:4;" />` : '';
-  const eye = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:5;" />` : '';
+  const bg = (c.bg && c.bg !== 'none') ? `<img src="../../images/${c.bg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : '';
+  const body = `<img src="../../images/${base}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
+  const suit = (c.suit && c.suit !== 'none') ? `<img src="../../images/${c.suit}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:3;" />` : '';
+  const hair = (c.facialHair && c.facialHair !== 'none') ? `<img src="../../images/${c.facialHair}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:4;" />` : '';
+  const eye = (c.eyewear && c.eyewear !== 'none') ? `<img src="../../images/${c.eyewear}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;z-index:5;" />` : '';
   return `<div style="position:relative;width:100%;height:100%;aspect-ratio:1/1;overflow:hidden;border-radius:8px;background:#000;">${bg}${body}${suit}${hair}${eye}</div>`;
 }
 
