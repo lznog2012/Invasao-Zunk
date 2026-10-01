@@ -13,6 +13,39 @@ app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html
 
 const rooms = {};
 
+// ============ BOTS ============
+const BOT_NAMES = ['Zorblax','Kryzzt','Vexnar','Quortan','Xyloph','Braxil','Nyzoth','Vrelka','Moxxi','Zarnak','Xerath','Quinlex','Nebulon','Kryon','Xylar','Vorlox','Zephyr','Quintar','Gorblax','Yvnar','Threxil','Praxx','Worvax','Hylax','Ulnar','Kryx','Vorn','Naxor','Zynthar','Morbius'];
+const BOT_FACIAL = ['none','none','9.png','10.png','11.png','12.png','13.png'];
+const BOT_EYES = ['none','none','none','none','6.png','7.png'];
+const BOT_SUIT = ['none','none','14.png','15.png','16.png','17.png'];
+const BOT_BG = ['none','3.jpg','4.jpg','5.jpg'];
+
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function randomBotName(room) {
+  const used = new Set(Object.values(room.players).map(p => p.name));
+  for (let i = 0; i < 50; i++) {
+    const n = pick(BOT_NAMES) + (Math.random() < 0.35 ? ' ' + Math.floor(Math.random() * 99 + 1) : '');
+    if (!used.has(n)) return n;
+  }
+  return pick(BOT_NAMES) + ' ' + Date.now().toString().slice(-3);
+}
+function makeBot(room) {
+  room.botCounter = (room.botCounter || 0) + 1;
+  return {
+    id: 'bot_' + room.botCounter + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    name: randomBotName(room),
+    avatar: {
+      facialHair: pick(BOT_FACIAL),
+      eyewear: pick(BOT_EYES),
+      suit: pick(BOT_SUIT),
+      bg: pick(BOT_BG)
+    },
+    isHost: false, isBot: true, alive: true,
+    ready: true, disconnected: false
+  };
+}
+
+// ============ UTIL ============
 function generateRoomCode() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let s = '';
@@ -50,7 +83,7 @@ function publicList(players, viewerId) {
   const viewerIsZunk = viewerId && players[viewerId]?.faction === 'ZUNK';
   return Object.values(players).map(p => ({
     id: p.id, name: p.name, avatar: p.avatar, alive: p.alive,
-    isHost: p.isHost, ready: !!p.ready, disconnected: !!p.disconnected,
+    isHost: p.isHost, isBot: !!p.isBot, ready: !!p.ready, disconnected: !!p.disconnected,
     faction: p.alive ? null : p.faction,
     isZunkAlly: viewerIsZunk && zunks > 1 && p.faction === 'ZUNK' && p.id !== viewerId
   }));
@@ -58,6 +91,7 @@ function publicList(players, viewerId) {
 
 function broadcastPlayers(room, event = 'playersUpdate') {
   Object.keys(room.players).forEach(pid => {
+    if (room.players[pid].isBot) return;
     io.to(pid).emit(event, {
       playersList: publicList(room.players, pid),
       voteCounts: room.voteCounts || {}
@@ -65,6 +99,18 @@ function broadcastPlayers(room, event = 'playersUpdate') {
   });
 }
 
+function checkAllVoted(room, code) {
+  const aliveCount = Object.values(room.players).filter(p => p.alive).length;
+  const votesCount = Object.keys(room.votes).length;
+  if (votesCount >= aliveCount) {
+    clearInterval(room.timer);
+    resolveVotes(code);
+    return true;
+  }
+  return false;
+}
+
+// ============ CONNECTION ============
 io.on('connection', (socket) => {
 
   socket.on('identify', ({ clientId }) => {
@@ -84,17 +130,13 @@ io.on('connection', (socket) => {
         socket.join(code);
         socket.currentRoom = code;
         socket.emit('reconnected', {
-          roomCode: code,
-          isHost: room.hostId === socket.id,
-          state: room.state,
-          roleKey: p.roleKey,
-          role: p.role,
-          faction: p.faction
+          roomCode: code, isHost: room.hostId === socket.id, state: room.state,
+          roleKey: p.roleKey, role: p.role, faction: p.faction
         });
         io.to(code).emit('chatMessage', { sender: 'SISTEMA', text: `${p.name} reconectou.`, type: 'system' });
         broadcastPlayers(room);
         if (room.state === 'NOITE') socket.emit('startNight', { turn: room.turn, playersList: publicList(room.players, socket.id) });
-        if (room.state === 'DIA') socket.emit('startDay', { killedPlayer: null, playersList: publicList(room.players, socket.id) });
+        if (room.state === 'DIA') socket.emit('startDay', { killedPlayer: null, playersList: publicList(room.players, socket.id), voteCounts: room.voteCounts || {} });
         return;
       }
     }
@@ -108,11 +150,11 @@ io.on('connection', (socket) => {
       code, hostId: socket.id, maxPlayers: limit,
       debateTime: (parseInt(debateMinutes) || 3) * 60,
       state: 'LOBBY', players: {}, nightActions: {}, votes: {}, voteCounts: {},
-      skipDebateVotes: new Set(), timer: null, timeLeft: 0, turn: 1
+      skipDebateVotes: new Set(), timer: null, timeLeft: 0, turn: 1, botCounter: 0
     };
     rooms[code].players[socket.id] = {
       id: socket.id, clientId: socket.clientId, name, avatar,
-      isHost: true, alive: true, ready: false, disconnected: false
+      isHost: true, isBot: false, alive: true, ready: false, disconnected: false
     };
     socket.join(code);
     socket.currentRoom = code;
@@ -127,7 +169,7 @@ io.on('connection', (socket) => {
     if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia!');
     room.players[socket.id] = {
       id: socket.id, clientId: socket.clientId, name, avatar,
-      isHost: false, alive: true, ready: false, disconnected: false
+      isHost: false, isBot: false, alive: true, ready: false, disconnected: false
     };
     socket.join(roomCode);
     socket.currentRoom = roomCode;
@@ -135,11 +177,33 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
   });
 
+  socket.on('addBot', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('errorMsg', 'Só o Host pode adicionar bots.');
+    if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Só no lobby.');
+    if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia! Remova um bot ou aumente o limite.');
+    const bot = makeBot(room);
+    room.players[bot.id] = bot;
+    io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
+  });
+
+  socket.on('removeBot', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+    if (room.hostId !== socket.id) return;
+    if (room.state !== 'LOBBY') return;
+    const botIds = Object.keys(room.players).filter(id => room.players[id].isBot);
+    if (!botIds.length) return socket.emit('errorMsg', 'Não há bots para remover.');
+    delete room.players[botIds[botIds.length - 1]];
+    io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
+  });
+
   socket.on('toggleReady', ({ roomCode }) => {
     const room = rooms[roomCode];
     if (!room || room.state !== 'LOBBY') return;
     const p = room.players[socket.id];
-    if (!p) return;
+    if (!p || p.isBot) return;
     p.ready = !p.ready;
     io.to(roomCode).emit('updateQueue', { players: Object.values(room.players), maxPlayers: room.maxPlayers });
   });
@@ -156,11 +220,12 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (!room || room.hostId !== socket.id) return;
     const players = Object.values(room.players);
-    if (players.length < 5) return socket.emit('errorMsg', 'Mínimo de 5 jogadores.');
+    if (players.length < 5) return socket.emit('errorMsg', 'Mínimo de 5 jogadores (humanos + bots).');
     if (!players.every(p => p.ready)) return socket.emit('errorMsg', 'Todos precisam estar prontos.');
     assignRoles(room);
     room.turn = 1;
     Object.keys(room.players).forEach(id => {
+      if (room.players[id].isBot) return;
       io.to(id).emit('gameStarted', {
         roleKey: room.players[id].roleKey,
         role: room.players[id].role,
@@ -182,9 +247,10 @@ io.on('connection', (socket) => {
     room.voteCounts = {};
     room.skipDebateVotes.clear();
     room.state = 'LOBBY';
-    Object.values(room.players).forEach(p => p.ready = false);
+    Object.values(room.players).forEach(p => { if (!p.isBot) p.ready = false; });
     io.to(roomCode).emit('gameRestarted', { playersList: publicList(room.players) });
     Object.keys(room.players).forEach(id => {
+      if (room.players[id].isBot) return;
       io.to(id).emit('gameStarted', {
         roleKey: room.players[id].roleKey,
         role: room.players[id].role,
@@ -221,11 +287,7 @@ io.on('connection', (socket) => {
     Object.values(room.votes).forEach(t => { if (t && t !== 'SKIP') room.voteCounts[t] = (room.voteCounts[t] || 0) + 1; });
     broadcastPlayers(room);
     socket.emit('voteConfirmed', { targetId, targetName: room.players[targetId]?.name });
-    const aliveCount = Object.values(room.players).filter(p => p.alive).length;
-    if (Object.keys(room.votes).length >= aliveCount) {
-      clearInterval(room.timer);
-      resolveVotes(roomCode);
-    }
+    checkAllVoted(room, roomCode);
   };
   socket.on('voteEject', vote);
   socket.on('submitVote', vote);
@@ -250,7 +312,7 @@ io.on('connection', (socket) => {
     if (!p || !text?.trim()) return;
     if (!p.alive) {
       Object.values(room.players).forEach(pl => {
-        if (!pl.alive) io.to(pl.id).emit('chatMessage', { sender: p.name, text, type: 'dead', channel: 'ghost' });
+        if (!pl.alive && !pl.isBot) io.to(pl.id).emit('chatMessage', { sender: p.name, text, type: 'dead', channel: 'ghost' });
       });
     } else {
       if (room.state !== 'DIA' && room.state !== 'END') return;
@@ -270,15 +332,18 @@ io.on('connection', (socket) => {
     p.disconnectTimer = setTimeout(() => {
       if (room.players[socket.id]?.disconnected) {
         delete room.players[socket.id];
-        if (!Object.keys(room.players).length) {
+        const humansLeft = Object.values(room.players).filter(pl => !pl.isBot).length;
+        if (humansLeft === 0) {
           clearInterval(room.timer);
           delete rooms[code];
         } else {
           if (room.hostId === socket.id) {
-            const nh = Object.keys(room.players)[0];
-            room.hostId = nh;
-            room.players[nh].isHost = true;
-            io.to(code).emit('chatMessage', { sender: 'SISTEMA', text: `${room.players[nh].name} agora é o novo Host.`, type: 'system' });
+            const nh = Object.values(room.players).find(pl => !pl.isBot)?.id;
+            if (nh) {
+              room.hostId = nh;
+              room.players[nh].isHost = true;
+              io.to(code).emit('chatMessage', { sender: 'SISTEMA', text: `${room.players[nh].name} agora é o novo Host.`, type: 'system' });
+            }
           }
           broadcastPlayers(room);
         }
@@ -289,6 +354,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// ============ FASES ============
 function startNightPhase(code) {
   const room = rooms[code];
   if (!room) return;
@@ -298,6 +364,7 @@ function startNightPhase(code) {
   room.voteCounts = {};
   room.timeLeft = 45;
   Object.keys(room.players).forEach(pid => {
+    if (room.players[pid].isBot) return;
     io.to(pid).emit('startNight', { turn: room.turn, playersList: publicList(room.players, pid) });
   });
   io.to(code).emit('timerUpdate', room.timeLeft);
@@ -307,6 +374,24 @@ function startNightPhase(code) {
     io.to(code).emit('timerUpdate', room.timeLeft);
     if (room.timeLeft <= 0) { clearInterval(room.timer); resolveNightPhase(code); }
   }, 1000);
+  // Ações dos bots
+  setTimeout(() => botNightActions(code), 7000 + Math.random() * 3000);
+}
+
+function botNightActions(code) {
+  const room = rooms[code];
+  if (!room || room.state !== 'NOITE') return;
+  const alive = Object.values(room.players).filter(p => p.alive);
+  const bots = alive.filter(p => p.isBot);
+  bots.forEach(bot => {
+    if (bot.faction === 'ZUNK' && !room.nightActions.zunk) {
+      const targets = alive.filter(p => p.faction !== 'ZUNK');
+      if (targets.length) room.nightActions.zunk = pick(targets).id;
+    } else if (bot.roleKey === 'SHIELD_ENGINEER' && !room.nightActions.shield) {
+      if (alive.length) room.nightActions.shield = pick(alive).id;
+    }
+    // Biólogo bot: só decide, sem efeito mecânico
+  });
 }
 
 function resolveNightPhase(code) {
@@ -333,6 +418,7 @@ function startDayPhase(code, killedPlayer) {
   room.skipDebateVotes.clear();
   room.timeLeft = room.debateTime;
   Object.keys(room.players).forEach(pid => {
+    if (room.players[pid].isBot) return;
     io.to(pid).emit('startDay', { killedPlayer, playersList: publicList(room.players, pid), voteCounts: {} });
   });
   io.to(code).emit('updateSkipCount', 0);
@@ -343,6 +429,30 @@ function startDayPhase(code, killedPlayer) {
     io.to(code).emit('timerUpdate', room.timeLeft);
     if (room.timeLeft <= 0) { clearInterval(room.timer); resolveVotes(code); }
   }, 1000);
+  // Votos dos bots: entre 25% e 45% do tempo de debate
+  const delay = Math.min(35000, room.debateTime * 1000 * 0.3) + Math.random() * 8000;
+  setTimeout(() => botVotes(code), delay);
+}
+
+function botVotes(code) {
+  const room = rooms[code];
+  if (!room || room.state !== 'DIA') return;
+  const alive = Object.values(room.players).filter(p => p.alive);
+  const bots = alive.filter(p => p.isBot);
+  let changed = false;
+  bots.forEach(bot => {
+    if (room.votes[bot.id]) return;
+    const targets = alive.filter(p => p.id !== bot.id);
+    if (!targets.length) return;
+    room.votes[bot.id] = pick(targets).id;
+    changed = true;
+  });
+  if (changed) {
+    room.voteCounts = {};
+    Object.values(room.votes).forEach(t => { if (t && t !== 'SKIP') room.voteCounts[t] = (room.voteCounts[t] || 0) + 1; });
+    broadcastPlayers(room);
+    checkAllVoted(room, code);
+  }
 }
 
 function resolveVotes(code) {
