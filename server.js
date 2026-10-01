@@ -50,9 +50,9 @@ function makeBot(room) {
 }
 
 // ============ UTIL ============
-function generateRoomCode() {
+function generateRoomCode(prefix) {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
+  let s = prefix + '_';
   for (let i = 0; i < 4; i++) s += c[Math.floor(Math.random() * c.length)];
   return s;
 }
