@@ -146,9 +146,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes }) => {
-    let code = generateRoomCode();
-    while (rooms[code]) code = generateRoomCode();
+  socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes, gameType }) => {
+    const prefix = gameType || 'D'; // Se não vier especificado, assume 'D' de Dedução
+    let code = generateRoomCode(prefix);
+    while (rooms[code]) code = generateRoomCode(prefix);
+    
     const limit = Math.min(Math.max(parseInt(maxPlayers) || 5, 5), 7);
     rooms[code] = {
       code, hostId: socket.id, maxPlayers: limit,
