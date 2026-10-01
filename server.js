@@ -9,7 +9,11 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
+// Redireciona a raiz pro jogo de dedução (temporário — depois vamos criar a home)
+app.get('/', (_, res) => res.redirect('/jogos/deducao/'));
+app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'deducao', 'index.html')));
+app.get('/jogos/deducao/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'deducao', 'index.html')));
 
 const rooms = {};
 
