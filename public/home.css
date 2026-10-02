@@ -1084,3 +1084,31 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   .radio-name { font-size: 0.75em; letter-spacing: 1px; }
   .radio-tag { font-size: 0.55em; }
 }
+
+/* ============================================
+   HISTORY SECTIONS (no modal de perfil)
+   ============================================ */
+.profile-history-box .history-section {
+  margin-bottom: 15px;
+}
+.profile-history-box .history-section:last-child {
+  margin-bottom: 0;
+}
+
+.profile-history-box .history-group-title {
+  color: var(--cyan-glow);
+  font-size: 0.75em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(0,255,255,0.2);
+  text-shadow: 0 0 6px rgba(0,255,255,0.4);
+}
+
+.profile-history-box .history-stats {
+  display: flex;
+  gap: 15px;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
