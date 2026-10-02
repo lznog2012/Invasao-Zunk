@@ -60,11 +60,70 @@ function generateMiniAvatar(c) {
 }
 
 // ========== MODAL DE PERFIL ==========
+function getModalCustomization() {
+  const v = id => document.getElementById(id)?.value || 'none';
+  return {
+    facialHair: v('modalOptFacialHair'),
+    eyewear: v('modalOptEyewear'),
+    suit: v('modalOptSuit'),
+    bg: v('modalOptBg')
+  };
+}
+
+function setModalCustomization(c) {
+  if (!c) c = {};
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || 'none';
+  };
+  set('modalOptFacialHair', c.facialHair);
+  set('modalOptEyewear', c.eyewear);
+  set('modalOptSuit', c.suit);
+  set('modalOptBg', c.bg);
+}
+
+function updateModalPreview() {
+  const box = document.getElementById('modalAvatarPreview');
+  if (!box) return;
+  box.innerHTML = generateMiniAvatar(getModalCustomization());
+}
+
 function openProfileModal() {
   const p = getProfile();
   const input = document.getElementById('modalUsername');
   if (input) input.value = p.name || '';
+
+  setModalCustomization(p.avatar);
+  updateModalPreview();
+
+  // Mostra histórico se tiver
+  const statsBox = document.getElementById('profileHistoryStats');
+  if (statsBox) {
+    const h = JSON.parse(localStorage.getItem('alpha_history') || '[]');
+    if (h.length) {
+      document.getElementById('profileHistoryBox').style.display = 'block';
+      renderProfileHistory(statsBox, h);
+    } else {
+      document.getElementById('profileHistoryBox').style.display = 'none';
+    }
+  }
+
   document.getElementById('profileModal').classList.add('open');
+}
+
+function renderProfileHistory(el, h) {
+  const total = h.length;
+  const wins = h.filter(x => x.won).length;
+  const asRimk = h.filter(x => x.myFaction === 'RIMK');
+  const asZunk = h.filter(x => x.myFaction === 'ZUNK');
+  const winsRimk = asRimk.filter(x => x.won).length;
+  const winsZunk = asZunk.filter(x => x.won).length;
+
+  el.innerHTML = `
+    <div class="history-stat"><b>${wins}/${total}</b><small>VITÓRIAS</small></div>
+    <div class="history-stat"><b>${winsRimk}/${asRimk.length}</b><small>COMO RIMK</small></div>
+    <div class="history-stat"><b>${winsZunk}/${asZunk.length}</b><small>COMO ZUNK</small></div>
+  `;
 }
 
 function closeProfileModal() {
@@ -80,6 +139,7 @@ function saveProfileFromModal() {
     return;
   }
   localStorage.setItem(STORAGE.name, name);
+  localStorage.setItem(STORAGE.avatar, JSON.stringify(getModalCustomization()));
   renderProfileCorner();
   closeProfileModal();
 }
