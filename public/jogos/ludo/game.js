@@ -476,9 +476,13 @@ function renderPlayersList() {
 
     const teamTag = p.team ? `<span class="end-team team-${p.team.toLowerCase()}">${p.team}</span>` : '';
 
+    // Peão do Ludo correspondente à raça (mesmo sistema do tabuleiro)
+    const pawnFile = PAWN_FILES[color.name] || 'rimk.png';
+    const pawnUrl = `art/pawns/${pawnFile}`;
+
     return `
       <div class="${cls}">
-        <span class="color-dot" style="background:${color.hex}; color:${color.hex};"></span>
+        <span class="player-avatar" style="--ring-color:${color.hex}; background-image:url('${pawnUrl}');"></span>
         <span class="player-name">
           ${p.id === myId ? '👤 ' : ''}${p.name}
           ${p.disconnected ? ' ⚠' : ''}
