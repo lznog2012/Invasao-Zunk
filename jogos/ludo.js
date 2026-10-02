@@ -149,18 +149,6 @@ function init(io, rooms, broadcastStats) {
     }
   }
 
-    // Se for bot, auto-move
-    if (player.isBot) {
-      setTimeout(() => {
-        const r = rooms[room.code];
-        if (!r || r.state !== 'PLAYING') return;
-        if (r.dice !== dice) return;
-        const pawnIdx = pickBotMove(player, dice);
-        if (pawnIdx !== null) performMove(r, playerId, pawnIdx);
-      }, 1300);
-    }
-  }
-
   function performMove(room, playerId, pawnIndex) {
     if (room.state !== 'PLAYING') return;
     if (room.turnOrder[room.currentTurn] !== playerId) return;
