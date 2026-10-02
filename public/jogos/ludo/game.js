@@ -504,8 +504,8 @@ function layoutAllPawns() {
       const c = getCenterQuadrantPos(entry.playerIndex, entry.pawnIdx);
       entry.el.style.left = c.left + '%';
       entry.el.style.top = c.top + '%';
-      entry.el.style.width = '3.5%';
-      entry.el.style.height = '3.5%';
+      entry.el.style.width = '3%';
+      entry.el.style.height = '3%';
       entry.el.style.zIndex = 6 + entry.pawnIdx;
       return;
     }
