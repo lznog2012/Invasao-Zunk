@@ -632,6 +632,11 @@ function startLudo() {
   socket.emit('ludoStart', { code: currentRoom });
 }
 
+function pickLudoColor(colorIdx) {
+  if (!currentRoom || !socket) return;
+  socket.emit('ludoPickColor', { code: currentRoom, colorIdx });
+}
+
 function addLudoBot() {
   if (!currentRoom || !socket) return;
   socket.emit('ludoAddBot', { code: currentRoom });
@@ -734,46 +739,100 @@ if (socket) {
           {hex:'#ff3344', name:'Ferrum'}
         ];
 
+    const me = data.players.find(p => p.id === myId);
+    const myColorIdx = me?.playerIndex;
+
     document.getElementById('queueCount').innerText = data.players.length + ' / ' + data.maxPlayers;
     document.getElementById('displayMode').innerText = data.mode === 'B' ? '2 vs 2' : 'FREE-FOR-ALL';
 
+    // ========== RENDER COLOR PICKER ==========
+    const pickerBox = document.getElementById('colorPickerBox');
+    const pickerGrid = document.getElementById('colorPickerGrid');
+    if (pickerBox && pickerGrid) {
+      pickerBox.style.display = 'block';
+
+      const takenBy = {};
+      data.players.forEach(p => {
+        if (p.playerIndex !== null && p.playerIndex !== undefined) {
+          takenBy[p.playerIndex] = p;
+        }
+      });
+
+      pickerGrid.innerHTML = colors.map((c, idx) => {
+        const occupant = takenBy[idx];
+        const isMine = myColorIdx === idx;
+        const isTakenByOther = occupant && !isMine;
+
+        const pawnFile = PAWN_FILES[c.name] || 'rimk.png';
+        const pawnUrl = `art/pawns/${pawnFile}`;
+
+        let cls = 'color-choice';
+        if (isMine) cls += ' mine';
+        else if (isTakenByOther) cls += ' taken';
+
+        const clickHandler = (!occupant) ? `onclick="pickLudoColor(${idx})"` : '';
+        const teamLabel = c.team ? `<span class="color-team">${c.team}</span>` : '';
+        const takenLabel = isTakenByOther ? `<span class="color-taken-label">${occupant.name}</span>` : '';
+
+        return `
+          <div class="${cls}" style="--color-hex:${c.hex};" ${clickHandler}>
+            <img src="${pawnUrl}" alt="${c.name}" class="color-pawn">
+            <span class="color-label">${c.name}</span>
+            ${teamLabel}
+            ${takenLabel}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========== RENDER LOBBY GRID ==========
     const grid = document.getElementById('lobbyGrid');
     grid.innerHTML = data.players.map(p => {
       const isMe = p.id === myId;
-      const color = colors[p.playerIndex] || colors[0];
+      const hasColor = p.playerIndex !== null && p.playerIndex !== undefined;
+      const color = hasColor ? colors[p.playerIndex] : null;
       const teamTag = p.team ? `<span class="team-tag team-${p.team.toLowerCase()}">${p.team}</span>` : '';
       const readyCls = p.ready ? ' ready' : '';
       const meCls = isMe ? ' me' : '';
+      const botCls = p.isBot ? ' bot' : '';
+
+      let colorDotHtml = '<span class="color-dot" style="background:#333;color:#333;"></span>';
+      if (hasColor) {
+        colorDotHtml = `<span class="color-dot" style="background:${color.hex};color:${color.hex};"></span>`;
+      }
+
+      const statusHtml = hasColor
+        ? `<small style="color:${p.ready ? 'var(--cyan-glow)' : '#888'};">${p.ready ? '✔ PRONTO' : '⏳ Aguardando'}</small>`
+        : `<small style="color:var(--alert-red);">⚠ Escolha uma cor</small>`;
+
       return `
-          <div class="lobby-player${readyCls}${meCls}${p.isBot ? ' bot' : ''}">
+        <div class="lobby-player${readyCls}${meCls}${botCls}">
           <div class="avatar-mini" style="display:flex;align-items:center;justify-content:center;font-size:2em;">${p.isBot ? '🤖' : generateAvatarHTML(p.avatar)}</div>
           <div style="margin-bottom:4px;">
-            <span class="color-dot" style="background:${color.hex}; color:${color.hex};"></span>
+            ${colorDotHtml}
             <b>${p.name}</b>${isMe ? ' <small>(Você)</small>' : ''}
           </div>
           <small style="color:var(--cyan-glow);">${p.isHost ? '👑 HOST' : ''}</small>
           <div>${teamTag}</div>
-          <small style="color:${p.ready ? 'var(--cyan-glow)' : '#888'};">
-            ${p.ready ? '✔ PRONTO' : '⏳ Aguardando'}
-          </small>
+          ${statusHtml}
           ${p.disconnected ? '<div style="color:var(--alert-red);font-size:0.7em;">⚠ Desconectado</div>' : ''}
         </div>
       `;
     }).join('');
 
-    // Controla botões de bot
+    // ========== BOTÕES DE BOT ==========
     const hasBots = data.players.some(p => p.isBot);
     const btnAddBot = document.getElementById('btnAddLudoBot');
     const btnRemoveBot = document.getElementById('btnRemoveLudoBot');
-    const isHostForBot = data.players.find(p => p.id === myId)?.isHost;
+    const isHostForBot = me?.isHost;
     if (btnAddBot) {
       btnAddBot.style.display = (isHostForBot && data.players.length < data.maxPlayers) ? 'block' : 'none';
     }
     if (btnRemoveBot) {
       btnRemoveBot.style.display = (isHostForBot && hasBots) ? 'block' : 'none';
     }
-    
-    const me = data.players.find(p => p.id === myId);
+
+    // ========== BOTÕES DE READY/START ==========
     const isHost = me && me.isHost;
     const btnReady = document.getElementById('btnReady');
     const btnStart = document.getElementById('btnStartLudo');
@@ -786,21 +845,41 @@ if (socket) {
 
     const numPlayers = data.players.length;
     const allReady = numPlayers >= 2 && data.players.every(p => p.ready);
+    const allPickedColor = data.players.every(p => p.playerIndex !== null && p.playerIndex !== undefined);
     const isModeB = data.mode === 'B';
     const modeBValid = !isModeB || numPlayers === 2 || numPlayers === 4;
 
+    // Verifica times no modo B
+    let teamsOk = true;
+    if (isModeB && allPickedColor) {
+      const rimk = data.players.filter(p => p.team === 'RIMK').length;
+      const zunk = data.players.filter(p => p.team === 'ZUNK').length;
+      if (numPlayers === 2) teamsOk = (rimk === 1 && zunk === 1);
+      if (numPlayers === 4) teamsOk = (rimk === 2 && zunk === 2);
+    }
+
     if (isHost) {
       btnStart.style.display = 'block';
-      btnStart.disabled = !allReady || !modeBValid;
+      btnStart.disabled = !allReady || !modeBValid || !allPickedColor || !teamsOk;
     } else {
       btnStart.style.display = 'none';
     }
 
+    // ========== HINT ==========
     if (numPlayers < 2) {
       hint.innerText = 'Aguardando pelo menos 1 jogador entrar...';
       hint.style.color = '';
     } else if (isModeB && numPlayers === 3) {
       hint.innerText = '⚠ O modo 2v2 exige 2 ou 4 jogadores. Chame mais 1 ou remova 1.';
+      hint.style.color = 'var(--alert-red)';
+    } else if (!allPickedColor) {
+      const waiting = data.players.filter(p => p.playerIndex === null || p.playerIndex === undefined);
+      hint.innerText = `🎨 Aguardando ${waiting.length} jogador(es) escolherem uma cor...`;
+      hint.style.color = 'var(--gold-yellow)';
+    } else if (isModeB && !teamsOk) {
+      hint.innerText = numPlayers === 2
+        ? '⚠ No 2v2, um precisa ser Rimk e o outro Zunk.'
+        : '⚠ No 2v2, precisa ser 2 Rimks e 2 Zunks.';
       hint.style.color = 'var(--alert-red)';
     } else if (!allReady) {
       const waiting = data.players.filter(p => !p.ready).length;
