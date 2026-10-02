@@ -7,10 +7,21 @@ const socket = typeof io !== 'undefined' ? io() : null;
 const STORAGE = {
   clientId: 'alpha_clientId',
   name: 'alpha_name',
-  avatar: 'alpha_avatar'
+  avatar: 'alpha_avatar',
+  race: 'alpha_race'
 };
 
-// ========== CLIENT ID (compartilhado com os jogos) ==========
+// ========== MAPA DE RAÇAS ==========
+const RACE_FILES = {
+  'Rimk':   'rimk.png',
+  'Sahrin': 'sahrin.png',
+  'Ferrum': 'ferrum.png',
+  'Nereid': 'nereid.png'
+};
+
+const DEFAULT_RACE = 'Rimk';
+
+// ========== CLIENT ID ==========
 function getClientId() {
   let id = localStorage.getItem(STORAGE.clientId);
   if (!id) {
@@ -25,6 +36,7 @@ const CLIENT_ID = getClientId();
 function getProfile() {
   return {
     name: localStorage.getItem(STORAGE.name) || '',
+    race: localStorage.getItem(STORAGE.race) || DEFAULT_RACE,
     avatar: (() => {
       try { return JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}'); }
       catch (e) { return {}; }
@@ -46,24 +58,45 @@ function renderProfileCorner() {
     nameEl.classList.add('empty');
   }
 
-  avatarEl.innerHTML = generateMiniAvatar(p.avatar);
+  avatarEl.innerHTML = generateMiniAvatar(p.avatar, p.race);
 }
 
-function generateMiniAvatar(c) {
+// ========== GERADOR DE AVATAR ==========
+// Camadas: fundo → cabeça (raça) → traje → acessório
+function generateMiniAvatar(c, race) {
   if (!c) c = {};
-  const bg = (c.bg && c.bg !== 'none') ? `<img src="images/${c.bg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : '';
-  const body = `<img src="images/rimk.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
-  const suit = (c.suit && c.suit !== 'none') ? `<img src="images/${c.suit}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;" />` : '';
-  const hair = (c.facialHair && c.facialHair !== 'none') ? `<img src="images/${c.facialHair}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />` : '';
-  const eye = (c.eyewear && c.eyewear !== 'none') ? `<img src="images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:5;" />` : '';
-  return `<div style="position:relative;width:100%;height:100%;background:#000;">${bg}${body}${suit}${hair}${eye}</div>`;
+  if (!race) race = DEFAULT_RACE;
+
+  const raceFile = RACE_FILES[race] || RACE_FILES[DEFAULT_RACE];
+
+  const bg = (c.bg && c.bg !== 'none')
+    ? `<img src="images/${c.bg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />`
+    : '';
+
+  const head = `<img src="images/${raceFile}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
+
+  const suit = (c.suit && c.suit !== 'none')
+    ? `<img src="images/${c.suit}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;" />`
+    : '';
+
+  const eyewear = (c.eyewear && c.eyewear !== 'none')
+    ? `<img src="images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />`
+    : '';
+
+  return `<div style="position:relative;width:100%;height:100%;background:#000;">${bg}${head}${suit}${eyewear}</div>`;
 }
 
 // ========== MODAL DE PERFIL ==========
 function getModalCustomization() {
-  const v = id => document.getElementById(id)?.value || 'none';
+  const v = id => {
+    const el = document.getElementById(id);
+    return el ? (el.value || 'none') : 'none';
+  };
+  const raceEl = document.querySelector('.race-option.selected');
+  const race = raceEl ? raceEl.dataset.race : DEFAULT_RACE;
+
   return {
-    facialHair: v('modalOptFacialHair'),
+    race,
     eyewear: v('modalOptEyewear'),
     suit: v('modalOptSuit'),
     bg: v('modalOptBg')
@@ -76,16 +109,29 @@ function setModalCustomization(c) {
     const el = document.getElementById(id);
     if (el) el.value = val || 'none';
   };
-  set('modalOptFacialHair', c.facialHair);
   set('modalOptEyewear', c.eyewear);
   set('modalOptSuit', c.suit);
   set('modalOptBg', c.bg);
+
+  // Marca a raça selecionada
+  const race = c.race || DEFAULT_RACE;
+  document.querySelectorAll('.race-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.race === race);
+  });
+}
+
+function selectRace(race) {
+  document.querySelectorAll('.race-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.race === race);
+  });
+  updateModalPreview();
 }
 
 function updateModalPreview() {
   const box = document.getElementById('modalAvatarPreview');
   if (!box) return;
-  box.innerHTML = generateMiniAvatar(getModalCustomization());
+  const c = getModalCustomization();
+  box.innerHTML = generateMiniAvatar(c, c.race);
 }
 
 function openProfileModal() {
@@ -93,22 +139,26 @@ function openProfileModal() {
   const input = document.getElementById('modalUsername');
   if (input) input.value = p.name || '';
 
-  setModalCustomization(p.avatar);
+  // Combina a raça salva com o avatar salvo
+  setModalCustomization({ ...p.avatar, race: p.race });
   updateModalPreview();
 
   // Mostra histórico se tiver
   const statsBox = document.getElementById('profileHistoryStats');
-  if (statsBox) {
-    const h = JSON.parse(localStorage.getItem('alpha_history') || '[]');
+  const statsBoxContainer = document.getElementById('profileHistoryBox');
+  if (statsBox && statsBoxContainer) {
+    let h = [];
+    try { h = JSON.parse(localStorage.getItem('alpha_history') || '[]'); } catch (e) {}
     if (h.length) {
-      document.getElementById('profileHistoryBox').style.display = 'block';
+      statsBoxContainer.style.display = 'block';
       renderProfileHistory(statsBox, h);
     } else {
-      document.getElementById('profileHistoryBox').style.display = 'none';
+      statsBoxContainer.style.display = 'none';
     }
   }
 
-  document.getElementById('profileModal').classList.add('open');
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.classList.add('open');
 }
 
 function renderProfileHistory(el, h) {
@@ -127,7 +177,8 @@ function renderProfileHistory(el, h) {
 }
 
 function closeProfileModal() {
-  document.getElementById('profileModal').classList.remove('open');
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.classList.remove('open');
 }
 
 function saveProfileFromModal() {
@@ -138,8 +189,14 @@ function saveProfileFromModal() {
     alert('Por favor, digite um nome!');
     return;
   }
+  const custom = getModalCustomization();
   localStorage.setItem(STORAGE.name, name);
-  localStorage.setItem(STORAGE.avatar, JSON.stringify(getModalCustomization()));
+  localStorage.setItem(STORAGE.race, custom.race);
+  localStorage.setItem(STORAGE.avatar, JSON.stringify({
+    eyewear: custom.eyewear,
+    suit: custom.suit,
+    bg: custom.bg
+  }));
   renderProfileCorner();
   closeProfileModal();
 }
@@ -180,12 +237,12 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Atualiza preview do avatar sempre que mudar os selects
-  ['modalOptFacialHair', 'modalOptEyewear', 'modalOptSuit', 'modalOptBg'].forEach(id => {
+  ['modalOptEyewear', 'modalOptSuit', 'modalOptBg'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', updateModalPreview);
   });
 
-  // Preview inicial do modal (mesmo fechado, pra estar pronto ao abrir)
+  // Preview inicial (mesmo fechado, pra estar pronto ao abrir)
   updateModalPreview();
 });
 
@@ -202,7 +259,6 @@ function skipIntro() {
   setTimeout(() => intro.remove(), 900);
 }
 
-// Auto-fechar depois da última cena (11s)
 function autoCloseIntro() {
   setTimeout(() => {
     if (document.getElementById('loreIntro')) skipIntro();
@@ -216,10 +272,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const jaViu = localStorage.getItem(INTRO_KEY) === 'true';
 
   if (jaViu) {
-    // Já viu antes: remove imediatamente, sem animação
     intro.remove();
   } else {
-    // Primeira visita: toca a intro
     autoCloseIntro();
   }
 });
