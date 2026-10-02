@@ -839,6 +839,7 @@ if (socket) {
   });
 
   socket.on('ludoEnd', (data) => {
+     saveLudoHistory(data);
     document.getElementById('gameView').style.display = 'none';
     document.getElementById('endView').style.display = 'block';
 
@@ -907,3 +908,35 @@ window.addEventListener('DOMContentLoaded', () => {
   const gi = document.getElementById('gameChatInput');
   if (gi) gi.addEventListener('keypress', e => { if (e.key === 'Enter') sendGameChat(); });
 });
+
+// ========== HISTÓRICO ==========
+function saveLudoHistory(data) {
+  const myResult = data.players.find(p => p.id === myId);
+  if (!myResult) return;
+
+  const winnerIds = data.winnerIds || [];
+  const iWon = winnerIds.includes(myId);
+
+  const entry = {
+    game: 'ludo',
+    won: iWon,
+    mode: roomState?.mode || 'A',
+    myTeam: myResult.team || null,
+    myColorName: null,
+    date: Date.now()
+  };
+
+  try {
+    const colors = getColorsForMode();
+    const meState = roomState?.players?.find(p => p.id === myId);
+    if (meState && colors[meState.playerIndex]) {
+      entry.myColorName = colors[meState.playerIndex].name;
+    }
+  } catch (e) {}
+
+  let h = [];
+  try { h = JSON.parse(localStorage.getItem('alpha_history') || '[]'); } catch (e) {}
+  h.push(entry);
+  if (h.length > 100) h.shift();
+  localStorage.setItem('alpha_history', JSON.stringify(h));
+}
