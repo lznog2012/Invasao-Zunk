@@ -263,15 +263,32 @@ function getCellCenter(row, col) {
 }
 
 function getCenterQuadrantPos(playerIndex, pawnIdx) {
-  const qStartX = (playerIndex === 0 || playerIndex === 3) ? 40 : 50;
-  const qStartY = (playerIndex === 0 || playerIndex === 1) ? 40 : 50;
-  const slot = pawnIdx % 4;
-  const sx = slot % 2;
-  const sy = Math.floor(slot / 2);
-  return {
-    left: qStartX + 2.5 + sx * 5,
-    top: qStartY + 2.5 + sy * 5
-  };
+  // Cada jogador ocupa UM triângulo do X central.
+  // Layout: 3 peões na fileira da base + 1 peão mais perto do ápice (centro).
+  const baseDist = 42;   // distância da borda até a fileira da base
+  const apexDist = 46;   // distância da borda até o peão do ápice
+  const center = 50;     // centro do eixo
+  const spread = 5;      // espaçamento entre os 3 peões da base
+
+  if (pawnIdx < 3) {
+    // 3 peões na fileira da base (em linha)
+    const offset = (pawnIdx - 1) * spread;  // -5, 0, +5
+    switch (playerIndex) {
+      case 0: return { left: baseDist,           top: center + offset };  // ESQUERDA
+      case 1: return { left: center + offset,    top: baseDist };         // TOPO
+      case 2: return { left: 100 - baseDist,     top: center + offset };  // DIREITA
+      case 3: return { left: center + offset,    top: 100 - baseDist };   // BASE
+    }
+  } else {
+    // 1 peão próximo ao ápice (centro)
+    switch (playerIndex) {
+      case 0: return { left: apexDist,           top: center };  // ESQUERDA
+      case 1: return { left: center,             top: apexDist }; // TOPO
+      case 2: return { left: 100 - apexDist,     top: center };  // DIREITA
+      case 3: return { left: center,             top: 100 - apexDist }; // BASE
+    }
+  }
+  return { left: 50, top: 50 };
 }
 
 function renderPawns() {
