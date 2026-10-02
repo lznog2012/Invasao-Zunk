@@ -521,21 +521,21 @@ function layoutAllPawns() {
     const n = group.length;
     let size, offsets;
 
-    if (n === 1) {
-      size = cellPct * 0.82;
+       if (n === 1) {
+      size = cellPct * 0.72;
       offsets = [[0, 0]];
     } else if (n === 2) {
-      size = cellPct * 0.58;
+      size = cellPct * 0.52;
       offsets = [[0, -cellPct * 0.2], [0, cellPct * 0.2]];
     } else if (n === 3) {
-      size = cellPct * 0.5;
+      size = cellPct * 0.46;
       offsets = [
         [0, -cellPct * 0.22],
         [-cellPct * 0.22, cellPct * 0.16],
         [cellPct * 0.22, cellPct * 0.16]
       ];
     } else {
-      size = cellPct * 0.46;
+      size = cellPct * 0.42;
       offsets = [
         [-cellPct * 0.22, -cellPct * 0.22],
         [cellPct * 0.22, -cellPct * 0.22],
