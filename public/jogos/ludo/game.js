@@ -731,33 +731,32 @@ if (socket) {
       btnReady.classList.toggle('active', !!me.ready);
     }
 
-    const allReady = data.players.length >= 2 && data.players.every(p => p.ready);
-
     const numPlayers = data.players.length;
-const allReady = numPlayers >= 2 && data.players.every(p => p.ready);
-const isModeB = data.mode === 'B';
-const modeBValid = !isModeB || numPlayers === 2 || numPlayers === 4;
+    const allReady = numPlayers >= 2 && data.players.every(p => p.ready);
+    const isModeB = data.mode === 'B';
+    const modeBValid = !isModeB || numPlayers === 2 || numPlayers === 4;
 
-if (isHost) {
-  btnStart.style.display = 'block';
-  btnStart.disabled = !allReady || !modeBValid;
-} else {
-  btnStart.style.display = 'none';
-}
+    if (isHost) {
+      btnStart.style.display = 'block';
+      btnStart.disabled = !allReady || !modeBValid;
+    } else {
+      btnStart.style.display = 'none';
+    }
 
     if (numPlayers < 2) {
-  hint.innerText = 'Aguardando pelo menos 1 jogador entrar...';
-} else if (isModeB && numPlayers === 3) {
-  hint.innerText = '⚠ O modo 2v2 exige 2 ou 4 jogadores. Chame mais 1 ou remova 1.';
-  hint.style.color = 'var(--alert-red)';
-} else if (!allReady) {
-  const waiting = data.players.filter(p => !p.ready).length;
-  hint.innerText = `Aguardando ${waiting} jogador(es) ficarem prontos...`;
-  hint.style.color = '';
-} else {
-  hint.innerText = isHost ? '✅ Todos prontos! Pode iniciar.' : '✅ Todos prontos! Aguardando o host iniciar...';
-  hint.style.color = '';
-}
+      hint.innerText = 'Aguardando pelo menos 1 jogador entrar...';
+      hint.style.color = '';
+    } else if (isModeB && numPlayers === 3) {
+      hint.innerText = '⚠ O modo 2v2 exige 2 ou 4 jogadores. Chame mais 1 ou remova 1.';
+      hint.style.color = 'var(--alert-red)';
+    } else if (!allReady) {
+      const waiting = data.players.filter(p => !p.ready).length;
+      hint.innerText = `Aguardando ${waiting} jogador(es) ficarem prontos...`;
+      hint.style.color = '';
+    } else {
+      hint.innerText = isHost ? '✅ Todos prontos! Pode iniciar.' : '✅ Todos prontos! Aguardando o host iniciar...';
+      hint.style.color = '';
+    }
   });
 
   socket.on('ludoStarted', (state) => {
