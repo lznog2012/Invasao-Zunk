@@ -8,7 +8,19 @@
   <link rel="stylesheet" href="home.css">
 </head>
 <body>
-
+  <!-- INTRO CINEMATOGRÁFICA (só na 1ª visita) -->
+  <div id="loreIntro" class="lore-intro">
+    <div class="intro-slides">
+      <div class="intro-slide" data-delay="0">Há incontáveis eras, o <b>Sistema Rímkar</b> era apenas uma estrela entre bilhões.</div>
+      <div class="intro-slide" data-delay="1">Os <b>Rimks</b> foram o primeiro povo. E, por muito tempo, o único.</div>
+      <div class="intro-slide" data-delay="2">Eles semearam vida em <b>quatro mundos</b>. Ensinaram. Cuidaram.</div>
+      <div class="intro-slide" data-delay="3">Mas algo veio de fora. Sem bigode. Sem memória. Sem origem.</div>
+      <div class="intro-slide" data-delay="4">Agora, a <b>Aliança</b> precisa de você.</div>
+    </div>
+    <button class="intro-skip" onclick="skipIntro()">PULAR →</button>
+    <button class="intro-start" onclick="skipIntro()">INICIAR TREINAMENTO</button>
+  </div>
+  
   <!-- PERFIL (canto superior direito) -->
   <div class="profile-corner" id="profileCorner" onclick="openProfileModal()">
     <div class="avatar-mini" id="profileAvatar"></div>
