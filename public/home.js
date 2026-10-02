@@ -188,3 +188,38 @@ window.addEventListener('DOMContentLoaded', () => {
   // Preview inicial do modal (mesmo fechado, pra estar pronto ao abrir)
   updateModalPreview();
 });
+
+// ============================================
+// INTRO CINEMATOGRÁFICA (só na 1ª visita)
+// ============================================
+const INTRO_KEY = 'alpha_intro_seen';
+
+function skipIntro() {
+  const intro = document.getElementById('loreIntro');
+  if (!intro) return;
+  intro.classList.add('hidden');
+  localStorage.setItem(INTRO_KEY, 'true');
+  setTimeout(() => intro.remove(), 900);
+}
+
+// Auto-fechar depois da última cena (11s)
+function autoCloseIntro() {
+  setTimeout(() => {
+    if (document.getElementById('loreIntro')) skipIntro();
+  }, 11000);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const intro = document.getElementById('loreIntro');
+  if (!intro) return;
+
+  const jaViu = localStorage.getItem(INTRO_KEY) === 'true';
+
+  if (jaViu) {
+    // Já viu antes: remove imediatamente, sem animação
+    intro.remove();
+  } else {
+    // Primeira visita: toca a intro
+    autoCloseIntro();
+  }
+});
