@@ -37,7 +37,14 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   text-shadow: 0 0 20px var(--matrix-green), 0 0 40px rgba(0,255,102,0.4);
 }
 .home-header .subtitle {
-  /* ============================================
+  color: var(--cyan-glow);
+  font-size: 0.95em;
+  letter-spacing: 4px;
+  margin-top: 8px;
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* ============================================
    RACE PICKER (seleção de raça no modal)
    ============================================ */
 .race-picker {
