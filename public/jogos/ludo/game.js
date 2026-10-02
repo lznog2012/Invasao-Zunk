@@ -193,13 +193,6 @@ const PATH_COLOR_OWNERS = [
   3, 3, 3, 3, 3, -1, -1, -1, -1, -1, -1, -1, -1
 ];
 
-const PATH_COLOR_OWNERS = [
-  0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1,
-  1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1,
-  2, 2, 2, 2, 2, -1, -1, -1, -1, -1, -1, -1, -1,
-  3, 3, 3, 3, 3, -1, -1, -1, -1, -1, -1, -1, -1
-];
-
 function buildBoard() {
   const board = document.getElementById('ludoBoard');
   if (!board) return;
