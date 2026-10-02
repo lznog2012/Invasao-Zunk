@@ -576,8 +576,8 @@ function animatePawn(entry, from, to) {
 
   // Trava o peão no tamanho padrão durante a animação
   el.style.zIndex = 100;
-  el.style.width = (cellPct * 0.82) + '%';
-  el.style.height = (cellPct * 0.82) + '%';
+  el.style.width = (cellPct * 0.72) + '%';
+  el.style.height = (cellPct * 0.72) + '%';
 
   let i = 0;
   function step() {
