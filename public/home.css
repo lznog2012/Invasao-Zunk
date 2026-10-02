@@ -37,6 +37,101 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   text-shadow: 0 0 20px var(--matrix-green), 0 0 40px rgba(0,255,102,0.4);
 }
 .home-header .subtitle {
+  /* ============================================
+   RACE PICKER (seleção de raça no modal)
+   ============================================ */
+.race-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.race-option {
+  background: rgba(0, 15, 10, 0.6);
+  border: 2px solid #004422;
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.race-option:hover {
+  border-color: var(--matrix-green);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,255,102,0.2);
+}
+
+.race-option.selected {
+  border-color: var(--gold-yellow);
+  background: rgba(30, 25, 0, 0.6);
+  box-shadow: 0 0 20px rgba(255,204,0,0.4), inset 0 0 25px rgba(255,204,0,0.05);
+}
+
+.race-option.selected::before {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--gold-yellow);
+  font-weight: bold;
+  font-size: 0.9em;
+  text-shadow: 0 0 8px var(--gold-yellow);
+}
+
+.race-icon {
+  width: 55px;
+  height: 55px;
+  margin: 0 auto 6px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+  transition: transform 0.25s;
+}
+
+.race-option:hover .race-icon {
+  transform: scale(1.1);
+}
+
+.race-option.selected .race-icon {
+  filter: drop-shadow(0 0 10px var(--gold-yellow)) drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+}
+
+.race-name {
+  display: block;
+  font-size: 0.7em;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--matrix-green);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.race-option.selected .race-name {
+  color: var(--gold-yellow);
+  text-shadow: 0 0 6px var(--gold-yellow);
+}
+
+.race-home {
+  display: block;
+  font-size: 0.6em;
+  color: #88aa99;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 550px) {
+  .race-picker {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .race-icon { width: 45px; height: 45px; }
+  .race-name { font-size: 0.65em; }
+  .race-home { font-size: 0.55em; }
+}
   color: var(--cyan-glow);
   font-size: 0.95em;
   letter-spacing: 4px;
