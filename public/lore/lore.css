@@ -104,13 +104,13 @@ li::marker { color: var(--matrix-green); }
 .codex-header::before { top: 10px; left: 10px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
 .codex-header::after { bottom: 10px; right: 10px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
 
-.codex-emblem {
-  font-size: 3em;
-  color: var(--gold-yellow);
-  text-shadow: 0 0 20px var(--gold-yellow), 0 0 40px rgba(255,204,0,0.5);
-  line-height: 1;
-  margin-bottom: 15px;
-  animation: emblemPulse 3s ease-in-out infinite;
+.codex-emblem-img {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 15px;
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(255,204,0,0.5));
+  animation: emblemPulse 4s ease-in-out infinite;
 }
 @keyframes emblemPulse {
   0%, 100% { transform: scale(1); filter: brightness(1); }
