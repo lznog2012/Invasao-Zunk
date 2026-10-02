@@ -747,6 +747,8 @@ if (socket) {
     document.getElementById('endView').style.display = 'none';
 
     buildBoard();
+    lastPawnPositions = {};
+    renderPawns();
     renderPlayersList();
     renderTurnInfo();
     addChatMessage('gameChatBox', 'SISTEMA', 'Partida iniciada!', 'system');
@@ -760,6 +762,7 @@ if (socket) {
     roomState = state;
 
     buildBoard();
+    renderPawns();
     renderPlayersList();
     renderTurnInfo();
 
