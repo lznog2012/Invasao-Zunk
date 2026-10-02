@@ -29,6 +29,14 @@ const PATH = [
 const START_INDICES = [0, 13, 26, 39];
 const SAFE_INDICES = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
 const FINISH_POS = 56;
+const PAWN_FILES = {
+  'Rimk':   'rimk.png',
+  'Sahrin': 'sahrin.png',
+  'Nereid': 'nereid.png',
+  'Ferrum': 'ferrum.png',
+  'Thrakk': 'thrakk.png',
+  'Vharn':  'vharn.png'
+};
 
 const HOME_COLUMNS = [
   [[7,1],[7,2],[7,3],[7,4],[7,5]],
