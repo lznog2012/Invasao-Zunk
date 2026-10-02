@@ -162,17 +162,56 @@ function openProfileModal() {
 }
 
 function renderProfileHistory(el, h) {
-  const total = h.length;
-  const wins = h.filter(x => x.won).length;
-  const asRimk = h.filter(x => x.myFaction === 'RIMK');
-  const asZunk = h.filter(x => x.myFaction === 'ZUNK');
-  const winsRimk = asRimk.filter(x => x.won).length;
-  const winsZunk = asZunk.filter(x => x.won).length;
+  // Separa por jogo (registros antigos sem `game` contam como dedução)
+  const deducao = h.filter(x => !x.game || x.game === 'deducao');
+  const ludo = h.filter(x => x.game === 'ludo');
+
+  const buildStats = (arr) => ({
+    total: arr.length,
+    wins: arr.filter(x => x.won).length
+  });
+
+  const g = buildStats(h);
+  const d = buildStats(deducao);
+  const l = buildStats(ludo);
+
+  // Dedução: vitórias como Rimk vs Zunk
+  const dedRimk = deducao.filter(x => x.myFaction === 'RIMK');
+  const dedZunk = deducao.filter(x => x.myFaction === 'ZUNK');
+  const dedWRimk = dedRimk.filter(x => x.won).length;
+  const dedWZunk = dedZunk.filter(x => x.won).length;
+
+  // Ludo: vitórias modo A vs modo B
+  const ludoA = ludo.filter(x => x.mode === 'A');
+  const ludoB = ludo.filter(x => x.mode === 'B');
+  const ludoWA = ludoA.filter(x => x.won).length;
+  const ludoWB = ludoB.filter(x => x.won).length;
 
   el.innerHTML = `
-    <div class="history-stat"><b>${wins}/${total}</b><small>VITÓRIAS</small></div>
-    <div class="history-stat"><b>${winsRimk}/${asRimk.length}</b><small>COMO RIMK</small></div>
-    <div class="history-stat"><b>${winsZunk}/${asZunk.length}</b><small>COMO ZUNK</small></div>
+    <div class="history-section">
+      <div class="history-group-title">🌌 GERAL</div>
+      <div class="history-stats">
+        <div class="history-stat"><b>${g.wins}/${g.total}</b><small>VITÓRIAS</small></div>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-group-title">🛸 RIMKS VS ZUNKS</div>
+      <div class="history-stats">
+        <div class="history-stat"><b>${d.wins}/${d.total}</b><small>TOTAL</small></div>
+        <div class="history-stat"><b>${dedWRimk}/${dedRimk.length}</b><small>COMO RIMK</small></div>
+        <div class="history-stat"><b>${dedWZunk}/${dedZunk.length}</b><small>COMO ZUNK</small></div>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-group-title">🎲 LUDO DA ALIANÇA</div>
+      <div class="history-stats">
+        <div class="history-stat"><b>${l.wins}/${l.total}</b><small>TOTAL</small></div>
+        <div class="history-stat"><b>${ludoWA}/${ludoA.length}</b><small>MODO A</small></div>
+        <div class="history-stat"><b>${ludoWB}/${ludoB.length}</b><small>MODO B</small></div>
+      </div>
+    </div>
   `;
 }
 
