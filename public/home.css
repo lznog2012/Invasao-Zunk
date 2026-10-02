@@ -499,6 +499,7 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   background: #000;
   box-shadow: 0 0 25px rgba(0,255,102,0.35);
   margin: 0 auto;
+  position: relative;   /* ← a linha que faltava */
 }
 
 .profile-customizer {
