@@ -240,6 +240,7 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
   border-radius: 8px;
   padding: 4px;
   box-shadow: inset 0 0 30px rgba(0, 255, 102, 0.15);
+  position: relative;
 }
 
 /* CÉLULAS */
