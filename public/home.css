@@ -378,3 +378,87 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   .profile-corner .avatar-mini { width: 26px; height: 26px; }
   .profile-corner .profile-name { max-width: 80px; }
 }
+
+/* ============ MODAL DE PERFIL EXPANDIDO ============ */
+.profile-modal-content { max-width: 720px; }
+
+.profile-preview-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 22px;
+  align-items: start;
+  margin: 20px 0 10px;
+}
+@media (max-width: 600px) {
+  .profile-preview-row { grid-template-columns: 1fr; gap: 15px; }
+}
+
+.profile-preview-box {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--matrix-green);
+  background: #000;
+  box-shadow: 0 0 25px rgba(0,255,102,0.35);
+  margin: 0 auto;
+}
+
+.profile-customizer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .profile-customizer { grid-template-columns: 1fr; }
+}
+.profile-customizer > div { display: flex; flex-direction: column; }
+.profile-customizer label {
+  font-size: 0.75em;
+  margin-bottom: 4px;
+  color: var(--matrix-green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.profile-customizer select {
+  background: #001100;
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: inherit;
+  width: 100%;
+}
+
+.profile-history-box {
+  margin-top: 18px;
+  padding: 12px 15px;
+  background: rgba(0, 20, 20, 0.5);
+  border: 1px dashed var(--cyan-glow);
+  border-radius: 8px;
+}
+.profile-history-box h4 {
+  color: var(--cyan-glow);
+  margin: 0 0 8px;
+  font-size: 0.85em;
+  letter-spacing: 2px;
+}
+.profile-history-box .history-stats {
+  display: flex;
+  gap: 15px;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+.profile-history-box .history-stat { text-align: center; }
+.profile-history-box .history-stat b {
+  display: block;
+  font-size: 1.4em;
+  color: var(--gold-yellow);
+  text-shadow: 0 0 10px var(--gold-yellow);
+}
+.profile-history-box .history-stat small {
+  color: #88aa99;
+  font-size: 0.7em;
+  letter-spacing: 1px;
+}
