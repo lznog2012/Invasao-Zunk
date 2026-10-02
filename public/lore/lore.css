@@ -598,3 +598,48 @@ li::marker { color: var(--matrix-green); }
     font-size: 1em;
   }
 }
+
+/* ============================================
+   PLANET THUMBS (aliados)
+   ============================================ */
+.planet-thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--planet-color);
+  box-shadow:
+    0 0 15px var(--planet-color),
+    0 0 30px rgba(0,0,0,0.5),
+    inset 0 0 20px rgba(0,0,0,0.4);
+  background: #000;
+  animation: planetThumbPulse 3s ease-in-out infinite;
+  transition: transform 0.3s;
+}
+
+.planet-thumb:hover {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+@keyframes planetThumbPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px var(--planet-color),
+      0 0 30px rgba(0,0,0,0.5),
+      inset 0 0 20px rgba(0,0,0,0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 25px var(--planet-color),
+      0 0 45px var(--planet-color),
+      inset 0 0 20px rgba(0,0,0,0.4);
+  }
+}
+
+@media (max-width: 550px) {
+  .planet-thumb {
+    width: 65px;
+    height: 65px;
+  }
+}
