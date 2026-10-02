@@ -183,4 +183,13 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.target === modal) closeProfileModal();
     });
   }
+
+  // Atualiza preview do avatar sempre que mudar os selects
+  ['modalOptFacialHair', 'modalOptEyewear', 'modalOptSuit', 'modalOptBg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', updateModalPreview);
+  });
+
+  // Preview inicial do modal (mesmo fechado, pra estar pronto ao abrir)
+  updateModalPreview();
 });
