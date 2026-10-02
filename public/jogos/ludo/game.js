@@ -358,13 +358,76 @@ function renderPawns() {
     if (!p.pawns) return;
     p.pawns.forEach((pos, idx) => {
       const key = `${p.id}#${idx}`;
+      const colorData = colors[p.playerIndex] || colors[0];
       desired[key] = {
         playerId: p.id, pawnIdx: idx, pos,
         playerIndex: p.playerIndex,
-        color: (colors[p.playerIndex] || colors[0]).hex
+        color: colorData.hex,
+        colorName: colorData.name
       };
     });
   });
+
+  // Remove peões obsoletos
+  Object.keys(pawnElements).forEach(key => {
+    if (!desired[key]) {
+      pawnElements[key].el.remove();
+      delete pawnElements[key];
+    }
+  });
+
+  // Cria / atualiza
+  Object.entries(desired).forEach(([key, data]) => {
+    let entry = pawnElements[key];
+    const pawnFile = PAWN_FILES[data.colorName] || 'rimk.png';
+    const imgUrl = `url('art/pawns/${pawnFile}')`;
+
+    if (!entry) {
+      const el = document.createElement('div');
+      el.className = 'pawn';
+      el.dataset.playerId = data.playerId;
+      el.dataset.pawnIdx = data.pawnIdx;
+      el.style.backgroundImage = imgUrl;
+      el.style.color = data.color;
+      board.appendChild(el);
+      entry = {
+        el,
+        pos: data.pos,
+        playerIndex: data.playerIndex,
+        pawnIdx: data.pawnIdx,
+        animating: false
+      };
+      pawnElements[key] = entry;
+    } else {
+      entry.el.style.backgroundImage = imgUrl;
+      entry.el.style.color = data.color;
+      entry.playerIndex = data.playerIndex;
+      entry.pawnIdx = data.pawnIdx;
+    }
+
+    // Movable?
+    const isMyPawn = data.playerId === myId;
+    const isMyTurn = roomState.currentTurnId === myId;
+    const dice = roomState.dice;
+    entry.el.classList.remove('movable');
+    entry.el.onclick = null;
+    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(data.pos, dice)) {
+      entry.el.classList.add('movable');
+      entry.el.onclick = (e) => { e.stopPropagation(); movePawn(data.pawnIdx); };
+    }
+
+    if (entry.pos !== data.pos && !entry.animating) {
+      const from = entry.pos;
+      const to = data.pos;
+      entry.pos = to;
+      animatePawn(entry, from, to);
+    } else if (entry.pos !== data.pos) {
+      entry.pos = data.pos;
+    }
+  });
+
+  layoutAllPawns();
+}
 
   // Remove peões obsoletos
   Object.keys(pawnElements).forEach(key => {
