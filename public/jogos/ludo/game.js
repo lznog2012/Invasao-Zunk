@@ -186,25 +186,29 @@ function getRingIndex(playerIndex, relativePos) {
   return (START_INDICES[playerIndex] + relativePos) % 52;
 }
 // ========== RENDERIZAÇÃO DO TABULEIRO ==========
+const PATH_COLOR_OWNERS = [
+  0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1,
+  1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1,
+  2, 2, 2, 2, 2, -1, -1, -1, -1, -1, -1, -1, -1,
+  3, 3, 3, 3, 3, -1, -1, -1, -1, -1, -1, -1, -1
+];
+
 function buildBoard() {
   const board = document.getElementById('ludoBoard');
   if (!board) return;
-  board.innerHTML = '';
 
-  // Cria grid vazio 15x15
+  // Remove só as células antigas (mantém peões)
+  board.querySelectorAll('.cell').forEach(c => c.remove());
+
+  const colors = getColorsForMode();
   const grid = {};
-  for (let r = 0; r < 15; r++) {
-    for (let c = 0; c < 15; c++) {
-      grid[`${r}-${c}`] = null;
-    }
-  }
 
-  // Marca bases
+  // Bases
   const basePositions = [
-    { r0: 0, c0: 0, colorIdx: 0 },   // top-left  = jogador 0
-    { r0: 0, c0: 9, colorIdx: 1 },   // top-right = jogador 1
-    { r0: 9, c0: 9, colorIdx: 2 },   // bot-right = jogador 2
-    { r0: 9, c0: 0, colorIdx: 3 }    // bot-left  = jogador 3
+    { r0: 0, c0: 0, colorIdx: 0 },
+    { r0: 0, c0: 9, colorIdx: 1 },
+    { r0: 9, c0: 9, colorIdx: 2 },
+    { r0: 9, c0: 0, colorIdx: 3 }
   ];
   basePositions.forEach(b => {
     for (let r = b.r0; r < b.r0 + 6; r++) {
@@ -214,27 +218,24 @@ function buildBoard() {
     }
   });
 
-  // Marca caminho
+  // Caminho
   PATH.forEach((p, i) => {
     grid[`${p[0]}-${p[1]}`] = {
       type: 'path',
       idx: i,
-      safe: SAFE_INDICES.has(i)
+      safe: SAFE_INDICES.has(i),
+      colorOwner: PATH_COLOR_OWNERS[i]
     };
   });
 
-  // Marca colunas finais
+  // Colunas finais
   HOME_COLUMNS.forEach((col, playerIdx) => {
     col.forEach((pos, i) => {
-      grid[`${pos[0]}-${pos[1]}`] = {
-        type: 'home-col',
-        colorIdx: playerIdx,
-        idx: i
-      };
+      grid[`${pos[0]}-${pos[1]}`] = { type: 'home-col', colorIdx: playerIdx, idx: i };
     });
   });
 
-  // Marca centro
+  // Centro
   grid[`${CENTER[0]}-${CENTER[1]}`] = { type: 'center' };
 
   // Renderiza
@@ -249,31 +250,31 @@ function buildBoard() {
       if (cellData) {
         if (cellData.type === 'base') {
           cell.classList.add('base');
-          const colors = getColorsForMode();
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.15);
+          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.12);
         } else if (cellData.type === 'path') {
           cell.classList.add('path');
           if (cellData.safe) cell.classList.add('safe');
+          if (cellData.colorOwner >= 0) {
+            // Casa colorida do jogador dono do trecho
+            cell.style.background = colors[cellData.colorOwner].hex;
+            cell.style.opacity = '0.55';
+            cell.style.border = '1px solid rgba(0,0,0,0.4)';
+          }
           cell.dataset.pathIdx = cellData.idx;
         } else if (cellData.type === 'home-col') {
           cell.classList.add('home-col');
-          const colors = getColorsForMode();
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.35);
-          cell.style.borderColor = colors[cellData.colorIdx].hex;
+          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.45);
+          cell.style.border = `1px solid ${colors[cellData.colorIdx].hex}`;
         } else if (cellData.type === 'center') {
           cell.classList.add('center');
         }
       } else {
-        // Células "mortas" — só apaga
         cell.style.background = 'transparent';
       }
 
       board.appendChild(cell);
     }
   }
-
-  // Renderiza peões por cima
-  renderPawns();
 }
 
 function hexWithAlpha(hex, alpha) {
@@ -302,79 +303,156 @@ function getColorsForMode() {
 }
 
 // ========== RENDER DOS PEÕES ==========
-function renderPawns() {
-  // Remove peões antigos
-  document.querySelectorAll('.pawn').forEach(p => p.remove());
-  document.querySelectorAll('.cell.multi').forEach(c => c.classList.remove('multi'));
+let isAnimating = false;
+let lastPawnPositions = {};
 
+function getPawnCoords(pos, playerIndex, pawnIdx) {
+  if (pos === -1) return BASE_POSITIONS[playerIndex][pawnIdx];
+  if (pos >= 0 && pos <= 50) return PATH[getRingIndex(playerIndex, pos)];
+  if (pos >= 51 && pos <= 55) return HOME_COLUMNS[playerIndex][pos - 51];
+  if (pos === 56) return CENTER;
+  return null;
+}
+
+function positionPawnEl(el, pos, playerIndex, pawnIdx) {
+  const coords = getPawnCoords(pos, playerIndex, pawnIdx);
+  if (!coords) return;
+  const rowPct = (coords[0] + 0.5) / 15 * 100;
+  const colPct = (coords[1] + 0.5) / 15 * 100;
+  el.style.left = colPct + '%';
+  el.style.top = rowPct + '%';
+}
+
+function renderPawns() {
+  if (isAnimating) return;
   if (!roomState || !roomState.players) return;
 
+  const board = document.getElementById('ludoBoard');
+  if (!board) return;
   const colors = getColorsForMode();
-  const currentTurnId = roomState.currentTurnId;
-  const myTurn = currentTurnId === myId;
-  const dice = roomState.dice;
 
-  // Agrupa peões por célula
-  const cellPawns = {};
-
-  roomState.players.forEach(player => {
-    if (player.eliminated) return;
-    player.pawns.forEach((pos, pawnIdx) => {
-      let coords;
-      if (pos === -1) {
-        // Na base
-        coords = BASE_POSITIONS[player.playerIndex][pawnIdx];
-      } else if (pos >= 0 && pos <= 50) {
-        // No anel
-        const ringIdx = getRingIndex(player.playerIndex, pos);
-        coords = PATH[ringIdx];
-      } else if (pos >= 51 && pos <= 55) {
-        // Coluna final
-        const homeIdx = pos - 51;
-        coords = HOME_COLUMNS[player.playerIndex][homeIdx];
-      } else if (pos === 56) {
-        // Chegou — fica no centro
-        coords = CENTER;
-      } else {
-        return;
-      }
-
-      const key = `${coords[0]}-${coords[1]}`;
-      if (!cellPawns[key]) cellPawns[key] = [];
-      cellPawns[key].push({ player, pawnIdx, pos });
+  // Monta mapa novo de posições
+  const newPositions = {};
+  const playerMap = {};
+  roomState.players.forEach(p => {
+    playerMap[p.id] = p;
+    if (p.eliminated) return;
+    p.pawns.forEach((pos, pawnIdx) => {
+      newPositions[`${p.id}-${pawnIdx}`] = pos;
     });
   });
 
-  // Renderiza em cada célula
-  Object.entries(cellPawns).forEach(([key, pawns]) => {
-    const [r, c] = key.split('-').map(Number);
-    const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-    if (!cell) return;
-
-    if (pawns.length > 1) cell.classList.add('multi');
-
-    pawns.forEach(({ player, pawnIdx, pos }, i) => {
-      const color = colors[player.playerIndex] || colors[0];
-      const pawnEl = document.createElement('div');
-      pawnEl.className = 'pawn';
-      pawnEl.style.background = color.hex;
-      pawnEl.style.color = color.hex;
-      pawnEl.dataset.playerId = player.id;
-      pawnEl.dataset.pawnIdx = pawnIdx;
-
-      // Se for minha vez, dado rolado, e este peão pode mover
-      const isMyPawn = player.id === myId;
-      if (isMyPawn && myTurn && dice !== null && canMovePawn(pos, dice)) {
-        pawnEl.classList.add('movable');
-        pawnEl.onclick = (e) => {
-          e.stopPropagation();
-          movePawn(pawnIdx);
-        };
-      }
-
-      cell.appendChild(pawnEl);
-    });
+  // Detecta mudanças
+  const changed = [];
+  Object.keys(newPositions).forEach(key => {
+    if (lastPawnPositions[key] !== undefined && lastPawnPositions[key] !== newPositions[key]) {
+      changed.push({ key, from: lastPawnPositions[key], to: newPositions[key] });
+    }
   });
+
+  // Remove peões que não existem mais
+  board.querySelectorAll('.pawn').forEach(el => {
+    const key = `${el.dataset.playerId}-${el.dataset.pawnIdx}`;
+    if (!newPositions[key]) el.remove();
+  });
+
+  // Cria peões novos ou atualiza existentes
+  Object.entries(newPositions).forEach(([key, pos]) => {
+    const [playerId, pawnIdxStr] = key.split('-');
+    const pawnIdx = parseInt(pawnIdxStr);
+    const player = playerMap[playerId];
+    if (!player) return;
+    const color = colors[player.playerIndex] || colors[0];
+
+    let el = board.querySelector(`.pawn[data-player-id="${playerId}"][data-pawn-idx="${pawnIdx}"]`);
+    const isNew = !el;
+
+    if (isNew) {
+      el = document.createElement('div');
+      el.className = 'pawn';
+      el.dataset.playerId = playerId;
+      el.dataset.pawnIdx = pawnIdx;
+      el.style.background = color.hex;
+      el.style.color = color.hex;
+      positionPawnEl(el, pos, player.playerIndex, pawnIdx);
+      board.appendChild(el);
+    }
+
+    // Movable?
+    const isMyPawn = playerId === myId;
+    const isMyTurn = roomState.currentTurnId === myId;
+    const dice = roomState.dice;
+    el.classList.remove('movable');
+    el.onclick = null;
+    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(pos, player.playerIndex === undefined ? -1 : pos, dice)) {
+      // (a checagem real de canMovePawn é só pela posição, não pelo playerIndex)
+    }
+    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(pos, dice)) {
+      el.classList.add('movable');
+      el.onclick = (e) => { e.stopPropagation(); movePawn(pawnIdx); };
+    }
+  });
+
+  // Se há mudanças, anima
+  if (changed.length > 0) {
+    isAnimating = true;
+    let pending = changed.length;
+
+    changed.forEach(({ key, from, to }) => {
+      const [playerId, pawnIdxStr] = key.split('-');
+      const pawnIdx = parseInt(pawnIdxStr);
+      const player = playerMap[playerId];
+      if (!player) { pending--; return; }
+      const el = board.querySelector(`.pawn[data-player-id="${playerId}"][data-pawn-idx="${pawnIdx}"]`);
+      if (!el) { pending--; return; }
+
+      animatePawn(el, from, to, player.playerIndex, pawnIdx, () => {
+        pending--;
+        if (pending === 0) {
+          isAnimating = false;
+          lastPawnPositions = newPositions;
+        }
+      });
+    });
+
+    if (pending === 0) {
+      isAnimating = false;
+      lastPawnPositions = newPositions;
+    }
+  } else {
+    lastPawnPositions = newPositions;
+  }
+}
+
+function animatePawn(el, from, to, playerIndex, pawnIdx, onDone) {
+  // Saindo da base: teleporta
+  if (from === -1) {
+    positionPawnEl(el, to, playerIndex, pawnIdx);
+    setTimeout(onDone, 250);
+    return;
+  }
+  // Captura ou volta pra base: teleporta
+  if (to === -1 || to < from) {
+    positionPawnEl(el, to, playerIndex, pawnIdx);
+    setTimeout(onDone, 250);
+    return;
+  }
+
+  // Constrói lista de passos
+  const steps = [];
+  for (let p = from + 1; p <= to; p++) steps.push(p);
+
+  let i = 0;
+  function step() {
+    if (i >= steps.length) {
+      onDone();
+      return;
+    }
+    positionPawnEl(el, steps[i], playerIndex, pawnIdx);
+    i++;
+    setTimeout(step, 230);
+  }
+  step();
 }
 
 // ========== RENDER DA LISTA DE JOGADORES ==========
