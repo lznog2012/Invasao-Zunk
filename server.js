@@ -20,6 +20,11 @@ app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/jogos/ludo', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'ludo', 'index.html')));
 
 const rooms = {};
+
+// ============ LUDO ============
+const ludo = require('./jogos/ludo');
+ludo.init(io, rooms, broadcastStats);
+
 // ============ STATUS BAR (HOME) ============
 function broadcastStats() {
   const onlinePlayers = io.engine.clientsCount;
