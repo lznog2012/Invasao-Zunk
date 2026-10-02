@@ -29,22 +29,24 @@ const CLIENT_ID = getClientId();
 
 function saveProfile() {
   const nameInput = document.getElementById('username');
-  if (nameInput) localStorage.setItem(STORAGE.name, nameInput.value.trim());
-  localStorage.setItem(STORAGE.avatar, JSON.stringify(getCustomizationFromUI()));
+  if (nameInput && nameInput.value.trim()) {
+    localStorage.setItem(STORAGE.name, nameInput.value.trim());
+  }
+}
+
+function getSharedAvatar() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}');
+  } catch (e) {
+    return {};
+  }
 }
 
 function loadProfile() {
   const name = localStorage.getItem(STORAGE.name);
-  if (name) document.getElementById('username').value = name;
-  const av = localStorage.getItem(STORAGE.avatar);
-  if (av) {
-    try {
-      const c = JSON.parse(av);
-      if (c.facialHair && document.getElementById('optFacialHair')) document.getElementById('optFacialHair').value = c.facialHair;
-      if (c.eyewear && document.getElementById('optEyewear')) document.getElementById('optEyewear').value = c.eyewear;
-      if (c.suit && document.getElementById('optSuit')) document.getElementById('optSuit').value = c.suit;
-      if (c.bg && document.getElementById('optBg')) document.getElementById('optBg').value = c.bg;
-    } catch (e) {}
+  if (name) {
+    const input = document.getElementById('username');
+    if (input) input.value = name;
   }
 }
 
@@ -203,14 +205,12 @@ function generateAvatarHTML(c, extra) {
 }
 
 function getCustomizationFromUI() {
-  const v = id => document.getElementById(id)?.value || 'none';
-  return { facialHair: v('optFacialHair'), eyewear: v('optEyewear'), suit: v('optSuit'), bg: v('optBg') };
+  return getSharedAvatar();
 }
 
 function updatePreview() {
   const box = document.getElementById('avatarPreview');
-  if (box) box.innerHTML = generateAvatarHTML(getCustomizationFromUI());
-  saveProfile();
+  if (box) box.innerHTML = generateAvatarHTML(getSharedAvatar());
 }
 
 // ========== SOCKET LISTENERS ==========
