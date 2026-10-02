@@ -3,17 +3,17 @@
 // ================================================
 
 const COLORS_A = [
-  { name: 'Rimk',      hex: '#ff6633', dark: '#883311' },
-  { name: 'Sahrin',hex: '#aaff00', dark: '#557700' },
-  { name: 'Nereid',    hex: '#ffcc00', dark: '#886600' },
-  { name: 'Ferrum',       hex: '#3366ff', dark: '#112288' }
+  { name: 'Rimk',   hex: '#aaff00', dark: '#557700', planet: 'Rimkópolis' },
+  { name: 'Sahrin', hex: '#ffcc00', dark: '#886600', planet: 'Kaal-7'      },
+  { name: 'Nereid', hex: '#00ffcc', dark: '#006655', planet: 'Nereida'     },
+  { name: 'Ferrum', hex: '#ff3344', dark: '#881122', planet: 'Marte'       }
 ];
 
 const COLORS_B = [
-  { name: 'Rimk Verde',  hex: '#aaff00', dark: '#557700', team: 'RIMK' },
-  { name: 'Rimk Água',   hex: '#00ffcc', dark: '#006655', team: 'RIMK' },
-  { name: 'Zunk Roxo',   hex: '#aa66ff', dark: '#553388', team: 'ZUNK' },
-  { name: 'Zunk Vermelho', hex: '#ff3366', dark: '#881133', team: 'ZUNK' }
+  { name: 'Rimk',   hex: '#aaff00', dark: '#557700', team: 'RIMK', planet: 'Rimkópolis' },
+  { name: 'Thrakk', hex: '#f0f0ff', dark: '#8888aa', team: 'ZUNK', planet: "Zunk'nir"    },
+  { name: 'Nereid', hex: '#00ffcc', dark: '#006655', team: 'RIMK', planet: 'Nereida'     },
+  { name: 'Vharn',  hex: '#aa66ff', dark: '#553388', team: 'ZUNK', planet: "Zunk'nir"    }
 ];
 
 const START_INDICES = [0, 13, 26, 39];
