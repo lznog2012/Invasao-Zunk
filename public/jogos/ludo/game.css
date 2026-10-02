@@ -293,8 +293,8 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
 /* PEÕES */
 .pawn {
   position: absolute;
-  width: calc(100% / 15 - 3px);
-  height: calc(100% / 15 - 3px);
+  width: calc((100% - 8px) / 15 - 3px);
+  height: calc((100% - 8px) / 15 - 3px);
   border-radius: 50%;
   border: 2px solid #000;
   transform: translate(-50%, -50%);
@@ -320,14 +320,6 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
   pointer-events: auto;
   animation: pawnPulse 1s infinite;
   z-index: 10;
-}
-@keyframes pawnPulse {
-  0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 10px currentColor; transform: translate(-50%, -50%) scale(1); }
-  50% { box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 20px currentColor, 0 0 30px currentColor; transform: translate(-50%, -50%) scale(1.15); }
-}
-.pawn.movable:hover {
-  transform: translate(-50%, -50%) scale(1.25);
-  z-index: 20;
 }
 @keyframes pawnPulse {
   0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 10px currentColor; transform: translate(-50%, -50%) scale(1); }
