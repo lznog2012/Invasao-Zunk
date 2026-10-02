@@ -34,54 +34,18 @@
         <h3>[ 1. IDENTIFICAÇÃO E VISUAL ]</h3>
         <button onclick="openManualModal()" style="background:#003344; border-color:var(--cyan-glow); color:var(--cyan-glow);">📖 COMO JOGAR</button>
       </div>
-      <div style="display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:center; margin-top:15px;">
+            <div style="display:grid; grid-template-columns:180px 1fr; gap:25px; align-items:center; margin-top:15px;">
         <div style="text-align:center;">
-          <div class="avatar-box" id="avatarPreview"></div>
-          <small style="color:var(--matrix-green);">Prévia do Rimk</small>
+          <div class="avatar-box" id="avatarPreview" style="width:160px; height:160px; margin:0 auto;"></div>
+          <a href="/" class="edit-profile-btn">🎨 EDITAR NA ESTAÇÃO</a>
         </div>
         <div>
           <label>Nome do Tripulante:</label>
-          <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom:10px;">
-          <div class="customizer-grid">
-            <div>
-              <label>Pelo Facial:</label>
-              <select id="optFacialHair" onchange="updatePreview()">
-                <option value="none">Nenhum</option>
-                <option value="9.png">Bigode RIMK</option>
-                <option value="10.png">Bigode Ralo</option>
-                <option value="11.png">Bigode Fino</option>
-                <option value="12.png">Bigode Imperial</option>
-                <option value="13.png">Barba Sábia</option>
-              </select>
-            </div>
-            <div>
-              <label>Acessório / Olhos:</label>
-              <select id="optEyewear" onchange="updatePreview()">
-                <option value="none">Nenhum</option>
-                <option value="6.png">Óculos Escuros</option>
-                <option value="7.png">Monóculo</option>
-              </select>
-            </div>
-            <div>
-              <label>Roupa / Traje:</label>
-              <select id="optSuit" onchange="updatePreview()">
-                <option value="none">Básico</option>
-                <option value="14.png">Camisa Listrada</option>
-                <option value="15.png">Jaqueta Jeans</option>
-                <option value="16.png">Blusa Vermelha</option>
-                <option value="17.png">Traje Espacial</option>
-              </select>
-            </div>
-            <div>
-              <label>Fundo do Cartão:</label>
-              <select id="optBg" onchange="updatePreview()">
-                <option value="none">Padrão Escuro</option>
-                <option value="3.jpg">Marte</option>
-                <option value="4.jpg">Espaço Sideral</option>
-                <option value="5.jpg">Nave RIMK</option>
-              </select>
-            </div>
-          </div>
+          <input type="text" id="username" placeholder="Digite seu apelido espacial..." style="margin-bottom:15px; font-size:1.05em;">
+          <p style="color:#88aa99; font-size:0.85em; margin-top:8px; line-height:1.5;">
+            💡 Seu <b>nome</b> e <b>avatar</b> vêm do seu perfil da Estação Alpha.
+            Pra alterar, clique em <b>"Editar na Estação"</b>.
+          </p>
         </div>
       </div>
       <hr style="border-color:#003311; margin:25px 0;">
