@@ -97,7 +97,7 @@ function init(io, rooms, broadcastStats) {
     });
     broadcastState(room);
 
-    if (!anyMove) {
+        if (!anyMove) {
       io.to(room.code).emit('ludoChat', {
         sender: 'SISTEMA',
         text: `🎲 ${player.name} tirou ${dice}, mas não tem jogadas válidas.`,
@@ -109,6 +109,45 @@ function init(io, rooms, broadcastStats) {
       }, 2000);
       return;
     }
+
+    // Conta quantos peões podem mover
+    const validMoves = [];
+    player.pawns.forEach((pos, idx) => {
+      if (canMovePawn(pos, dice)) validMoves.push(idx);
+    });
+
+    // AUTO-MOVE: se só tem 1 jogada válida, move sozinho (humano E bot)
+    if (validMoves.length === 1) {
+      const delay = player.isBot ? 1300 : 1000;
+      setTimeout(() => {
+        const r = rooms[room.code];
+        if (!r || r.state !== 'PLAYING') return;
+        if (r.dice !== dice) return;
+        if (r.turnOrder[r.currentTurn] !== playerId) return;
+
+        if (!player.isBot) {
+          io.to(room.code).emit('ludoChat', {
+            sender: 'SISTEMA',
+            text: `⚡ Movimento automático (única jogada válida).`,
+            type: 'system'
+          });
+        }
+        performMove(r, playerId, validMoves[0]);
+      }, delay);
+      return;
+    }
+
+    // Se for bot com múltiplas jogadas, escolhe sozinho
+    if (player.isBot) {
+      setTimeout(() => {
+        const r = rooms[room.code];
+        if (!r || r.state !== 'PLAYING') return;
+        if (r.dice !== dice) return;
+        const pawnIdx = pickBotMove(player, dice);
+        if (pawnIdx !== null) performMove(r, playerId, pawnIdx);
+      }, 1300);
+    }
+  }
 
     // Se for bot, auto-move
     if (player.isBot) {
