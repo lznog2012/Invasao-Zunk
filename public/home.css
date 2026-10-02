@@ -941,3 +941,39 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   .lore-banner-sub { font-size: 0.7em; }
   .lore-banner-cta { font-size: 0.7em; }
 }
+
+/* ============================================
+   MODAL — força overlay correto
+   ============================================ */
+.modal {
+  display: none !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0,0,0,0.85) !important;
+  z-index: 9999 !important;
+  padding: 20px !important;
+  margin: 0 !important;
+  overflow-y: auto;
+}
+
+.modal.open {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: auto;
+}
+
+.profile-modal-content {
+  max-width: 680px !important;
+  width: 100%;
+}
