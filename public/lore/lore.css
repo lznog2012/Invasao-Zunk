@@ -217,21 +217,6 @@ li::marker { color: var(--matrix-green); }
   margin-bottom: 15px;
 }
 
-.planet-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--planet-color);
-  box-shadow: 0 0 15px var(--planet-color), 0 0 30px var(--planet-color);
-  flex-shrink: 0;
-  animation: planetPulse 2s ease-in-out infinite;
-}
-
-@keyframes planetPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
 .planet-header h3 {
   margin: 0;
   color: var(--planet-color);
