@@ -3,10 +3,10 @@
 // ================================================
 
 const COLORS_A = [
-  { name: 'Coral',      hex: '#ff6633', dark: '#883311' },
-  { name: 'Verde-Limão',hex: '#aaff00', dark: '#557700' },
-  { name: 'Amarelo',    hex: '#ffcc00', dark: '#886600' },
-  { name: 'Azul',       hex: '#3366ff', dark: '#112288' }
+  { name: 'Rimk',      hex: '#ff6633', dark: '#883311' },
+  { name: 'Sahrin',hex: '#aaff00', dark: '#557700' },
+  { name: 'Nereid',    hex: '#ffcc00', dark: '#886600' },
+  { name: 'Ferrum',       hex: '#3366ff', dark: '#112288' }
 ];
 
 const COLORS_B = [
