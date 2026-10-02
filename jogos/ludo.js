@@ -36,6 +36,25 @@ function init(io, rooms, broadcastStats) {
     return BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)] + '_' + Date.now().toString().slice(-3);
   }
 
+    function getTakenColors(room) {
+    const taken = new Set();
+    Object.values(room.players).forEach(p => {
+      if (p.playerIndex !== null && p.playerIndex !== undefined) {
+        taken.add(p.playerIndex);
+      }
+    });
+    return taken;
+  }
+
+  function getFirstAvailableColor(room) {
+    const colors = getColors(room.mode);
+    const taken = getTakenColors(room);
+    for (let i = 0; i < colors.length; i++) {
+      if (!taken.has(i)) return i;
+    }
+    return -1;
+  }
+  
   function pickBotMove(player, dice) {
     const valid = [];
     player.pawns.forEach((pos, idx) => {
@@ -227,12 +246,17 @@ function init(io, rooms, broadcastStats) {
     io.to(room.code).emit('ludoState', publicState(room));
   }
 
-  function broadcastLobby(room) {
+    function broadcastLobby(room) {
+    const taken = getTakenColors(room);
+    const colors = getColors(room.mode);
+    const availableColors = colors.map((c, i) => ({ idx: i, taken: taken.has(i) }));
+
     io.to(room.code).emit('ludoLobby', {
       code: room.code,
       mode: room.mode,
       maxPlayers: room.maxPlayers,
       hostId: room.hostId,
+      availableColors,
       players: Object.values(room.players).map(p => ({
         id: p.id, name: p.name, avatar: p.avatar,
         color: p.color, colorName: p.colorName, team: p.team || null,
@@ -378,17 +402,10 @@ function init(io, rooms, broadcastStats) {
         room.hostId = room.turnOrder[0];
         room.players[room.hostId].isHost = true;
       }
-      if (!room.turnOrder.length) {
+           if (!room.turnOrder.length) {
         delete rooms[room.code];
         if (typeof broadcastStats === 'function') broadcastStats();
       } else {
-        const colors = getColors(room.mode);
-        Object.values(room.players).forEach((pl, i) => {
-          pl.playerIndex = i;
-          pl.color = colors[i].hex;
-          pl.colorName = colors[i].name;
-          pl.team = colors[i].team || null;
-        });
         broadcastLobby(room);
       }
     } else if (room.state === 'PLAYING') {
@@ -432,8 +449,8 @@ function init(io, rooms, broadcastStats) {
       rooms[code] = makeRoom(code, socket.id, m, limit);
       rooms[code].players[socket.id] = {
         id: socket.id, name, avatar,
-        color: colors[0].hex, colorName: colors[0].name, team: colors[0].team || null,
-        playerIndex: 0, isHost: true, ready: false, disconnected: false,
+        color: null, colorName: null, team: null,
+        playerIndex: null, isHost: true, ready: false, disconnected: false,
         pawns: [-1, -1, -1, -1], finished: false, eliminated: false
       };
       rooms[code].turnOrder = [socket.id];
@@ -451,14 +468,10 @@ function init(io, rooms, broadcastStats) {
       if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já iniciada.');
       if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
 
-      const colors = getColors(room.mode);
-      const idx = Object.keys(room.players).length;
-      const color = colors[idx];
-
-      room.players[socket.id] = {
+            room.players[socket.id] = {
         id: socket.id, name, avatar,
-        color: color.hex, colorName: color.name, team: color.team || null,
-        playerIndex: idx, isHost: false, ready: false, disconnected: false,
+        color: null, colorName: null, team: null,
+        playerIndex: null, isHost: false, ready: false, disconnected: false,
         pawns: [-1, -1, -1, -1], finished: false, eliminated: false
       };
       room.turnOrder.push(socket.id);
@@ -478,21 +491,45 @@ function init(io, rooms, broadcastStats) {
       broadcastLobby(room);
     });
 
+    socket.on('ludoPickColor', ({ code, colorIdx }) => {
+      const room = rooms[code];
+      if (!room || room.state !== 'LOBBY') return;
+      const p = room.players[socket.id];
+      if (!p || p.isBot) return;
+
+      const colors = getColors(room.mode);
+      if (typeof colorIdx !== 'number' || colorIdx < 0 || colorIdx >= colors.length) return;
+
+      const taken = Object.values(room.players).some(other =>
+        other.id !== socket.id && other.playerIndex === colorIdx
+      );
+      if (taken) return socket.emit('errorMsg', 'Essa cor já foi escolhida por outro jogador.');
+
+      const color = colors[colorIdx];
+      p.playerIndex = colorIdx;
+      p.color = color.hex;
+      p.colorName = color.name;
+      p.team = color.team || null;
+
+      broadcastLobby(room);
+    });
+    
     socket.on('ludoAddBot', ({ code }) => {
       const room = rooms[code];
       if (!room || room.hostId !== socket.id) return;
       if (room.state !== 'LOBBY') return;
-      const idx = Object.keys(room.players).length;
-      if (idx >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
+           if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
+      const colorIdx = getFirstAvailableColor(room);
+      if (colorIdx === -1) return socket.emit('errorMsg', 'Todas as cores estão em uso.');
       const colors = getColors(room.mode);
-      const color = colors[idx];
+      const color = colors[colorIdx];
       const botId = 'bot_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
       room.players[botId] = {
         id: botId,
         name: pickBotName(room),
         avatar: {},
         color: color.hex, colorName: color.name, team: color.team || null,
-        playerIndex: idx, isHost: false, isBot: true, ready: true, disconnected: false,
+        playerIndex: colorIdx, isHost: false, isBot: true, ready: true, disconnected: false,
         pawns: [-1, -1, -1, -1], finished: false, eliminated: false
       };
       room.turnOrder.push(botId);
@@ -508,14 +545,7 @@ function init(io, rooms, broadcastStats) {
       const botId = botIds[botIds.length - 1];
       delete room.players[botId];
       room.turnOrder = room.turnOrder.filter(id => id !== botId);
-      // Renumera índices e cores
-      const colors = getColors(room.mode);
-      Object.values(room.players).forEach((pl, i) => {
-        pl.playerIndex = i;
-        pl.color = colors[i].hex;
-        pl.colorName = colors[i].name;
-        pl.team = colors[i].team || null;
-      });
+      // Não renumera — a cor que o bot usava fica livre pra outro escolher
       broadcastLobby(room);
     });
     
@@ -532,6 +562,24 @@ function init(io, rooms, broadcastStats) {
 
       if (!Object.values(room.players).every(p => p.ready)) {
         return socket.emit('errorMsg', 'Todos precisam estar prontos.');
+      }
+
+      // Todos escolheram uma cor?
+      const noColor = Object.values(room.players).find(p => p.playerIndex === null || p.playerIndex === undefined);
+      if (noColor) {
+        return socket.emit('errorMsg', `${noColor.name} ainda não escolheu uma cor.`);
+      }
+
+      // Modo B: times balanceados?
+      if (room.mode === 'B') {
+        const rimk = Object.values(room.players).filter(p => p.team === 'RIMK').length;
+        const zunk = Object.values(room.players).filter(p => p.team === 'ZUNK').length;
+        if (num === 2 && (rimk !== 1 || zunk !== 1)) {
+          return socket.emit('errorMsg', 'No 2v2 com 2 jogadores, um precisa ser Rimk e o outro Zunk.');
+        }
+        if (num === 4 && (rimk !== 2 || zunk !== 2)) {
+          return socket.emit('errorMsg', 'No 2v2 com 4 jogadores, precisa ser 2 Rimks e 2 Zunks.');
+        }
       }
 
       room.state = 'PLAYING';
