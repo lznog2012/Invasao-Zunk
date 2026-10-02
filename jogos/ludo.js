@@ -65,6 +65,76 @@ function init(io, rooms, broadcastStats) {
       performRoll(r, currentId);
     }, 1200 + Math.random() * 900);
   }
+
+    function performRoll(room, playerId) {
+    if (room.state !== 'PLAYING') return;
+    const player = room.players[playerId];
+    if (!player || player.eliminated) return;
+    if (room.dice !== null) return;
+    if (room.turnOrder[room.currentTurn] !== playerId) return;
+
+    const dice = rollDice();
+    room.dice = dice;
+
+    if (dice === 6) {
+      room.sixesInARow++;
+      if (room.sixesInARow > MAX_SIXES) {
+        io.to(room.code).emit('ludoChat', {
+          sender: 'SISTEMA',
+          text: `⚀ ${player.name} tirou 6 três vezes! Perdeu o turno.`,
+          type: 'system'
+        });
+        nextTurn(room);
+        return;
+      }
+    } else {
+      room.sixesInARow = 0;
+    }
+
+    const anyMove = hasAnyMove(player, dice);
+    io.to(room.code).emit('ludoDiceRolled', {
+      playerId, playerName: player.name, dice, anyMove
+    });
+    broadcastState(room);
+
+    if (!anyMove) {
+      io.to(room.code).emit('ludoChat', {
+        sender: 'SISTEMA',
+        text: `🎲 ${player.name} tirou ${dice}, mas não tem jogadas válidas.`,
+        type: 'system'
+      });
+      setTimeout(() => {
+        const r = rooms[room.code];
+        if (r && r.state === 'PLAYING' && r.dice === dice) nextTurn(r);
+      }, 2000);
+      return;
+    }
+
+    // Se for bot, auto-move
+    if (player.isBot) {
+      setTimeout(() => {
+        const r = rooms[room.code];
+        if (!r || r.state !== 'PLAYING') return;
+        if (r.dice !== dice) return;
+        const pawnIdx = pickBotMove(player, dice);
+        if (pawnIdx !== null) performMove(r, playerId, pawnIdx);
+      }, 1300);
+    }
+  }
+
+  function performMove(room, playerId, pawnIndex) {
+    if (room.state !== 'PLAYING') return;
+    if (room.turnOrder[room.currentTurn] !== playerId) return;
+    if (room.dice === null) return;
+
+    const captured = applyMove(room, playerId, pawnIndex);
+    if (captured === false) return;
+
+    if (Array.isArray(captured) && captured.length) {
+      io.to(room.code).emit('ludoCapture', { captured });
+    }
+    broadcastState(room);
+  }
   
   // ========== HELPERS ==========
   function rollDice() { return Math.floor(Math.random() * 6) + 1; }
@@ -181,6 +251,8 @@ function init(io, rooms, broadcastStats) {
         nextTurn(room);
       }
     }, 1000);
+
+    scheduleBotTurn(room);
   }
 
   // ========== GAME LOGIC ==========
@@ -338,7 +410,7 @@ function init(io, rooms, broadcastStats) {
         pawns: [-1, -1, -1, -1], finished: false, eliminated: false
       };
       rooms[code].turnOrder = [socket.id];
-
+      
       socket.join(code);
       socket.currentRoom = code;
       socket.emit('ludoJoined', { code, isHost: true });
@@ -379,6 +451,47 @@ function init(io, rooms, broadcastStats) {
       broadcastLobby(room);
     });
 
+    socket.on('ludoAddBot', ({ code }) => {
+      const room = rooms[code];
+      if (!room || room.hostId !== socket.id) return;
+      if (room.state !== 'LOBBY') return;
+      const idx = Object.keys(room.players).length;
+      if (idx >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
+      const colors = getColors(room.mode);
+      const color = colors[idx];
+      const botId = 'bot_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      room.players[botId] = {
+        id: botId,
+        name: pickBotName(room),
+        avatar: {},
+        color: color.hex, colorName: color.name, team: color.team || null,
+        playerIndex: idx, isHost: false, isBot: true, ready: true, disconnected: false,
+        pawns: [-1, -1, -1, -1], finished: false, eliminated: false
+      };
+      room.turnOrder.push(botId);
+      broadcastLobby(room);
+    });
+
+    socket.on('ludoRemoveBot', ({ code }) => {
+      const room = rooms[code];
+      if (!room || room.hostId !== socket.id) return;
+      if (room.state !== 'LOBBY') return;
+      const botIds = Object.keys(room.players).filter(id => room.players[id].isBot);
+      if (!botIds.length) return socket.emit('errorMsg', 'Não há bots para remover.');
+      const botId = botIds[botIds.length - 1];
+      delete room.players[botId];
+      room.turnOrder = room.turnOrder.filter(id => id !== botId);
+      // Renumera índices e cores
+      const colors = getColors(room.mode);
+      Object.values(room.players).forEach((pl, i) => {
+        pl.playerIndex = i;
+        pl.color = colors[i].hex;
+        pl.colorName = colors[i].name;
+        pl.team = colors[i].team || null;
+      });
+      broadcastLobby(room);
+    });
+    
         socket.on('ludoStart', ({ code }) => {
       const room = rooms[code];
       if (!room || room.hostId !== socket.id) return;
@@ -403,64 +516,18 @@ function init(io, rooms, broadcastStats) {
       startTurnTimer(room);
     });
 
-    socket.on('ludoRoll', ({ code }) => {
+   socket.on('ludoRoll', ({ code }) => {
       const room = rooms[code];
       if (!room || room.state !== 'PLAYING') return;
-      const currentId = room.turnOrder[room.currentTurn];
-      if (currentId !== socket.id) return;
-      if (room.dice !== null) return;
-
-      const dice = rollDice();
-      room.dice = dice;
-      const player = room.players[socket.id];
-
-      if (dice === 6) {
-        room.sixesInARow++;
-        if (room.sixesInARow > MAX_SIXES) {
-          io.to(room.code).emit('ludoChat', {
-            sender: 'SISTEMA',
-            text: `⚀ ${player.name} tirou 6 três vezes! Perdeu o turno.`,
-            type: 'system'
-          });
-          nextTurn(room);
-          return;
-        }
-      } else {
-        room.sixesInARow = 0;
-      }
-
-      const anyMove = hasAnyMove(player, dice);
-      io.to(room.code).emit('ludoDiceRolled', {
-        playerId: socket.id, playerName: player.name, dice, anyMove
-      });
-      broadcastState(room);
-
-      if (!anyMove) {
-        io.to(room.code).emit('ludoChat', {
-          sender: 'SISTEMA',
-          text: `🎲 ${player.name} tirou ${dice}, mas não tem jogadas válidas.`,
-          type: 'system'
-        });
-        setTimeout(() => {
-          if (rooms[code] && rooms[code].state === 'PLAYING' && room.dice === dice) nextTurn(room);
-        }, 2000);
-      }
+      if (room.turnOrder[room.currentTurn] !== socket.id) return;
+      performRoll(room, socket.id);
     });
 
     socket.on('ludoMove', ({ code, pawnIndex }) => {
       const room = rooms[code];
       if (!room || room.state !== 'PLAYING') return;
-      const currentId = room.turnOrder[room.currentTurn];
-      if (currentId !== socket.id) return;
-      if (room.dice === null) return;
-
-      const captured = applyMove(room, socket.id, pawnIndex);
-      if (captured === false) return socket.emit('errorMsg', 'Movimento inválido.');
-
-      if (Array.isArray(captured) && captured.length) {
-        io.to(room.code).emit('ludoCapture', { captured });
-      }
-      broadcastState(room);
+      if (room.turnOrder[room.currentTurn] !== socket.id) return;
+      performMove(room, socket.id, pawnIndex);
     });
 
     socket.on('ludoChat', ({ code, text }) => {
