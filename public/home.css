@@ -462,3 +462,154 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   font-size: 0.7em;
   letter-spacing: 1px;
 }
+
+/* ============ SEÇÃO PARCEIROS ============ */
+.partners-section {
+  width: 100%;
+  max-width: 1100px;
+  margin: 40px auto 20px;
+  padding: 0 15px;
+  animation: fadeInUp 0.6s ease 0.5s backwards;
+}
+
+.partners-divider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  opacity: 0.85;
+}
+.partners-divider .divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #96FF00 50%, transparent);
+  opacity: 0.4;
+}
+.partners-divider .divider-label {
+  color: #96FF00;
+  font-size: 0.85em;
+  letter-spacing: 4px;
+  font-weight: bold;
+  text-shadow: 0 0 12px #96FF00;
+  white-space: nowrap;
+}
+
+/* CARD PARCEIRO — estilo distinto dos jogos */
+.partner-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, rgba(20, 40, 0, 0.75), rgba(10, 25, 0, 0.6));
+  border: 2px solid #96FF00;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(150, 255, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.partner-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(150, 255, 0, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 85% 50%, rgba(150, 255, 0, 0.08) 0%, transparent 55%);
+  pointer-events: none;
+}
+.partner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(150, 255, 0, 0.5), 0 0 60px rgba(150, 255, 0, 0.2);
+  background: linear-gradient(135deg, rgba(30, 55, 0, 0.85), rgba(15, 35, 0, 0.7));
+}
+
+.partner-logo-box {
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(150, 255, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.partner-logo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(150, 255, 0, 0.6));
+}
+
+.partner-info {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+.partner-info h3 {
+  color: #96FF00;
+  margin: 0 0 6px;
+  font-size: 1.3em;
+  text-shadow: 0 0 10px rgba(150, 255, 0, 0.6);
+  letter-spacing: 2px;
+}
+.partner-info p {
+  color: #b8e088;
+  font-size: 0.9em;
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+.partner-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.partner-tag {
+  background: rgba(150, 255, 0, 0.08);
+  border: 1px solid rgba(150, 255, 0, 0.5);
+  color: #96FF00;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7em;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.partner-action {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  border: 1px solid #96FF00;
+  border-radius: 8px;
+  color: #96FF00;
+  font-weight: bold;
+  font-size: 0.85em;
+  letter-spacing: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+.partner-card:hover .partner-action {
+  background: #96FF00;
+  color: #000;
+  box-shadow: 0 0 20px rgba(150, 255, 0, 0.7);
+}
+
+/* Responsivo */
+@media (max-width: 700px) {
+  .partner-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 15px;
+  }
+  .partner-logo-box { width: 80px; height: 80px; }
+  .partner-info h3 { font-size: 1.15em; }
+  .partner-tags { justify-content: center; }
+  .partner-action { width: 100%; text-align: center; }
+}
