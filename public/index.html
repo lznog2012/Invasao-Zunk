@@ -96,16 +96,69 @@
     ESTAÇÃO ALPHA © 2026 · SISTEMA DE ENTRETENIMENTO EMBARCADO
   </div>
 
-  <!-- MODAL DE PERFIL -->
+  <!-- MODAL DE PERFIL EXPANDIDO -->
   <div class="modal" id="profileModal">
-    <div class="modal-content">
+    <div class="modal-content profile-modal-content">
       <h2>👤 PERFIL DO TRIPULANTE</h2>
-      <p style="color: #88aa99; font-size: 0.88em; margin-top: 0;">
-        Seu nome e avatar serão usados em todos os jogos da Estação Alpha.
+      <p style="color: #88aa99; font-size: 0.85em; margin-top: 0;">
+        Seu nome e avatar são usados em todos os jogos da Estação Alpha.
       </p>
 
       <label>Nome do Tripulante:</label>
       <input type="text" id="modalUsername" placeholder="Ex: Capitão Zorblax" maxlength="20">
+
+      <div class="profile-preview-row">
+        <div>
+          <div class="profile-preview-box" id="modalAvatarPreview"></div>
+          <small style="display:block;text-align:center;color:var(--matrix-green);margin-top:6px;font-size:0.75em;">PRÉVIA</small>
+        </div>
+
+        <div class="profile-customizer">
+          <div>
+            <label>Pelo Facial</label>
+            <select id="modalOptFacialHair" onchange="updateModalPreview()">
+              <option value="none">Nenhum</option>
+              <option value="9.png">Bigode RIMK</option>
+              <option value="10.png">Bigode Ralo</option>
+              <option value="11.png">Bigode Fino</option>
+              <option value="12.png">Bigode Imperial</option>
+              <option value="13.png">Barba Sábia</option>
+            </select>
+          </div>
+          <div>
+            <label>Acessório / Olhos</label>
+            <select id="modalOptEyewear" onchange="updateModalPreview()">
+              <option value="none">Nenhum</option>
+              <option value="6.png">Óculos Escuros</option>
+              <option value="7.png">Monóculo</option>
+            </select>
+          </div>
+          <div>
+            <label>Roupa / Traje</label>
+            <select id="modalOptSuit" onchange="updateModalPreview()">
+              <option value="none">Básico</option>
+              <option value="14.png">Camisa Listrada</option>
+              <option value="15.png">Jaqueta Jeans</option>
+              <option value="16.png">Blusa Vermelha</option>
+              <option value="17.png">Traje Espacial</option>
+            </select>
+          </div>
+          <div>
+            <label>Fundo do Avatar</label>
+            <select id="modalOptBg" onchange="updateModalPreview()">
+              <option value="none">Padrão Escuro</option>
+              <option value="3.jpg">Marte</option>
+              <option value="4.jpg">Espaço Sideral</option>
+              <option value="5.jpg">Nave RIMK</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-history-box" id="profileHistoryBox" style="display:none;">
+        <h4>🏆 SUAS ESTATÍSTICAS</h4>
+        <div class="history-stats" id="profileHistoryStats"></div>
+      </div>
 
       <div class="modal-actions">
         <button class="danger" onclick="closeProfileModal()">CANCELAR</button>
