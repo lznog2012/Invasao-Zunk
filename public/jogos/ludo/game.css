@@ -654,3 +654,12 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
   filter: grayscale(80%);
   opacity: 0.5;
 }
+
+/* Bots no lobby */
+.lobby-player.bot {
+  background: rgba(20, 10, 30, 0.6);
+  border-color: rgba(170, 102, 255, 0.4);
+}
+.lobby-player.bot b {
+  color: #ccbbff;
+}
