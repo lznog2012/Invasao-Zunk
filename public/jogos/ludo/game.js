@@ -205,112 +205,33 @@ function buildBoard() {
   const board = document.getElementById('ludoBoard');
   if (!board) return;
 
+  // Remove células antigas, mas MANTÉM peões existentes
   board.querySelectorAll('.cell, .center-overlay').forEach(c => c.remove());
 
-  const colors = getColorsForMode();
-  const grid = {};
-
-  const basePositions = [
-    { r0: 0, c0: 0, colorIdx: 0 },
-    { r0: 0, c0: 9, colorIdx: 1 },
-    { r0: 9, c0: 9, colorIdx: 2 },
-    { r0: 9, c0: 0, colorIdx: 3 }
-  ];
-
-  basePositions.forEach(b => {
-    for (let r = b.r0; r < b.r0 + 6; r++) {
-      for (let c = b.c0; c < b.c0 + 6; c++) {
-        grid[`${r}-${c}`] = { type: 'base', colorIdx: b.colorIdx };
-      }
-    }
-  });
-
-  PATH.forEach((p, i) => {
-    grid[`${p[0]}-${p[1]}`] = {
-      type: 'path',
-      idx: i,
-      safe: SAFE_INDICES.has(i),
-      colorOwner: PATH_COLOR_OWNERS[i]
-    };
-  });
-
-  HOME_COLUMNS.forEach((col, playerIdx) => {
-    col.forEach((pos, i) => {
-      grid[`${pos[0]}-${pos[1]}`] = { type: 'home-col', colorIdx: playerIdx, idx: i };
-    });
-  });
-
-  grid[`${CENTER[0]}-${CENTER[1]}`] = { type: 'center' };
-
-  for (let r = 0; r < 15; r++) {
-    for (let c = 0; c < 15; c++) {
-      const cellData = grid[`${r}-${c}`];
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.row = r;
-      cell.dataset.col = c;
-
-      if (cellData) {
-        if (cellData.type === 'base') {
-          cell.classList.add('base');
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.12);
-        } else if (cellData.type === 'path') {
-          cell.classList.add('path');
-          if (cellData.safe) cell.classList.add('safe');
-          if (cellData.colorOwner >= 0) {
-            cell.style.background = colors[cellData.colorOwner].hex;
-            cell.style.opacity = '0.55';
-            cell.style.border = '1px solid rgba(0,0,0,0.4)';
-          }
-          cell.dataset.pathIdx = cellData.idx;
-        } else if (cellData.type === 'home-col') {
-          cell.classList.add('home-col');
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.45);
-          cell.style.border = `1px solid ${colors[cellData.colorIdx].hex}`;
-        } else if (cellData.type === 'center') {
-          cell.classList.add('center');
-        }
-      } else {
-        cell.style.background = 'transparent';
-      }
-
-      board.appendChild(cell);
-    }
-  }
-
-  // Overlay do centro (4 quadrantes)
-  const overlay = document.createElement('div');
-  overlay.className = 'center-overlay';
-  const quadOrder = [0, 1, 3, 2];
-  overlay.innerHTML = quadOrder.map(idx => {
-    const c = colors[idx] || colors[0];
-    return `<div class="quad" style="color:${c.hex};"></div>`;
-  }).join('');
-  board.appendChild(overlay);
-}
-
-function hexWithAlpha(hex, alpha) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
+  // Define a imagem de fundo correta conforme o modo
+  const mode = roomState?.mode || selectedMode;
+  const boardImg = mode === 'B' ? 'art/board-B.png' : 'art/board-A.png';
+  board.style.backgroundImage = `url('${boardImg}')`;
+  board.style.backgroundSize = '100% 100%';
+  board.style.backgroundRepeat = 'no-repeat';
+  board.style.backgroundPosition = 'center';
 }
 
 function getColorsForMode() {
   const mode = roomState?.mode || selectedMode;
   if (mode === 'B') {
     return [
-      { name: 'Rimk Verde',   hex: '#aaff00', dark: '#557700', team: 'RIMK' },
-      { name: 'Rimk Água',    hex: '#00ffcc', dark: '#006655', team: 'RIMK' },
-      { name: 'Zunk Roxo',    hex: '#aa66ff', dark: '#553388', team: 'ZUNK' },
-      { name: 'Zunk Vermelho',hex: '#ff3366', dark: '#881133', team: 'ZUNK' }
+      { name: 'Rimk',   hex: '#aaff00', dark: '#557700', team: 'RIMK', planet: 'Rimkópolis' },
+      { name: 'Thrakk', hex: '#f0f0ff', dark: '#8888aa', team: 'ZUNK', planet: "Zunk'nir"    },
+      { name: 'Nereid', hex: '#00ffcc', dark: '#006655', team: 'RIMK', planet: 'Nereida'     },
+      { name: 'Vharn',  hex: '#aa66ff', dark: '#553388', team: 'ZUNK', planet: "Zunk'nir"    }
     ];
   }
   return [
-    { name: 'Coral',       hex: '#ff6633', dark: '#883311' },
-    { name: 'Verde-Limão', hex: '#aaff00', dark: '#557700' },
-    { name: 'Amarelo',     hex: '#ffcc00', dark: '#886600' },
-    { name: 'Azul',        hex: '#3366ff', dark: '#112288' }
+    { name: 'Rimk',   hex: '#aaff00', dark: '#557700', planet: 'Rimkópolis' },
+    { name: 'Sahrin', hex: '#ffcc00', dark: '#886600', planet: 'Kaal-7'      },
+    { name: 'Nereid', hex: '#00ffcc', dark: '#006655', planet: 'Nereida'     },
+    { name: 'Ferrum', hex: '#ff3344', dark: '#881122', planet: 'Marte'       }
   ];
 }
 
