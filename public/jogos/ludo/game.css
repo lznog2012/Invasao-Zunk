@@ -663,3 +663,117 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
 .lobby-player.bot b {
   color: #ccbbff;
 }
+
+/* ============================================
+   COLOR PICKER (escolha de cor no lobby)
+   ============================================ */
+.color-picker-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(0, 15, 20, 0.5);
+  border: 1px dashed rgba(0,255,255,0.4);
+  border-radius: 8px;
+}
+
+.color-picker-box h4 {
+  color: var(--cyan-glow);
+  font-size: 0.85em;
+  letter-spacing: 2px;
+  margin: 0 0 10px;
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.color-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.color-choice {
+  background: rgba(0, 15, 10, 0.7);
+  border: 2px solid #004422;
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.color-choice:hover:not(.taken):not(.mine) {
+  border-color: var(--color-hex);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+}
+
+.color-choice.mine {
+  border-color: var(--color-hex);
+  background: rgba(30, 25, 0, 0.6);
+  box-shadow: 0 0 20px var(--color-hex), inset 0 0 25px rgba(255,255,255,0.05);
+  cursor: default;
+}
+
+.color-choice.mine::before {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--color-hex);
+  font-weight: bold;
+  font-size: 0.9em;
+  text-shadow: 0 0 8px var(--color-hex);
+}
+
+.color-choice.taken {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(60%);
+}
+
+.color-choice .color-pawn {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 4px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+  transition: transform 0.25s;
+}
+
+.color-choice:hover:not(.taken):not(.mine) .color-pawn {
+  transform: scale(1.1);
+}
+
+.color-choice .color-label {
+  display: block;
+  font-size: 0.7em;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--color-hex);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px var(--color-hex);
+}
+
+.color-choice .color-team {
+  display: block;
+  font-size: 0.6em;
+  color: #88aa99;
+  letter-spacing: 1px;
+}
+
+.color-choice .color-taken-label {
+  display: block;
+  font-size: 0.6em;
+  color: #888;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+@media (max-width: 550px) {
+  .color-picker-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .color-choice .color-pawn { width: 40px; height: 40px; }
+}
