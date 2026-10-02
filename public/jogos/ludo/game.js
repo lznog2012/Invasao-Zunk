@@ -632,6 +632,16 @@ function startLudo() {
   socket.emit('ludoStart', { code: currentRoom });
 }
 
+function addLudoBot() {
+  if (!currentRoom || !socket) return;
+  socket.emit('ludoAddBot', { code: currentRoom });
+}
+
+function removeLudoBot() {
+  if (!currentRoom || !socket) return;
+  socket.emit('ludoRemoveBot', { code: currentRoom });
+}
+
 function rollDice() {
   if (!currentRoom || !socket) return;
   const diceEl = document.getElementById('diceDisplay');
@@ -735,8 +745,8 @@ if (socket) {
       const readyCls = p.ready ? ' ready' : '';
       const meCls = isMe ? ' me' : '';
       return `
-        <div class="lobby-player${readyCls}${meCls}">
-          <div class="avatar-mini">${generateAvatarHTML(p.avatar)}</div>
+          <div class="lobby-player${readyCls}${meCls}${p.isBot ? ' bot' : ''}">
+          <div class="avatar-mini" style="display:flex;align-items:center;justify-content:center;font-size:2em;">${p.isBot ? '🤖' : generateAvatarHTML(p.avatar)}</div>
           <div style="margin-bottom:4px;">
             <span class="color-dot" style="background:${color.hex}; color:${color.hex};"></span>
             <b>${p.name}</b>${isMe ? ' <small>(Você)</small>' : ''}
@@ -751,6 +761,18 @@ if (socket) {
       `;
     }).join('');
 
+    // Controla botões de bot
+    const hasBots = data.players.some(p => p.isBot);
+    const btnAddBot = document.getElementById('btnAddLudoBot');
+    const btnRemoveBot = document.getElementById('btnRemoveLudoBot');
+    const isHostForBot = data.players.find(p => p.id === myId)?.isHost;
+    if (btnAddBot) {
+      btnAddBot.style.display = (isHostForBot && data.players.length < data.maxPlayers) ? 'block' : 'none';
+    }
+    if (btnRemoveBot) {
+      btnRemoveBot.style.display = (isHostForBot && hasBots) ? 'block' : 'none';
+    }
+    
     const me = data.players.find(p => p.id === myId);
     const isHost = me && me.isHost;
     const btnReady = document.getElementById('btnReady');
