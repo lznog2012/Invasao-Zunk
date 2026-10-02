@@ -303,8 +303,7 @@ function getColorsForMode() {
 }
 
 // ========== RENDER DOS PEÕES ==========
-let isAnimating = false;
-let lastPawnPositions = {};
+const pawnElements = {}; // { "playerId#pawnIdx": { el, pos } }
 
 function getPawnCoords(pos, playerIndex, pawnIdx) {
   if (pos === -1) return BASE_POSITIONS[playerIndex][pawnIdx];
@@ -324,130 +323,94 @@ function positionPawnEl(el, pos, playerIndex, pawnIdx) {
 }
 
 function renderPawns() {
-  if (isAnimating) return;
   if (!roomState || !roomState.players) return;
-
   const board = document.getElementById('ludoBoard');
   if (!board) return;
   const colors = getColorsForMode();
 
-  // Monta mapa novo de posições
-  const newPositions = {};
-  const playerMap = {};
+  // Monta estado desejado
+  const desired = {};
   roomState.players.forEach(p => {
-    playerMap[p.id] = p;
     if (p.eliminated) return;
-    p.pawns.forEach((pos, pawnIdx) => {
-      newPositions[`${p.id}-${pawnIdx}`] = pos;
+    if (!p.pawns) return;
+    p.pawns.forEach((pos, idx) => {
+      const key = `${p.id}#${idx}`;
+      desired[key] = {
+        playerId: p.id,
+        pawnIdx: idx,
+        pos,
+        playerIndex: p.playerIndex,
+        color: (colors[p.playerIndex] || colors[0]).hex
+      };
     });
-  });
-
-  // Detecta mudanças
-  const changed = [];
-  Object.keys(newPositions).forEach(key => {
-    if (lastPawnPositions[key] !== undefined && lastPawnPositions[key] !== newPositions[key]) {
-      changed.push({ key, from: lastPawnPositions[key], to: newPositions[key] });
-    }
   });
 
   // Remove peões que não existem mais
-  board.querySelectorAll('.pawn').forEach(el => {
-    const key = `${el.dataset.playerId}-${el.dataset.pawnIdx}`;
-    if (!newPositions[key]) el.remove();
+  Object.keys(pawnElements).forEach(key => {
+    if (!desired[key]) {
+      pawnElements[key].el.remove();
+      delete pawnElements[key];
+    }
   });
 
-  // Cria peões novos ou atualiza existentes
-  Object.entries(newPositions).forEach(([key, pos]) => {
-    const [playerId, pawnIdxStr] = key.split('-');
-    const pawnIdx = parseInt(pawnIdxStr);
-    const player = playerMap[playerId];
-    if (!player) return;
-    const color = colors[player.playerIndex] || colors[0];
+  // Cria / atualiza
+  Object.entries(desired).forEach(([key, data]) => {
+    let entry = pawnElements[key];
 
-    let el = board.querySelector(`.pawn[data-player-id="${playerId}"][data-pawn-idx="${pawnIdx}"]`);
-    const isNew = !el;
-
-    if (isNew) {
-      el = document.createElement('div');
+    if (!entry) {
+      // Novo peão
+      const el = document.createElement('div');
       el.className = 'pawn';
-      el.dataset.playerId = playerId;
-      el.dataset.pawnIdx = pawnIdx;
-      el.style.background = color.hex;
-      el.style.color = color.hex;
-      positionPawnEl(el, pos, player.playerIndex, pawnIdx);
+      el.dataset.playerId = data.playerId;
+      el.dataset.pawnIdx = data.pawnIdx;
+      el.style.background = data.color;
+      el.style.color = data.color;
+      positionPawnEl(el, data.pos, data.playerIndex, data.pawnIdx);
       board.appendChild(el);
+      entry = { el, pos: data.pos };
+      pawnElements[key] = entry;
+    } else {
+      // Atualiza cor caso tenha mudado
+      entry.el.style.background = data.color;
+      entry.el.style.color = data.color;
     }
 
     // Movable?
-    const isMyPawn = playerId === myId;
+    const isMyPawn = data.playerId === myId;
     const isMyTurn = roomState.currentTurnId === myId;
     const dice = roomState.dice;
-    el.classList.remove('movable');
-    el.onclick = null;
-    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(pos, player.playerIndex === undefined ? -1 : pos, dice)) {
-      // (a checagem real de canMovePawn é só pela posição, não pelo playerIndex)
+    entry.el.classList.remove('movable');
+    entry.el.onclick = null;
+
+    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(data.pos, dice)) {
+      entry.el.classList.add('movable');
+      entry.el.onclick = (e) => { e.stopPropagation(); movePawn(data.pawnIdx); };
     }
-    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(pos, dice)) {
-      el.classList.add('movable');
-      el.onclick = (e) => { e.stopPropagation(); movePawn(pawnIdx); };
+
+    // Se a posição mudou, anima
+    if (entry.pos !== data.pos) {
+      const from = entry.pos;
+      const to = data.pos;
+      entry.pos = to;
+      animatePawn(entry.el, from, to, data.playerIndex, data.pawnIdx);
     }
   });
-
-  // Se há mudanças, anima
-  if (changed.length > 0) {
-    isAnimating = true;
-    let pending = changed.length;
-
-    changed.forEach(({ key, from, to }) => {
-      const [playerId, pawnIdxStr] = key.split('-');
-      const pawnIdx = parseInt(pawnIdxStr);
-      const player = playerMap[playerId];
-      if (!player) { pending--; return; }
-      const el = board.querySelector(`.pawn[data-player-id="${playerId}"][data-pawn-idx="${pawnIdx}"]`);
-      if (!el) { pending--; return; }
-
-      animatePawn(el, from, to, player.playerIndex, pawnIdx, () => {
-        pending--;
-        if (pending === 0) {
-          isAnimating = false;
-          lastPawnPositions = newPositions;
-        }
-      });
-    });
-
-    if (pending === 0) {
-      isAnimating = false;
-      lastPawnPositions = newPositions;
-    }
-  } else {
-    lastPawnPositions = newPositions;
-  }
 }
 
-function animatePawn(el, from, to, playerIndex, pawnIdx, onDone) {
-  // Saindo da base: teleporta
-  if (from === -1) {
+function animatePawn(el, from, to, playerIndex, pawnIdx) {
+  // Casos especiais: teleporta
+  if (from === -1 || to === -1 || to < from) {
     positionPawnEl(el, to, playerIndex, pawnIdx);
-    setTimeout(onDone, 250);
-    return;
-  }
-  // Captura ou volta pra base: teleporta
-  if (to === -1 || to < from) {
-    positionPawnEl(el, to, playerIndex, pawnIdx);
-    setTimeout(onDone, 250);
     return;
   }
 
-  // Constrói lista de passos
+  // Monta lista de passos
   const steps = [];
   for (let p = from + 1; p <= to; p++) steps.push(p);
 
   let i = 0;
   function step() {
-    if (i >= steps.length) {
-      onDone();
-      return;
-    }
+    if (i >= steps.length) return;
     positionPawnEl(el, steps[i], playerIndex, pawnIdx);
     i++;
     setTimeout(step, 230);
