@@ -29,6 +29,12 @@ const PATH = [
 const START_INDICES = [0, 13, 26, 39];
 const SAFE_INDICES = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
 const FINISH_POS = 56;
+const RACE_FILES = {
+  'Rimk':   'rimk.png',
+  'Sahrin': 'sahrin.png',
+  'Ferrum': 'ferrum.png',
+  'Nereid': 'nereid.png'
+};
 
 const PAWN_FILES = {
   'Rimk':   'rimk.png',
@@ -75,8 +81,13 @@ const CLIENT_ID = getClientId();
 
 function getStoredName() { return localStorage.getItem(STORAGE.name) || ''; }
 function getStoredAvatar() {
-  try { return JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}'); }
-  catch (e) { return {}; }
+  try {
+    const avatar = JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}');
+    const race = localStorage.getItem('alpha_race') || 'Rimk';
+    return { ...avatar, race };
+  } catch (e) {
+    return { race: 'Rimk' };
+  }
 }
 function saveProfile(name) {
   if (name) localStorage.setItem(STORAGE.name, name);
@@ -170,12 +181,15 @@ function selectMode(mode) {
 function generateAvatarHTML(c, opts) {
   if (!c) c = {};
   if (!opts) opts = {};
+
+  const raceFile = RACE_FILES[c.race] || RACE_FILES['Rimk'];
+
   const bg = (c.bg && c.bg !== 'none') ? `<img src="../../images/${c.bg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : '';
-  const body = `<img src="../../images/rimk.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
+  const body = `<img src="../../images/${raceFile}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
   const suit = (c.suit && c.suit !== 'none') ? `<img src="../../images/${c.suit}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;" />` : '';
-  const hair = (c.facialHair && c.facialHair !== 'none') ? `<img src="../../images/${c.facialHair}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />` : '';
-  const eye = (c.eyewear && c.eyewear !== 'none') ? `<img src="../../images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:5;" />` : '';
-  return `<div style="position:relative;width:100%;height:100%;background:#000;">${bg}${body}${suit}${hair}${eye}</div>`;
+  const eye = (c.eyewear && c.eyewear !== 'none') ? `<img src="../../images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />` : '';
+
+  return `<div style="position:relative;width:100%;height:100%;background:#000;">${bg}${body}${suit}${eye}</div>`;
 }
 
 function updatePreview() {
