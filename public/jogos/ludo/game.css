@@ -612,3 +612,45 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
 
 /* Remove o 🏁 antigo da célula (o overlay substitui) */
 .cell.center::before { content: '' !important; }
+
+/* ============================================
+   PLAYER LIST — avatar do peão
+   ============================================ */
+.player-row .player-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--ring-color, var(--matrix-green));
+  background-color: #000;
+  background-size: 80%;
+  background-position: center 60%;
+  background-repeat: no-repeat;
+  box-shadow:
+    0 0 8px var(--ring-color, var(--matrix-green)),
+    inset 0 0 6px rgba(0,0,0,0.6);
+  transition: box-shadow 0.25s;
+}
+
+.player-row.current .player-avatar {
+  animation: avatarPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes avatarPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px var(--ring-color, var(--matrix-green)),
+      inset 0 0 6px rgba(0,0,0,0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 18px var(--ring-color, var(--matrix-green)),
+      0 0 30px var(--ring-color, var(--matrix-green)),
+      inset 0 0 6px rgba(0,0,0,0.6);
+  }
+}
+
+.player-row.eliminated .player-avatar {
+  filter: grayscale(80%);
+  opacity: 0.5;
+}
