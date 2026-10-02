@@ -144,11 +144,6 @@ function saveProfileFromModal() {
   closeProfileModal();
 }
 
-// ========== AVISOS ==========
-function mostrarEmBreve(nome) {
-  alert(`🚧 ${nome}\n\nEste jogo está em construção. Em breve estará disponível!`);
-}
-
 // ========== SOCKET: STATUS BAR ==========
 if (socket) {
   socket.on('connect', () => {
