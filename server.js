@@ -21,10 +21,6 @@ app.get('/jogos/ludo', (_, res) => res.sendFile(path.join(__dirname, 'public', '
 
 const rooms = {};
 
-// ============ LUDO ============
-const ludo = require('./jogos/ludo');
-ludo.init(io, rooms, broadcastStats);
-
 // ============ STATUS BAR (HOME) ============
 function broadcastStats() {
   const onlinePlayers = io.engine.clientsCount;
@@ -33,6 +29,10 @@ function broadcastStats() {
 }
 
 setInterval(broadcastStats, 5000);
+
+// ============ LUDO ============
+const ludo = require('./jogos/ludo');
+ludo.init(io, rooms, broadcastStats);
 
 // ============ BOTS ============
 const BOT_NAMES = ['Zorblax','Kryzzt','Vexnar','Quortan','Xyloph','Braxil','Nyzoth','Vrelka','Moxxi','Zarnak','Xerath','Quinlex','Nebulon','Kryon','Xylar','Vorlox','Zephyr','Quintar','Gorblax','Yvnar','Threxil','Praxx','Worvax','Hylax','Ulnar','Kryx','Vorn','Naxor','Zynthar','Morbius'];
