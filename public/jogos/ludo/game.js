@@ -406,13 +406,35 @@ function positionPawnEl(el, pos, playerIndex, pawnIdx) {
   el.style.top = rowPct + '%';
 }
 
+function getCellCenter(row, col) {
+  return {
+    left: (col + 0.5) / 15 * 100,
+    top: (row + 0.5) / 15 * 100
+  };
+}
+
+function getCenterQuadrantPos(playerIndex, pawnIdx) {
+  // Q0 = top-left (40-50, 40-50)
+  // Q1 = top-right (50-60, 40-50)
+  // Q2 = bottom-right (50-60, 50-60)
+  // Q3 = bottom-left (40-50, 50-60)
+  const qStartX = (playerIndex === 0 || playerIndex === 3) ? 40 : 50;
+  const qStartY = (playerIndex === 0 || playerIndex === 1) ? 40 : 50;
+  const slot = pawnIdx % 4;
+  const sx = slot % 2;
+  const sy = Math.floor(slot / 2);
+  return {
+    left: qStartX + 2.5 + sx * 5,
+    top: qStartY + 2.5 + sy * 5
+  };
+}
+
 function renderPawns() {
   if (!roomState || !roomState.players) return;
   const board = document.getElementById('ludoBoard');
   if (!board) return;
   const colors = getColorsForMode();
 
-  // Monta estado desejado
   const desired = {};
   roomState.players.forEach(p => {
     if (p.eliminated) return;
@@ -420,16 +442,13 @@ function renderPawns() {
     p.pawns.forEach((pos, idx) => {
       const key = `${p.id}#${idx}`;
       desired[key] = {
-        playerId: p.id,
-        pawnIdx: idx,
-        pos,
+        playerId: p.id, pawnIdx: idx, pos,
         playerIndex: p.playerIndex,
         color: (colors[p.playerIndex] || colors[0]).hex
       };
     });
   });
 
-  // Remove peões que não existem mais
   Object.keys(pawnElements).forEach(key => {
     if (!desired[key]) {
       pawnElements[key].el.remove();
@@ -437,41 +456,36 @@ function renderPawns() {
     }
   });
 
-  // Cria / atualiza
   Object.entries(desired).forEach(([key, data]) => {
     let entry = pawnElements[key];
 
     if (!entry) {
-      // Novo peão
       const el = document.createElement('div');
       el.className = 'pawn';
       el.dataset.playerId = data.playerId;
       el.dataset.pawnIdx = data.pawnIdx;
       el.style.background = data.color;
       el.style.color = data.color;
-      positionPawnEl(el, data.pos, data.playerIndex, data.pawnIdx);
       board.appendChild(el);
-      entry = { el, pos: data.pos };
+      entry = { el, pos: data.pos, playerIndex: data.playerIndex, pawnIdx: data.pawnIdx };
       pawnElements[key] = entry;
     } else {
-      // Atualiza cor caso tenha mudado
       entry.el.style.background = data.color;
       entry.el.style.color = data.color;
+      entry.playerIndex = data.playerIndex;
+      entry.pawnIdx = data.pawnIdx;
     }
 
-    // Movable?
     const isMyPawn = data.playerId === myId;
     const isMyTurn = roomState.currentTurnId === myId;
     const dice = roomState.dice;
     entry.el.classList.remove('movable');
     entry.el.onclick = null;
-
     if (isMyPawn && isMyTurn && dice !== null && canMovePawn(data.pos, dice)) {
       entry.el.classList.add('movable');
       entry.el.onclick = (e) => { e.stopPropagation(); movePawn(data.pawnIdx); };
     }
 
-    // Se a posição mudou, anima
     if (entry.pos !== data.pos) {
       const from = entry.pos;
       const to = data.pos;
@@ -479,23 +493,110 @@ function renderPawns() {
       animatePawn(entry.el, from, to, data.playerIndex, data.pawnIdx);
     }
   });
+
+  layoutAllPawns();
+}
+
+function layoutAllPawns() {
+  const cellPct = 100 / 15;
+  const groups = {};
+
+  Object.entries(pawnElements).forEach(([key, entry]) => {
+    const pos = entry.pos;
+
+    // Peão que chegou: posiciona no quadrante do centro
+    if (pos === 56) {
+      const c = getCenterQuadrantPos(entry.playerIndex, entry.pawnIdx);
+      entry.el.style.left = c.left + '%';
+      entry.el.style.top = c.top + '%';
+      entry.el.style.width = '3.5%';
+      entry.el.style.height = '3.5%';
+      entry.el.style.zIndex = 6 + entry.pawnIdx;
+      return;
+    }
+
+    const coords = getPawnCoords(pos, entry.playerIndex, entry.pawnIdx);
+    if (!coords) return;
+    const gk = coords[0] + '-' + coords[1];
+    if (!groups[gk]) groups[gk] = [];
+    groups[gk].push({ entry, coords });
+  });
+
+  Object.values(groups).forEach(group => {
+    const n = group.length;
+    let size, offsets;
+
+    if (n === 1) {
+      size = cellPct * 0.82;
+      offsets = [[0, 0]];
+    } else if (n === 2) {
+      size = cellPct * 0.58;
+      offsets = [[0, -cellPct * 0.2], [0, cellPct * 0.2]];
+    } else if (n === 3) {
+      size = cellPct * 0.5;
+      offsets = [
+        [0, -cellPct * 0.22],
+        [-cellPct * 0.22, cellPct * 0.16],
+        [cellPct * 0.22, cellPct * 0.16]
+      ];
+    } else {
+      size = cellPct * 0.46;
+      offsets = [
+        [-cellPct * 0.22, -cellPct * 0.22],
+        [cellPct * 0.22, -cellPct * 0.22],
+        [-cellPct * 0.22, cellPct * 0.22],
+        [cellPct * 0.22, cellPct * 0.22]
+      ];
+    }
+
+    group.forEach((item, i) => {
+      const base = getCellCenter(item.coords[0], item.coords[1]);
+      const off = offsets[i % offsets.length];
+      item.entry.el.style.left = (base.left + off[0]) + '%';
+      item.entry.el.style.top = (base.top + off[1]) + '%';
+      item.entry.el.style.width = size + '%';
+      item.entry.el.style.height = size + '%';
+      item.entry.el.style.zIndex = 5 + i;
+    });
+  });
 }
 
 function animatePawn(el, from, to, playerIndex, pawnIdx) {
-  // Casos especiais: teleporta
+  const cellPct = 100 / 15;
+
+  // Teleporta (sai da base ou volta pra base)
   if (from === -1 || to === -1 || to < from) {
-    positionPawnEl(el, to, playerIndex, pawnIdx);
+    setTimeout(() => layoutAllPawns(), 50);
     return;
   }
 
-  // Monta lista de passos
   const steps = [];
   for (let p = from + 1; p <= to; p++) steps.push(p);
 
+  el.style.zIndex = 100;
+  el.style.width = (cellPct * 0.82) + '%';
+  el.style.height = (cellPct * 0.82) + '%';
+
   let i = 0;
   function step() {
-    if (i >= steps.length) return;
-    positionPawnEl(el, steps[i], playerIndex, pawnIdx);
+    if (i >= steps.length) {
+      el.style.zIndex = '';
+      layoutAllPawns();
+      return;
+    }
+    const pos = steps[i];
+    if (pos === 56) {
+      const c = getCenterQuadrantPos(playerIndex, pawnIdx);
+      el.style.left = c.left + '%';
+      el.style.top = c.top + '%';
+    } else {
+      const coords = getPawnCoords(pos, playerIndex, pawnIdx);
+      if (coords) {
+        const c = getCellCenter(coords[0], coords[1]);
+        el.style.left = c.left + '%';
+        el.style.top = c.top + '%';
+      }
+    }
     i++;
     setTimeout(step, 230);
   }
