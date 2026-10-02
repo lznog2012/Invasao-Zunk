@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ludo Alienígena - Estação Alpha</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+  <a href="/" class="back-btn">← VOLTAR À ESTAÇÃO</a>
+
+  <div class="container">
+
+    <!-- ============ TELA 1: SETUP ============ -->
+    <div id="setupView" class="panel">
+      <div class="header-title">
+        <h1>🎲 LUDO ALIENÍGENA 🎲</h1>
+        <p class="subtitle">TABULEIRO ESPACIAL DA ESTAÇÃO ALPHA</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:center; margin-top:20px;">
+        <div style="text-align:center;">
+          <div class="avatar-box" id="avatarPreview"></div>
+          <small style="color:var(--matrix-green);">Seu Rimk</small>
+        </div>
+        <div>
+          <label>Nome do Tripulante:</label>
+          <input type="text" id="username" placeholder="Digite seu apelido..." maxlength="16">
+        </div>
+      </div>
+
+      <hr style="border-color:#003311; margin:25px 0;">
+
+      <div class="action-menu">
+        <button id="btnMenuCreate" onclick="toggleForm('create')">➕ CRIAR SALA</button>
+        <button id="btnMenuJoin" onclick="toggleForm('join')">🚪 ENTRAR EM SALA</button>
+      </div>
+
+      <div id="formCreate" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">⚙ CONFIGURAÇÃO DA PARTIDA</h4>
+
+        <label>Modo de Jogo:</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+          <div class="mode-option selected" id="modeA" onclick="selectMode('A')">
+            <div class="mode-icons">
+              <span style="color:#ff6633;">●</span>
+              <span style="color:#aaff00;">●</span>
+              <span style="color:#ffcc00;">●</span>
+              <span style="color:#3366ff;">●</span>
+            </div>
+            <b>Free-for-All</b>
+            <small>Cada um por si</small>
+          </div>
+          <div class="mode-option" id="modeB" onclick="selectMode('B')">
+            <div class="mode-icons">
+              <span style="color:#aaff00;">●</span>
+              <span style="color:#00ffcc;">●</span>
+              <span style="color:#aa66ff;">●</span>
+              <span style="color:#ff3366;">●</span>
+            </div>
+            <b>2 vs 2</b>
+            <small>Rimks vs Zunks</small>
+          </div>
+        </div>
+
+        <label>Número de Jogadores:</label>
+        <select id="maxPlayersInput" style="margin-bottom:15px;">
+          <option value="2">2 Jogadores</option>
+          <option value="3">3 Jogadores</option>
+          <option value="4" selected>4 Jogadores</option>
+        </select>
+
+        <button onclick="createRoom()" style="width:100%; background:#006622;">GERAR CÓDIGO DA SALA</button>
+      </div>
+
+      <div id="formJoin" class="hidden-form">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 CÓDIGO DA SALA</h4>
+        <input type="text" id="roomCodeInput" placeholder="EX: L_ABCD" style="text-transform:uppercase; font-size:1.3em; text-align:center; letter-spacing:3px; margin:10px 0;" maxlength="6">
+        <button onclick="joinRoom()" style="width:100%; background:#003366; border-color:#0088cc;">ENTRAR NA SALA</button>
+      </div>
+    </div>
+
+    <!-- ============ TELA 2: LOBBY ============ -->
+    <div id="lobbyView" class="panel" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <div>
+          <h3>CÓDIGO: <span class="code-display" id="displayRoomCode">----</span></h3>
+          <p style="color:var(--cyan-glow); margin:0;">Compartilhe para os tripulantes entrarem!</p>
+        </div>
+        <div style="text-align:right;">
+          <h4 style="margin:0;">JOGADORES: <span id="queueCount">0 / 4</span></h4>
+          <h4 style="color:var(--gold-yellow); margin:4px 0 0;">MODO: <span id="displayMode">----</span></h4>
+        </div>
+      </div>
+
+      <hr style="border-color:#003311; margin:15px 0;">
+
+      <div id="lobbyGrid" class="lobby-grid"></div>
+
+      <div style="margin-top:20px; background:rgba(1,10,5,0.85); border:1px solid var(--matrix-green); border-radius:8px; padding:15px;">
+        <h4 style="margin-top:0; color:var(--cyan-glow);">💬 CHAT</h4>
+        <div id="lobbyChatBox" class="chat-box" style="height:120px;"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input type="text" id="lobbyChatInput" placeholder="Converse..." onkeypress="if(event.key==='Enter') sendLobbyChat()">
+          <button onclick="sendLobbyChat()" style="white-space:nowrap;">ENVIAR</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="btnReady" class="ready-btn" onclick="toggleReady()" style="flex:1; min-width:180px;">☐ MARCAR PRONTO</button>
+        <button id="btnStartLudo" onclick="startLudo()" style="flex:1; min-width:180px; background:#008833; display:none;">🚀 INICIAR PARTIDA (HOST)</button>
+      </div>
+      <p id="readyHint" style="text-align:center; color:#888; font-size:0.85em; margin-top:8px; font-style:italic;"></p>
+    </div>
+        <!-- ============ TELA 3: JOGO ============ -->
+    <div id="gameView" style="display:none;">
+      <div class="game-top-bar">
+        <div class="turn-info">
+          <span>TURNO DE:</span>
+          <b id="turnPlayerName">----</b>
+          <span class="turn-dot" id="turnDot"></span>
+        </div>
+        <div class="turn-timer">
+          <span class="timer-badge" id="turnTimer">30</span>
+        </div>
+      </div>
+
+      <div class="game-layout-ludo">
+        <div class="board-wrapper">
+          <div id="ludoBoard" class="ludo-board"></div>
+        </div>
+
+        <div class="side-panel">
+          <div class="panel dice-panel">
+            <h3>DADO</h3>
+            <div id="diceDisplay" class="dice-display">🎲</div>
+            <button id="btnRoll" onclick="rollDice()" class="roll-btn">🎲 ROLAR DADO</button>
+            <p id="rollHint" class="hint"></p>
+          </div>
+
+          <div class="panel players-panel">
+            <h3>JOGADORES</h3>
+            <div id="playersList" class="players-list"></div>
+          </div>
+
+          <div class="panel chat-panel">
+            <h3>💬 CHAT</h3>
+            <div id="gameChatBox" class="chat-box" style="height:140px;"></div>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+              <input type="text" id="gameChatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendGameChat()">
+              <button onclick="sendGameChat()">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TELA 4: FIM DE JOGO ============ -->
+    <div id="endView" class="panel" style="display:none;">
+      <h2 id="endTitle">FIM DE JOGO</h2>
+      <div id="endRanking" class="end-ranking"></div>
+      <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <button onclick="backToLobby()" style="background:#008833; min-width:200px;">🔄 VOLTAR AO LOBBY</button>
+        <a href="/" class="btn-link" style="min-width:200px;">🏠 VOLTAR À ESTAÇÃO</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ MODAL DE CAPTURA ============ -->
+  <div id="captureModal" class="modal">
+    <div class="modal-content" style="text-align:center; max-width:400px;">
+      <h2 style="color:var(--alert-red);">💥 CAPTURA!</h2>
+      <div id="captureInfo" style="margin:15px 0; font-size:1.1em;"></div>
+      <button onclick="closeCaptureModal()" style="width:100%; background:#880000; color:#fff;">CONTINUAR</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
