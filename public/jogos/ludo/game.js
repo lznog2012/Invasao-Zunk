@@ -710,7 +710,6 @@ if (socket) {
     document.getElementById('endView').style.display = 'none';
 
     buildBoard();
-    lastPawnPositions = {};
     renderPawns();
     renderPlayersList();
     renderTurnInfo();
