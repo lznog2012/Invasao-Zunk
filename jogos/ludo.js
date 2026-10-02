@@ -22,9 +22,50 @@ const TURN_TIME = 30;
 const DISCONNECT_GRACE = 30;
 const MAX_SIXES = 3;
 const FINISH_POS = 56;
+const BOT_NAMES = ['Zorblax','Kryzzt','Vexnar','Quortan','Xyloph','Braxil','Nyzoth','Vrelka','Moxxi','Zarnak','Xerath','Quinlex','Nebulon','Kryon','Xylar','Vorlox','Zephyr','Quintar','Gorblax','Yvnar'];
 
 function init(io, rooms, broadcastStats) {
+  // ========== BOTS ==========
+  function pickBotName(room) {
+    const used = new Set(Object.values(room.players).map(p => p.name));
+    for (let i = 0; i < 30; i++) {
+      const n = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)]
+        + (Math.random() < 0.3 ? ' ' + Math.floor(Math.random() * 99 + 1) : '');
+      if (!used.has(n)) return n;
+    }
+    return BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)] + '_' + Date.now().toString().slice(-3);
+  }
 
+  function pickBotMove(player, dice) {
+    const valid = [];
+    player.pawns.forEach((pos, idx) => {
+      if (canMovePawn(pos, dice)) valid.push({ idx, pos });
+    });
+    if (!valid.length) return null;
+    // Prioriza peões já no tabuleiro (mais úteis) e, entre eles, o mais avançado
+    const onBoard = valid.filter(v => v.pos !== -1);
+    const pool = onBoard.length ? onBoard : valid;
+    pool.sort((a, b) => b.pos - a.pos);
+    return pool[0].idx;
+  }
+
+  function scheduleBotTurn(room) {
+    if (room.state !== 'PLAYING') return;
+    const currentId = room.turnOrder[room.currentTurn];
+    if (!currentId) return;
+    const p = room.players[currentId];
+    if (!p || !p.isBot || p.eliminated) return;
+    if (room.dice !== null) return;
+
+    setTimeout(() => {
+      const r = rooms[room.code];
+      if (!r || r.state !== 'PLAYING') return;
+      if (r.turnOrder[r.currentTurn] !== currentId) return;
+      if (r.dice !== null) return;
+      performRoll(r, currentId);
+    }, 1200 + Math.random() * 900);
+  }
+  
   // ========== HELPERS ==========
   function rollDice() { return Math.floor(Math.random() * 6) + 1; }
 
