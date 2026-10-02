@@ -417,14 +417,97 @@ function renderPawns() {
   layoutAllPawns();
 }
 
+function renderPawns() {
+  if (!roomState || !roomState.players) return;
+  const board = document.getElementById('ludoBoard');
+  if (!board) return;
+  const colors = getColorsForMode();
+
+  const desired = {};
+  roomState.players.forEach(p => {
+    if (p.eliminated) return;
+    if (!p.pawns) return;
+    p.pawns.forEach((pos, idx) => {
+      const key = `${p.id}#${idx}`;
+      desired[key] = {
+        playerId: p.id, pawnIdx: idx, pos,
+        playerIndex: p.playerIndex,
+        color: (colors[p.playerIndex] || colors[0]).hex
+      };
+    });
+  });
+
+  // Remove peões obsoletos
+  Object.keys(pawnElements).forEach(key => {
+    if (!desired[key]) {
+      pawnElements[key].el.remove();
+      delete pawnElements[key];
+    }
+  });
+
+  // Cria / atualiza
+  Object.entries(desired).forEach(([key, data]) => {
+    let entry = pawnElements[key];
+
+    if (!entry) {
+      const el = document.createElement('div');
+      el.className = 'pawn';
+      el.dataset.playerId = data.playerId;
+      el.dataset.pawnIdx = data.pawnIdx;
+      el.style.background = data.color;
+      el.style.color = data.color;
+      board.appendChild(el);
+      entry = {
+        el,
+        pos: data.pos,
+        playerIndex: data.playerIndex,
+        pawnIdx: data.pawnIdx,
+        animating: false
+      };
+      pawnElements[key] = entry;
+    } else {
+      entry.el.style.background = data.color;
+      entry.el.style.color = data.color;
+      entry.playerIndex = data.playerIndex;
+      entry.pawnIdx = data.pawnIdx;
+    }
+
+    // Movable?
+    const isMyPawn = data.playerId === myId;
+    const isMyTurn = roomState.currentTurnId === myId;
+    const dice = roomState.dice;
+    entry.el.classList.remove('movable');
+    entry.el.onclick = null;
+    if (isMyPawn && isMyTurn && dice !== null && canMovePawn(data.pos, dice)) {
+      entry.el.classList.add('movable');
+      entry.el.onclick = (e) => { e.stopPropagation(); movePawn(data.pawnIdx); };
+    }
+
+    // Se mudou de posição, anima (só se não estiver animando já)
+    if (entry.pos !== data.pos && !entry.animating) {
+      const from = entry.pos;
+      const to = data.pos;
+      entry.pos = to;
+      animatePawn(entry, from, to);
+    } else if (entry.pos !== data.pos) {
+      entry.pos = data.pos;
+    }
+  });
+
+  layoutAllPawns();
+}
+
 function layoutAllPawns() {
   const cellPct = 100 / 15;
   const groups = {};
 
   Object.entries(pawnElements).forEach(([key, entry]) => {
+    // ⚠️ Pula peões que estão em animação — eles se posicionam sozinhos
+    if (entry.animating) return;
+
     const pos = entry.pos;
 
-    // Peão que chegou: posiciona no quadrante do centro
+    // Peão que chegou ao centro
     if (pos === 56) {
       const c = getCenterQuadrantPos(entry.playerIndex, entry.pawnIdx);
       entry.el.style.left = c.left + '%';
@@ -481,18 +564,25 @@ function layoutAllPawns() {
   });
 }
 
-function animatePawn(el, from, to, playerIndex, pawnIdx) {
+function animatePawn(entry, from, to) {
+  const el = entry.el;
+  const playerIndex = entry.playerIndex;
+  const pawnIdx = entry.pawnIdx;
   const cellPct = 100 / 15;
 
-  // Teleporta (sai da base ou volta pra base)
+  entry.animating = true;
+
+  // Teleporte (base → anel, captura, etc)
   if (from === -1 || to === -1 || to < from) {
-    setTimeout(() => layoutAllPawns(), 50);
+    entry.animating = false;
+    setTimeout(() => layoutAllPawns(), 30);
     return;
   }
 
   const steps = [];
   for (let p = from + 1; p <= to; p++) steps.push(p);
 
+  // Trava o peão no tamanho padrão durante a animação
   el.style.zIndex = 100;
   el.style.width = (cellPct * 0.82) + '%';
   el.style.height = (cellPct * 0.82) + '%';
@@ -500,6 +590,7 @@ function animatePawn(el, from, to, playerIndex, pawnIdx) {
   let i = 0;
   function step() {
     if (i >= steps.length) {
+      entry.animating = false;
       el.style.zIndex = '';
       layoutAllPawns();
       return;
