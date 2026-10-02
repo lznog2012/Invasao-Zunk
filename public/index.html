@@ -131,12 +131,35 @@
   </div>
 
   <!-- MODAL DE PERFIL EXPANDIDO -->
-  <div class="modal" id="profileModal">
-    <div class="modal-content profile-modal-content">
+      <div class="modal-content profile-modal-content">
       <h2>👤 PERFIL DO TRIPULANTE</h2>
       <p style="color: #88aa99; font-size: 0.85em; margin-top: 0;">
-        Seu nome e avatar são usados em todos os jogos da Estação Alpha.
+        Seu nome, raça e avatar são usados em todos os jogos da Estação Alpha.
       </p>
+
+      <label>Raça de Origem:</label>
+      <div class="race-picker" id="racePicker">
+        <div class="race-option" data-race="Rimk" onclick="selectRace('Rimk')">
+          <img src="images/rimk.png" alt="Rimk" class="race-icon">
+          <span class="race-name">RIMK</span>
+          <span class="race-home">Rimkópolis</span>
+        </div>
+        <div class="race-option" data-race="Sahrin" onclick="selectRace('Sahrin')">
+          <img src="images/sahrin.png" alt="Sahrin" class="race-icon">
+          <span class="race-name">SAHRIN</span>
+          <span class="race-home">Kaal-7</span>
+        </div>
+        <div class="race-option" data-race="Ferrum" onclick="selectRace('Ferrum')">
+          <img src="images/ferrum.png" alt="Ferrum" class="race-icon">
+          <span class="race-name">FERRUM</span>
+          <span class="race-home">Marte</span>
+        </div>
+        <div class="race-option" data-race="Nereid" onclick="selectRace('Nereid')">
+          <img src="images/nereid.png" alt="Nereid" class="race-icon">
+          <span class="race-name">NEREID</span>
+          <span class="race-home">Nereida</span>
+        </div>
+      </div>
 
       <label>Nome do Tripulante:</label>
       <input type="text" id="modalUsername" placeholder="Ex: Capitão Zorblax" maxlength="20">
@@ -149,41 +172,32 @@
 
         <div class="profile-customizer">
           <div>
-            <label>Pelo Facial</label>
-            <select id="modalOptFacialHair" onchange="updateModalPreview()">
-              <option value="none">Nenhum</option>
-              <option value="9.png">Bigode RIMK</option>
-              <option value="10.png">Bigode Ralo</option>
-              <option value="11.png">Bigode Fino</option>
-              <option value="12.png">Bigode Imperial</option>
-              <option value="13.png">Barba Sábia</option>
-            </select>
-          </div>
-          <div>
-            <label>Acessório / Olhos</label>
+            <label>Acessório</label>
             <select id="modalOptEyewear" onchange="updateModalPreview()">
               <option value="none">Nenhum</option>
               <option value="6.png">Óculos Escuros</option>
               <option value="7.png">Monóculo</option>
+              <option value="turbante.png">Turbante Sahrin</option>
             </select>
           </div>
           <div>
-            <label>Roupa / Traje</label>
+            <label>Traje</label>
             <select id="modalOptSuit" onchange="updateModalPreview()">
-              <option value="none">Básico</option>
-              <option value="14.png">Camisa Listrada</option>
-              <option value="15.png">Jaqueta Jeans</option>
-              <option value="16.png">Blusa Vermelha</option>
-              <option value="17.png">Traje Espacial</option>
+              <option value="none">Nenhum</option>
+              <option value="17.png">Traje Verde (Rimk)</option>
+              <option value="trajeamarelo.png">Traje Amarelo (Sahrin)</option>
+              <option value="trajevermelho.png">Traje Vermelho (Ferrum)</option>
+              <option value="trajeazul.png">Traje Azul (Nereid)</option>
             </select>
           </div>
           <div>
             <label>Fundo do Avatar</label>
             <select id="modalOptBg" onchange="updateModalPreview()">
               <option value="none">Padrão Escuro</option>
-              <option value="3.jpg">Marte</option>
-              <option value="4.jpg">Espaço Sideral</option>
-              <option value="5.jpg">Nave RIMK</option>
+              <option value="4.jpg">Rimkópolis</option>
+              <option value="planetaamarelo.jpg">Kaal-7</option>
+              <option value="3.jpg">Ferrum (Marte)</option>
+              <option value="planetaazul.jpg">Nereida</option>
             </select>
           </div>
         </div>
@@ -199,7 +213,6 @@
         <button onclick="saveProfileFromModal()">✔ SALVAR</button>
       </div>
     </div>
-  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="home.js"></script>
