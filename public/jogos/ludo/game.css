@@ -100,7 +100,36 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
 }
 .mode-option b { display: block; margin-top: 5px; font-size: 0.9em; }
 .mode-option small { display: block; color: #88aa99; font-size: 0.75em; margin-top: 2px; }
-.mode-icons { font-size: 1.6em; letter-spacing: 2px; line-height: 1; }
+.mode-icons {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.mode-pawn {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+  transition: transform 0.25s;
+}
+
+.mode-option:hover .mode-pawn {
+  transform: scale(1.12);
+}
+
+.mode-option.selected .mode-pawn {
+  filter: drop-shadow(0 0 8px rgba(0,255,255,0.7)) drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+}
+
+@media (max-width: 550px) {
+  .mode-pawn {
+    width: 28px;
+    height: 28px;
+  }
+}
 
 .code-display { font-size: 1.8em; color: var(--gold-yellow); text-shadow: 0 0 12px var(--gold-yellow); letter-spacing: 4px; font-weight: bold; }
 
