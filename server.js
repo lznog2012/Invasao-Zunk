@@ -69,11 +69,12 @@ function makeBot(room) {
 }
 
 // ============ UTIL ============
-function generateRoomCode(prefix) {
-  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = prefix + '_';
-  for (let i = 0; i < 4; i++) s += c[Math.floor(Math.random() * c.length)];
-  return s;
+function generateRoomCode() {
+  // Sem I e O pra evitar confusão (0/O, 1/I)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
 }
 
 const ROLE_MAP = {
@@ -174,18 +175,18 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes, gameType }) => {
-    const prefix = gameType || 'D'; // Se não vier especificado, assume 'D' de Dedução
-    let code = generateRoomCode(prefix);
-    while (rooms[code]) code = generateRoomCode(prefix);
+  socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes }) => {
+    let code = generateRoomCode();
+    while (rooms[code]) code = generateRoomCode();
     
     const limit = Math.min(Math.max(parseInt(maxPlayers) || 5, 5), 7);
     rooms[code] = {
-      code, hostId: socket.id, maxPlayers: limit,
+      code, hostId: socket.id, gameType: 'D', maxPlayers: limit,
       debateTime: (parseInt(debateMinutes) || 3) * 60,
       state: 'LOBBY', players: {}, nightActions: {}, votes: {}, voteCounts: {},
       skipDebateVotes: new Set(), timer: null, timeLeft: 0, turn: 1, botCounter: 0
     };
+      
     rooms[code].players[socket.id] = {
       id: socket.id, clientId: socket.clientId, name, avatar,
       isHost: true, isBot: false, alive: true, ready: false, disconnected: false
@@ -197,6 +198,23 @@ io.on('connection', (socket) => {
     broadcastStats();
   });
 
+  socket.on('listRooms', ({ gameType }) => {
+    const list = Object.values(rooms)
+      .filter(r => r.state === 'LOBBY')
+      .filter(r => !gameType || r.gameType === gameType)
+      .map(r => ({
+        code: r.code,
+        gameType: r.gameType || 'D',
+        mode: r.mode || null,
+        currentPlayers: Object.keys(r.players).length,
+        maxPlayers: r.maxPlayers,
+        hostName: r.players[r.hostId]?.name || '???',
+        hasBots: Object.values(r.players).some(p => p.isBot)
+      }))
+      .sort((a, b) => b.currentPlayers - a.currentPlayers);
+    socket.emit('roomsList', { rooms: list });
+  });
+    
    socket.on('joinRoom', ({ name, avatar, roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return socket.emit('errorMsg', 'Sala não encontrada!');
