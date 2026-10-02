@@ -338,20 +338,22 @@ function init(io, rooms, broadcastStats) {
       broadcastLobby(room);
     });
 
-    socket.on('ludoStart', ({ code }) => {
+        socket.on('ludoStart', ({ code }) => {
       const room = rooms[code];
       if (!room || room.hostId !== socket.id) return;
+
       const num = Object.keys(room.players).length;
       if (num < 2) return socket.emit('errorMsg', 'Mínimo 2 jogadores.');
-      if (room.mode === 'B' && num !== 2 && num !== 4) {
-      return socket.emit('errorMsg', 'O modo 2v2 exige 2 ou 4 jogadores.');
-  }
-  if (!Object.values(room.players).every(p => p.ready)) return socket.emit('errorMsg', 'Todos precisam estar prontos.');
 
-  room.state = 'PLAYING';
-  ...
-});
-    
+      if (room.mode === 'B' && num !== 2 && num !== 4) {
+        return socket.emit('errorMsg', 'O modo 2v2 exige 2 ou 4 jogadores.');
+      }
+
+      if (!Object.values(room.players).every(p => p.ready)) {
+        return socket.emit('errorMsg', 'Todos precisam estar prontos.');
+      }
+
+      room.state = 'PLAYING';
       room.currentTurn = 0;
       room.dice = null;
       room.sixesInARow = 0;
