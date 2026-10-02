@@ -298,12 +298,6 @@ function skipIntro() {
   setTimeout(() => intro.remove(), 900);
 }
 
-function autoCloseIntro() {
-  setTimeout(() => {
-    if (document.getElementById('loreIntro')) skipIntro();
-  }, 11000);
-}
-
 window.addEventListener('DOMContentLoaded', () => {
   const intro = document.getElementById('loreIntro');
   if (!intro) return;
@@ -312,7 +306,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (jaViu) {
     intro.remove();
-  } else {
-    autoCloseIntro();
   }
+  // Se for 1ª visita: a intro fica até o usuário clicar em "Iniciar Treinamento"
 });
