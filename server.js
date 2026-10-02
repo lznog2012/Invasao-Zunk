@@ -18,6 +18,8 @@ app.get('/', (_, res) => {
 // Rotas específicas para os jogos:
 app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'deducao', 'index.html')));
 app.get('/jogos/ludo', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'ludo', 'index.html')));
+app.get('/lore', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
+app.get('/lore/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
 
 const rooms = {};
 
