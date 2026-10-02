@@ -208,6 +208,7 @@ function buildBoard() {
     { r0: 9, c0: 9, colorIdx: 2 },
     { r0: 9, c0: 0, colorIdx: 3 }
   ];
+
   basePositions.forEach(b => {
     for (let r = b.r0; r < b.r0 + 6; r++) {
       for (let c = b.c0; c < b.c0 + 6; c++) {
@@ -218,7 +219,8 @@ function buildBoard() {
 
   PATH.forEach((p, i) => {
     grid[`${p[0]}-${p[1]}`] = {
-      type: 'path', idx: i,
+      type: 'path',
+      idx: i,
       safe: SAFE_INDICES.has(i),
       colorOwner: PATH_COLOR_OWNERS[i]
     };
@@ -271,87 +273,12 @@ function buildBoard() {
   // Overlay do centro (4 quadrantes)
   const overlay = document.createElement('div');
   overlay.className = 'center-overlay';
-  // Q0 top-left, Q1 top-right, Q2 bottom-right, Q3 bottom-left (mesma ordem dos playerIndex)
-  const quadOrder = [0, 1, 3, 2]; // ordem no grid: TL, TR, BL, BR
+  const quadOrder = [0, 1, 3, 2];
   overlay.innerHTML = quadOrder.map(idx => {
     const c = colors[idx] || colors[0];
     return `<div class="quad" style="color:${c.hex};"></div>`;
   }).join('');
   board.appendChild(overlay);
-}
-
-  // Bases
-  const basePositions = [
-    { r0: 0, c0: 0, colorIdx: 0 },
-    { r0: 0, c0: 9, colorIdx: 1 },
-    { r0: 9, c0: 9, colorIdx: 2 },
-    { r0: 9, c0: 0, colorIdx: 3 }
-  ];
-  basePositions.forEach(b => {
-    for (let r = b.r0; r < b.r0 + 6; r++) {
-      for (let c = b.c0; c < b.c0 + 6; c++) {
-        grid[`${r}-${c}`] = { type: 'base', colorIdx: b.colorIdx };
-      }
-    }
-  });
-
-  // Caminho
-  PATH.forEach((p, i) => {
-    grid[`${p[0]}-${p[1]}`] = {
-      type: 'path',
-      idx: i,
-      safe: SAFE_INDICES.has(i),
-      colorOwner: PATH_COLOR_OWNERS[i]
-    };
-  });
-
-  // Colunas finais
-  HOME_COLUMNS.forEach((col, playerIdx) => {
-    col.forEach((pos, i) => {
-      grid[`${pos[0]}-${pos[1]}`] = { type: 'home-col', colorIdx: playerIdx, idx: i };
-    });
-  });
-
-  // Centro
-  grid[`${CENTER[0]}-${CENTER[1]}`] = { type: 'center' };
-
-  // Renderiza
-  for (let r = 0; r < 15; r++) {
-    for (let c = 0; c < 15; c++) {
-      const cellData = grid[`${r}-${c}`];
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.row = r;
-      cell.dataset.col = c;
-
-      if (cellData) {
-        if (cellData.type === 'base') {
-          cell.classList.add('base');
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.12);
-        } else if (cellData.type === 'path') {
-          cell.classList.add('path');
-          if (cellData.safe) cell.classList.add('safe');
-          if (cellData.colorOwner >= 0) {
-            // Casa colorida do jogador dono do trecho
-            cell.style.background = colors[cellData.colorOwner].hex;
-            cell.style.opacity = '0.55';
-            cell.style.border = '1px solid rgba(0,0,0,0.4)';
-          }
-          cell.dataset.pathIdx = cellData.idx;
-        } else if (cellData.type === 'home-col') {
-          cell.classList.add('home-col');
-          cell.style.background = hexWithAlpha(colors[cellData.colorIdx].hex, 0.45);
-          cell.style.border = `1px solid ${colors[cellData.colorIdx].hex}`;
-        } else if (cellData.type === 'center') {
-          cell.classList.add('center');
-        }
-      } else {
-        cell.style.background = 'transparent';
-      }
-
-      board.appendChild(cell);
-    }
-  }
 }
 
 function hexWithAlpha(hex, alpha) {
