@@ -45,29 +45,8 @@
     <text x="1060" y="970" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">00</text>
   </g>
 
-  <!-- TELA DO FLIPERAMA -->
+  <!-- TELA VAZIA (os cards vão por cima via HTML) -->
   <rect x="100" y="50" width="1720" height="700" rx="30" fill="#020a02" stroke="#00ff00" stroke-width="6" filter="url(#neon-glow)" />
 
-  <!-- ========== TEXTO DENTRO DA TELA ========== -->
-  <g filter="url(#neon-glow)">
-    <!-- TÍTULO PRINCIPAL -->
-    <text x="960" y="360" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="150" font-weight="bold" text-anchor="middle" letter-spacing="18">RIMKERAMA</text>
-
-    <!-- LINHA DIVISÓRIA -->
-    <line x1="500" y1="410" x2="1420" y2="410" stroke="#00ff00" stroke-width="1.5" opacity="0.5"/>
-
-    <!-- SUBTÍTULO -->
-    <text x="960" y="465" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="26" text-anchor="middle" letter-spacing="7" opacity="0.9">ARCADE ESPACIAL DO SISTEMA RÍMKAR</text>
-
-    <!-- RODAPÉ DA TELA -->
-    <text x="960" y="555" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="15" text-anchor="middle" letter-spacing="3" opacity="0.5">SISTEMA DE TREINAMENTO OFICIAL · ANO 847 DA ALIANÇA ESTÁVEL</text>
-
-    <!-- PONTINHOS DECORATIVOS -->
-    <circle cx="880" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
-    <circle cx="960" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
-    <circle cx="1040" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
-  </g>
-
-  <!-- Linha de reflexo no topo da tela -->
   <path d="M 120 110 Q 960 70 1800 110 L 1800 140 Q 960 100 120 140 Z" fill="#00ff00" opacity="0.05" />
 </svg>
