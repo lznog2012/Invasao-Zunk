@@ -6,7 +6,7 @@ const socket = typeof io !== 'undefined' ? io() : null;
 let myPlayerData = {};
 let currentRoomCode = null;
 let myVote = null;
-let currentPlayers = [];
+let currentPlayers = [];F
 
 // ========== PERSISTÊNCIA ==========
 const STORAGE = {
@@ -610,6 +610,41 @@ function joinRoom() {
   if (!roomCode) return showToast('⚠️ ERRO', 'Digite o código!', 'zunk');
   saveProfile();
   if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode });
+}
+
+function refreshRoomsList() {
+  if (socket) socket.emit('listRooms', { gameType: 'D' });
+}
+
+function renderRoomsList(rooms) {
+  const box = document.getElementById('roomsListBox');
+  if (!box) return;
+
+  if (!rooms || !rooms.length) {
+    box.innerHTML = '<p class="rooms-empty">Nenhuma sala aberta no momento.<br>Crie uma e compartilhe o código!</p>';
+    return;
+  }
+
+  box.innerHTML = rooms.map(r => `
+    <div class="room-card" onclick="joinRoomByCode('${r.code}')">
+      <div class="room-card-info">
+        <div class="room-card-code">${r.code}</div>
+        <div class="room-card-host">Host: ${r.hostName}</div>
+      </div>
+      <div class="room-card-players">${r.currentPlayers}/${r.maxPlayers} 👥</div>
+      <div class="room-card-action">ENTRAR →</div>
+    </div>
+  `).join('');
+}
+
+function joinRoomByCode(code) {
+  const nameInput = document.getElementById('username');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) return showToast('⚠️ ERRO', 'Preencha seu nome antes de entrar!', 'zunk');
+  const codeInput = document.getElementById('roomCodeInput');
+  if (codeInput) codeInput.value = code;
+  saveProfile();
+  if (socket) socket.emit('joinRoom', { name, avatar: getCustomizationFromUI(), roomCode: code });
 }
 
 function toggleReady() {
