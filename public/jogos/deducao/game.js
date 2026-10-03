@@ -257,6 +257,13 @@ if (socket) {
   });
   
   socket.on('reconnected', d => {
+    // Se a sala não existe mais, volta pro setup
+    if (!d || !d.roomCode || !d.state) {
+      document.getElementById('setupView').style.display = 'block';
+      document.getElementById('lobbyView').style.display = 'none';
+      document.getElementById('gameView').style.display = 'none';
+      return;
+    }
     currentRoomCode = d.roomCode;
     myPlayerData.isHost = d.isHost;
     myPlayerData.roleKey = d.roleKey;
@@ -270,7 +277,7 @@ if (socket) {
     document.getElementById('myRole').innerText = d.role || '---';
     document.getElementById('myFaction').innerText = d.faction || '---';
     showToast('🔄 RECONECTADO', `Você voltou para a sala ${d.roomCode}!`, 'cyan');
-  });
+});
 
   socket.on('updateQueue', d => {
     document.getElementById('queueCount').innerText = d.players.length + ' / ' + d.maxPlayers;
