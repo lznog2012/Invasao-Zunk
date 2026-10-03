@@ -1112,3 +1112,38 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   justify-content: space-around;
   flex-wrap: wrap;
 }
+
+/* ============================================
+   FLIPERAMA RIMKERAMA (hero da home)
+   ============================================ */
+.rimkerama-hero {
+  width: 100%;
+  max-width: 950px;
+  margin: 30px auto 10px;
+  padding: 0 15px;
+  position: relative;
+  animation: rimkeramaIn 0.8s ease;
+}
+
+@keyframes rimkeramaIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rimkerama-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 30px rgba(0,255,0,0.25));
+  transition: filter 0.3s ease;
+}
+
+.rimkerama-hero:hover .rimkerama-svg {
+  filter: drop-shadow(0 0 45px rgba(0,255,0,0.45));
+}
+
+@media (max-width: 700px) {
+  .rimkerama-hero {
+    margin: 20px auto 5px;
+  }
+}
