@@ -436,10 +436,12 @@ function init(io, rooms, broadcastStats) {
   // ========== SOCKET HANDLERS ==========
   io.on('connection', (socket) => {
 
-    socket.on('ludoCreate', ({ name, avatar, mode, maxPlayers }) => {
+   socket.on('ludoCreate', ({ name, avatar, mode, maxPlayers }) => {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
       let code;
       do {
-        code = 'L_' + Math.random().toString(36).slice(2, 6).toUpperCase();
+        code = '';
+        for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
       } while (rooms[code]);
 
       const limit = Math.min(Math.max(parseInt(maxPlayers) || 4, 2), 4);
@@ -462,6 +464,21 @@ function init(io, rooms, broadcastStats) {
       if (typeof broadcastStats === 'function') broadcastStats();
     });
 
+    socket.on('ludoListRooms', () => {
+      const list = Object.values(rooms)
+        .filter(r => r.state === 'LOBBY' && r.gameType === 'L')
+        .map(r => ({
+          code: r.code,
+          mode: r.mode,
+          currentPlayers: Object.keys(r.players).length,
+          maxPlayers: r.maxPlayers,
+          hostName: r.players[r.hostId]?.name || '???',
+          hasBots: Object.values(r.players).some(p => p.isBot)
+        }))
+        .sort((a, b) => b.currentPlayers - a.currentPlayers);
+      socket.emit('ludoRoomsList', { rooms: list });
+    });
+    
     socket.on('ludoJoin', ({ name, avatar, code }) => {
       const room = rooms[code];
       if (!room || room.gameType !== 'L') return socket.emit('errorMsg', 'Sala não encontrada.');
