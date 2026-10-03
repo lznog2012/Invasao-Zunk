@@ -806,3 +806,91 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
   }
   .color-choice .color-pawn { width: 40px; height: 40px; }
 }
+/* ============================================
+   LISTA DE SALAS ABERTAS (Ludo)
+   ============================================ */
+.rooms-list-box {
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px dashed rgba(0,255,255,0.35);
+  border-radius: 6px;
+  padding: 8px;
+  background: rgba(0, 15, 20, 0.5);
+}
+
+.rooms-empty {
+  text-align: center;
+  color: #88aa99;
+  font-style: italic;
+  font-size: 0.85em;
+  margin: 15px 0;
+}
+
+.room-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 20, 15, 0.6);
+  border: 1px solid rgba(0,255,102,0.25);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.room-card:hover {
+  border-color: var(--matrix-green);
+  background: rgba(0, 40, 20, 0.7);
+  box-shadow: 0 0 12px rgba(0,255,102,0.3);
+  transform: translateX(3px);
+}
+
+.room-card:last-child { margin-bottom: 0; }
+
+.room-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.room-card-code {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--gold-yellow);
+  text-shadow: 0 0 8px var(--gold-yellow);
+  letter-spacing: 3px;
+}
+
+.room-card-host {
+  font-size: 0.75em;
+  color: #88aa99;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-card-players {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: var(--cyan-glow);
+  white-space: nowrap;
+}
+
+.room-card-mode {
+  font-size: 0.7em;
+  color: var(--ghost-purple);
+  letter-spacing: 1px;
+}
+
+.room-card-action {
+  font-size: 0.7em;
+  color: var(--matrix-green);
+  letter-spacing: 1px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
