@@ -240,6 +240,16 @@ if (socket) {
   });
 
   socket.on('errorMsg', msg => showToast('⚠️ ERRO', msg, 'zunk'));
+
+socket.on('reconnected', d => {
+    // O Ludo ainda não tem sistema de reconexão próprio.
+    // Se o servidor mandar esse evento (por engano ou por conflito de clientId),
+    // força o setup a aparecer pra não travar a interface.
+    document.getElementById('setupView').style.display = 'block';
+    document.getElementById('lobbyView').style.display = 'none';
+    document.getElementById('gameView').style.display = 'none';
+    document.getElementById('endView').style.display = 'none';
+});
   
   socket.on('roomsList', (data) => {
     renderRoomsList(data.rooms);
