@@ -309,3 +309,150 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   // Se for 1ª visita: a intro fica até o usuário clicar em "Iniciar Treinamento"
 });
+
+// ============================================
+// SISTEMA DE ÁUDIO UNIVERSAL (funciona em mobile)
+// ============================================
+
+let audioCtxHome = null;
+let audioUnlocked = false;
+let ambientHome = null;
+
+function initAudioHome() {
+  if (audioCtxHome) return;
+  try {
+    audioCtxHome = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {}
+}
+
+// Desbloqueia o áudio na primeira interação (obrigatório no mobile)
+function unlockAudio() {
+  if (audioUnlocked) return;
+  initAudioHome();
+  if (!audioCtxHome) return;
+
+  if (audioCtxHome.state === 'suspended') {
+    audioCtxHome.resume().then(() => {
+      audioUnlocked = true;
+      // Toca a intro do fliperama assim que desbloquear
+      playArcadeIntro();
+    });
+  } else {
+    audioUnlocked = true;
+    playArcadeIntro();
+  }
+}
+
+// Registra os eventos de desbloqueio
+['click', 'touchstart', 'keydown'].forEach(evt => {
+  document.addEventListener(evt, unlockAudio, { once: true, passive: true });
+});
+
+// ============================================
+// BIBLIOTECA DE SONS
+// ============================================
+function playSound(freq, duration, type, vol) {
+  if (!audioCtxHome || !audioUnlocked) return;
+  try {
+    const osc = audioCtxHome.createOscillator();
+    const gain = audioCtxHome.createGain();
+    osc.type = type || 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol || 0.04, audioCtxHome.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtxHome.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtxHome.destination);
+    osc.start();
+    osc.stop(audioCtxHome.currentTime + duration);
+  } catch (e) {}
+}
+
+function playSeq(notes) {
+  if (!audioCtxHome || !audioUnlocked) return;
+  let t = 0;
+  notes.forEach(n => {
+    setTimeout(() => playSound(n[0], n[1], n[2] || 'square', n[3] || 0.04), t);
+    t += n[1] * 1000 * 0.85;
+  });
+}
+
+// ============================================
+// SONS ESPECÍFICOS
+// ============================================
+
+// Som de hover (blip curtinho)
+function soundHover() {
+  playSound(1400, 0.04, 'square', 0.025);
+}
+
+// Som de click (coin insert!)
+function soundClick() {
+  playSeq([[1600, 0.04, 'square', 0.05], [2000, 0.06, 'square', 0.04]]);
+}
+
+// Intro do fliperama — sequência clássica de arcade
+function playArcadeIntro() {
+  // "Coin drop" + "ready" + jingle curto
+  playSeq([
+    [2000, 0.05, 'square', 0.06],   // tink
+    [1200, 0.06, 'square', 0.05],   // coin clink
+    [1600, 0.04, 'square', 0.04],   // blip
+    [2200, 0.15, 'triangle', 0.05], // ready
+    [1760, 0.08, 'square', 0.05],   // jingle start
+    [2200, 0.08, 'square', 0.05],
+    [2640, 0.12, 'square', 0.06],
+    [2200, 0.25, 'triangle', 0.05]
+  ]);
+}
+
+// Som de abertura de card/modal
+function soundOpen() {
+  playSeq([[880, 0.05], [1320, 0.08], [1760, 0.1]]);
+}
+
+// Som de fechar
+function soundClose() {
+  playSeq([[1760, 0.05], [1320, 0.06], [880, 0.08]]);
+}
+
+// ============================================
+// APLICA SONS EM TODOS OS ELEMENTOS INTERATIVOS
+// ============================================
+function attachSounds() {
+  // Elementos que recebem som de hover + click
+  const selectors = [
+    'button',
+    'a',
+    '.game-card',
+    '.partner-card',
+    '.profile-corner',
+    '.radio-corner',
+    '.lore-banner',
+    '.rimkerama-games .game-card',
+    '.intro-start',
+    '.intro-skip',
+    '.modal-actions button',
+    '.race-option',
+    '.mode-option'
+  ];
+
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      if (el.dataset.soundAttached) return;
+      el.dataset.soundAttached = 'true';
+
+      // Hover — só no desktop (no mobile não tem hover)
+      el.addEventListener('mouseenter', soundHover);
+
+      // Click
+      el.addEventListener('click', soundClick);
+    });
+  });
+}
+
+// Aplica quando carregar
+window.addEventListener('DOMContentLoaded', attachSounds);
+
+// Reaplica depois de um tempo, caso o DOM mude
+setTimeout(attachSounds, 1000);
+setTimeout(attachSounds, 3000);
