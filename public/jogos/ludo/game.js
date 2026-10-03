@@ -168,8 +168,14 @@ function toggleForm(type) {
   bj.classList.remove('active');
   fc.style.display = 'none';
   fj.style.display = 'none';
-  if (type === 'create') { bc.classList.add('active'); fc.style.display = 'block'; }
-  else { bj.classList.add('active'); fj.style.display = 'block'; }
+  if (type === 'create') {
+    bc.classList.add('active');
+    fc.style.display = 'block';
+  } else {
+    bj.classList.add('active');
+    fj.style.display = 'block';
+    refreshLudoRoomsList();
+  }
 }
 
 function selectMode(mode) {
@@ -622,6 +628,42 @@ function joinRoom() {
   }
 }
 
+function refreshLudoRoomsList() {
+  if (socket) socket.emit('ludoListRooms');
+}
+
+function renderLudoRoomsList(rooms) {
+  const box = document.getElementById('roomsListBox');
+  if (!box) return;
+
+  if (!rooms || !rooms.length) {
+    box.innerHTML = '<p class="rooms-empty">Nenhuma sala aberta no momento.<br>Crie uma e compartilhe o código!</p>';
+    return;
+  }
+
+  box.innerHTML = rooms.map(r => `
+    <div class="room-card" onclick="joinLudoRoomByCode('${r.code}')">
+      <div class="room-card-info">
+        <div class="room-card-code">${r.code}</div>
+        <div class="room-card-host">Host: ${r.hostName}</div>
+        <div class="room-card-mode">Modo ${r.mode === 'B' ? '2 vs 2' : 'Free-for-All'}</div>
+      </div>
+      <div class="room-card-players">${r.currentPlayers}/${r.maxPlayers} 👥</div>
+      <div class="room-card-action">ENTRAR →</div>
+    </div>
+  `).join('');
+}
+
+function joinLudoRoomByCode(code) {
+  const nameInput = document.getElementById('username');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) return showToast('⚠️ ERRO', 'Preencha seu nome antes de entrar!', 'zunk');
+  const codeInput = document.getElementById('roomCodeInput');
+  if (codeInput) codeInput.value = code;
+  saveProfile(name);
+  if (socket) socket.emit('ludoJoin', { name, avatar: getStoredAvatar(), code });
+}
+
 function toggleReady() {
   if (!currentRoom || !socket) return;
   socket.emit('ludoReady', { code: currentRoom });
@@ -714,7 +756,10 @@ if (socket) {
   });
 
   socket.on('errorMsg', (msg) => showToast('⚠️ ERRO', msg, 'zunk'));
-
+  socket.on('ludoRoomsList', (data) => {
+    renderLudoRoomsList(data.rooms);
+  });
+  
   socket.on('ludoJoined', (data) => {
     currentRoom = data.code;
     document.getElementById('setupView').style.display = 'none';
