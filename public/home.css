@@ -1114,12 +1114,12 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
 }
 
 /* ============================================
-   FLIPERAMA RIMKERAMA (hero da home)
+   FLIPERAMA RIMKERAMA — versão com cards dentro
    ============================================ */
 .rimkerama-hero {
   width: 100%;
-  max-width: 950px;
-  margin: 30px auto 10px;
+  max-width: 1200px;
+  margin: 30px auto 40px;
   padding: 0 15px;
   position: relative;
   animation: rimkeramaIn 0.8s ease;
@@ -1135,15 +1135,135 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
   height: auto;
   display: block;
   filter: drop-shadow(0 0 30px rgba(0,255,0,0.25));
-  transition: filter 0.3s ease;
 }
 
-.rimkerama-hero:hover .rimkerama-svg {
-  filter: drop-shadow(0 0 45px rgba(0,255,0,0.45));
+/* A "tela" verde — posicionada EXATAMENTE sobre a área da tela no SVG */
+.rimkerama-screen {
+  position: absolute;
+  left: 5.2%;
+  top: 4.6%;
+  width: 89.6%;
+  height: 64.8%;
+  padding: 20px 30px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Header dentro da tela */
+.rimkerama-screen-header {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rimkerama-title {
+  margin: 0;
+  font-size: 2.2em;
+  letter-spacing: 8px;
+  color: var(--matrix-green);
+  text-shadow: 0 0 15px var(--matrix-green), 0 0 30px rgba(0,255,0,0.5);
+}
+
+.rimkerama-sub {
+  margin: 4px 0 0;
+  font-size: 0.75em;
+  letter-spacing: 4px;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* Grid de cards DENTRO da tela */
+.rimkerama-games {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Estilo dos cards adaptado pra dentro da tela */
+.rimkerama-games .game-card {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rimkerama-games .game-card-banner {
+  height: 70px;
+  font-size: 2em;
+}
+
+.rimkerama-games .game-card-body {
+  padding: 12px 15px;
+}
+
+.rimkerama-games .game-card-body h3 {
+  font-size: 0.95em;
+  margin: 0 0 5px;
+}
+
+.rimkerama-games .game-card-body p {
+  font-size: 0.75em;
+  line-height: 1.4;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rimkerama-games .game-card-tags {
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.rimkerama-games .game-tag {
+  font-size: 0.6em;
+  padding: 2px 6px;
+}
+
+.rimkerama-games .game-card-action {
+  padding: 8px;
+  font-size: 0.75em;
+  letter-spacing: 1px;
+}
+
+/* Scrollbar dentro da tela */
+.rimkerama-screen::-webkit-scrollbar { width: 6px; }
+.rimkerama-screen::-webkit-scrollbar-track { background: rgba(0,50,0,0.3); }
+.rimkerama-screen::-webkit-scrollbar-thumb { background: var(--matrix-green); border-radius: 3px; }
+
+/* ============ MOBILE ============ */
 @media (max-width: 700px) {
-  .rimkerama-hero {
-    margin: 20px auto 5px;
+  .rimkerama-screen {
+    padding: 12px 18px;
+    gap: 8px;
+  }
+
+  .rimkerama-title {
+    font-size: 1.3em;
+    letter-spacing: 4px;
+  }
+
+  .rimkerama-sub {
+    font-size: 0.6em;
+    letter-spacing: 2px;
+  }
+
+  .rimkerama-games {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .rimkerama-games .game-card-banner {
+    height: 50px;
+    font-size: 1.5em;
+  }
+
+  .rimkerama-games .game-card-body p {
+    display: none; /* Esconde descrição em mobile */
   }
 }
