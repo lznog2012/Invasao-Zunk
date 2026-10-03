@@ -13,11 +13,10 @@
     </pattern>
   </defs>
 
-  <rect width="100%" height="100%" fill="#050505" />
-  <rect width="100%" height="100%" fill="url(#grid)" opacity="0.6" />
-
+  <!-- Painel de controles (painel inferior inclinado) -->
   <polygon points="100,750 1820,750 1920,1080 0,1080" fill="#0a150a" stroke="#00ff00" stroke-width="2.5" />
 
+  <!-- Joystick -->
   <g stroke="#00ff00" filter="url(#neon-glow)">
     <ellipse cx="350" cy="950" rx="90" ry="35" fill="none" stroke-width="3"/>
     <ellipse cx="350" cy="950" rx="55" ry="18" fill="none" stroke-width="1.5" opacity="0.5"/>
@@ -26,6 +25,7 @@
     <circle cx="338" cy="876" r="8" fill="#00ff00"/>
   </g>
 
+  <!-- Botões -->
   <g stroke="#00ff00" filter="url(#neon-glow)">
     <ellipse cx="1450" cy="950" rx="50" ry="25" fill="#050505" stroke-width="3"/>
     <ellipse cx="1450" cy="943" rx="35" ry="15" fill="#00ff00" fill-opacity="0.3" stroke-width="1.5"/>
@@ -35,6 +35,7 @@
     <ellipse cx="1750" cy="913" rx="35" ry="15" fill="#00ff00" fill-opacity="0.3" stroke-width="1.5"/>
   </g>
 
+  <!-- Insert Coin -->
   <g filter="url(#neon-glow)">
     <text x="960" y="910" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="28" font-weight="bold" text-anchor="middle" letter-spacing="5">INSERT COIN</text>
     <rect x="925" y="940" width="70" height="100" fill="none" stroke="#00ff00" stroke-width="3" rx="6"/>
@@ -45,8 +46,9 @@
     <text x="1060" y="970" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">00</text>
   </g>
 
-  <!-- TELA VAZIA (os cards vão por cima via HTML) -->
+  <!-- Tela (o rect verde-escuro onde os cards ficam) -->
   <rect x="100" y="50" width="1720" height="700" rx="30" fill="#020a02" stroke="#00ff00" stroke-width="6" filter="url(#neon-glow)" />
 
+  <!-- Reflexo no topo da tela -->
   <path d="M 120 110 Q 960 70 1800 110 L 1800 140 Q 960 100 120 140 Z" fill="#00ff00" opacity="0.05" />
 </svg>
