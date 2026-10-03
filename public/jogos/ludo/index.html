@@ -78,11 +78,21 @@
       </div>
 
       <div id="formJoin" class="hidden-form">
-        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 CÓDIGO DA SALA</h4>
-        <input type="text" id="roomCodeInput" placeholder="EX: L_ABCD" style="text-transform:uppercase; font-size:1.3em; text-align:center; letter-spacing:3px; margin:10px 0;" maxlength="6">
-        <button onclick="joinRoom()" style="width:100%; background:#003366; border-color:#0088cc;">ENTRAR NA SALA</button>
+        <h4 style="margin-top:0; color:var(--cyan-glow);">📡 ENTRAR EM SALA</h4>
+
+        <label>Código (4 letras):</label>
+        <input type="text" id="roomCodeInput" placeholder="EX: ABCF" style="text-transform:uppercase; font-size:1.3em; text-align:center; letter-spacing:3px; margin:10px 0;" maxlength="4">
+        <button onclick="joinRoom()" style="width:100%; background:#003366; border-color:#0088cc; margin-bottom:20px;">CONECTAR POR CÓDIGO</button>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <small style="color:var(--cyan-glow); letter-spacing:2px;">OU ENTRE EM UMA SALA ABERTA:</small>
+          <button onclick="refreshLudoRoomsList()" style="padding:4px 10px; font-size:0.75em; background:#002211;">🔄 ATUALIZAR</button>
+        </div>
+
+        <div id="roomsListBox" class="rooms-list-box">
+          <p class="rooms-empty">Carregando salas...</p>
+        </div>
       </div>
-    </div>
 
     <!-- ============ TELA 2: LOBBY ============ -->
     <div id="lobbyView" class="panel" style="display:none;">
