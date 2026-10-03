@@ -146,13 +146,25 @@ io.on('connection', (socket) => {
 
   broadcastStats();
     
-  socket.on('identify', ({ clientId }) => {
+ socket.on('identify', ({ clientId }) => {
     socket.clientId = clientId;
     if (!clientId) return;
     for (const code in rooms) {
       const room = rooms[code];
-      const oldId = Object.keys(room.players).find(pid => room.players[pid].clientId === clientId && room.players[pid].disconnected);
+      const oldId = Object.keys(room.players).find(pid => 
+        room.players[pid].clientId === clientId && room.players[pid].disconnected
+      );
       if (oldId) {
+        const isDeducao = room.debateTime !== undefined;
+        const isLudo = room.mode !== undefined;
+        const url = socket.handshake.headers.referer || '';
+        const onDeducaoPage = url.includes('/jogos/deducao');
+        const onLudoPage = url.includes('/jogos/ludo');
+        
+        if ((isDeducao && !onDeducaoPage) || (isLudo && !onLudoPage)) {
+          continue;
+        }
+        
         clearTimeout(room.players[oldId].disconnectTimer);
         const p = room.players[oldId];
         delete room.players[oldId];
@@ -173,7 +185,7 @@ io.on('connection', (socket) => {
         return;
       }
     }
-  });
+});
 
   socket.on('createRoom', ({ name, avatar, maxPlayers, debateMinutes }) => {
     let code = generateRoomCode();
