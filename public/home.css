@@ -1267,3 +1267,121 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
     display: none; /* Esconde descrição em mobile */
   }
 }
+
+/* ============================================
+   RIMKERAMA — Mobile otimizado
+   ============================================ */
+@media (max-width: 900px) {
+  .rimkerama-hero {
+    max-width: 100%;
+    margin: 15px auto;
+    padding: 0 8px;
+  }
+
+  /* Em telas estreitas, o fliperama escala com a tela */
+  .rimkerama-svg {
+    /* Mantém a proporção, mas a tela interna pode ficar apertada */
+  }
+
+  /* A "tela" interna do fliperama tem padding menor */
+  .rimkerama-screen {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .rimkerama-title {
+    font-size: 1.1em;
+    letter-spacing: 3px;
+  }
+
+  .rimkerama-sub {
+    font-size: 0.55em;
+    letter-spacing: 1.5px;
+  }
+
+  /* Cards viram 1 coluna */
+  .rimkerama-games {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .rimkerama-games .game-card-banner {
+    height: 36px;
+    font-size: 1.2em;
+  }
+
+  .rimkerama-games .game-card-body {
+    padding: 8px 10px;
+  }
+
+  .rimkerama-games .game-card-body h3 {
+    font-size: 0.8em;
+  }
+
+  .rimkerama-games .game-card-body p {
+    display: none;
+  }
+
+  .rimkerama-games .game-tag {
+    font-size: 0.55em;
+    padding: 2px 5px;
+  }
+
+  .rimkerama-games .game-card-action {
+    padding: 6px;
+    font-size: 0.7em;
+  }
+
+  .rimkerama-games .game-card-ribbon {
+    font-size: 0.55em;
+    padding: 3px 30px;
+    top: 8px;
+    right: -28px;
+  }
+}
+
+/* ============================================
+   MOBILE EXTREMO (celular mesmo)
+   ============================================ */
+@media (max-width: 500px) {
+  /* A "tela" do fliperama fica muito apertada em celular */
+  /* Solução: deixar o fliperama como moldura decorativa e os cards fora */
+  .rimkerama-hero {
+    margin: 10px auto;
+  }
+
+  .rimkerama-screen {
+    position: relative;      /* Sai do absoluto */
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    padding: 15px 10px;
+    margin-top: 15px;
+    border: 2px solid var(--matrix-green);
+    border-radius: 12px;
+    background: rgba(2, 10, 2, 0.9);
+    box-shadow: 0 0 25px rgba(0,255,0,0.3);
+    overflow-y: visible;
+  }
+
+  .rimkerama-svg {
+    display: none;   /* Esconde o SVG em celular — muita coisa pequena */
+  }
+
+  .rimkerama-title {
+    font-size: 1.4em;
+    letter-spacing: 4px;
+  }
+
+  .rimkerama-games .game-card-banner {
+    height: 50px;
+    font-size: 1.5em;
+  }
+
+  .rimkerama-games .game-card-body p {
+    display: -webkit-box;   /* Volta a mostrar a descrição */
+    -webkit-line-clamp: 2;
+    font-size: 0.7em;
+  }
+}
