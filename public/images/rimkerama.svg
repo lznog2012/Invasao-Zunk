@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#003300" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#050505" />
+  <rect width="100%" height="100%" fill="url(#grid)" opacity="0.6" />
+
+  <polygon points="100,750 1820,750 1920,1080 0,1080" fill="#0a150a" stroke="#00ff00" stroke-width="2.5" />
+
+  <g stroke="#00ff00" filter="url(#neon-glow)">
+    <ellipse cx="350" cy="950" rx="90" ry="35" fill="none" stroke-width="3"/>
+    <ellipse cx="350" cy="950" rx="55" ry="18" fill="none" stroke-width="1.5" opacity="0.5"/>
+    <line x1="350" y1="950" x2="350" y2="890" stroke-width="7"/>
+    <circle cx="350" cy="890" r="40" fill="#050505" stroke-width="4"/>
+    <circle cx="338" cy="876" r="8" fill="#00ff00"/>
+  </g>
+
+  <g stroke="#00ff00" filter="url(#neon-glow)">
+    <ellipse cx="1450" cy="950" rx="50" ry="25" fill="#050505" stroke-width="3"/>
+    <ellipse cx="1450" cy="943" rx="35" ry="15" fill="#00ff00" fill-opacity="0.3" stroke-width="1.5"/>
+    <ellipse cx="1600" cy="935" rx="50" ry="25" fill="#050505" stroke-width="3"/>
+    <ellipse cx="1600" cy="928" rx="35" ry="15" fill="#00ff00" fill-opacity="0.3" stroke-width="1.5"/>
+    <ellipse cx="1750" cy="920" rx="50" ry="25" fill="#050505" stroke-width="3"/>
+    <ellipse cx="1750" cy="913" rx="35" ry="15" fill="#00ff00" fill-opacity="0.3" stroke-width="1.5"/>
+  </g>
+
+  <g filter="url(#neon-glow)">
+    <text x="960" y="910" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="28" font-weight="bold" text-anchor="middle" letter-spacing="5">INSERT COIN</text>
+    <rect x="925" y="940" width="70" height="100" fill="none" stroke="#00ff00" stroke-width="3" rx="6"/>
+    <line x1="960" y1="960" x2="960" y2="1020" stroke="#00ff00" stroke-width="8"/>
+    <text x="880" y="950" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">01</text>
+    <text x="880" y="980" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">10</text>
+    <text x="1060" y="940" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">11</text>
+    <text x="1060" y="970" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="16" opacity="0.4">00</text>
+  </g>
+
+  <!-- TELA DO FLIPERAMA -->
+  <rect x="100" y="50" width="1720" height="700" rx="30" fill="#020a02" stroke="#00ff00" stroke-width="6" filter="url(#neon-glow)" />
+
+  <!-- ========== TEXTO DENTRO DA TELA ========== -->
+  <g filter="url(#neon-glow)">
+    <!-- TÍTULO PRINCIPAL -->
+    <text x="960" y="360" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="150" font-weight="bold" text-anchor="middle" letter-spacing="18">RIMKERAMA</text>
+
+    <!-- LINHA DIVISÓRIA -->
+    <line x1="500" y1="410" x2="1420" y2="410" stroke="#00ff00" stroke-width="1.5" opacity="0.5"/>
+
+    <!-- SUBTÍTULO -->
+    <text x="960" y="465" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="26" text-anchor="middle" letter-spacing="7" opacity="0.9">ARCADE ESPACIAL DO SISTEMA RÍMKAR</text>
+
+    <!-- RODAPÉ DA TELA -->
+    <text x="960" y="555" fill="#00ff00" font-family="'Courier New', Courier, monospace" font-size="15" text-anchor="middle" letter-spacing="3" opacity="0.5">SISTEMA DE TREINAMENTO OFICIAL · ANO 847 DA ALIANÇA ESTÁVEL</text>
+
+    <!-- PONTINHOS DECORATIVOS -->
+    <circle cx="880" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
+    <circle cx="960" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
+    <circle cx="1040" cy="600" r="3" fill="#00ff00" opacity="0.4"/>
+  </g>
+
+  <!-- Linha de reflexo no topo da tela -->
+  <path d="M 120 110 Q 960 70 1800 110 L 1800 140 Q 960 100 120 140 Z" fill="#00ff00" opacity="0.05" />
+</svg>
