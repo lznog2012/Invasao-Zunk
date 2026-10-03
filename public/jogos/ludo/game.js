@@ -755,6 +755,13 @@ if (socket) {
     socket.emit('identify', { clientId: CLIENT_ID });
   });
 
+socket.on('reconnected', d => {
+    document.getElementById('setupView').style.display = 'block';
+    document.getElementById('lobbyView').style.display = 'none';
+    document.getElementById('gameView').style.display = 'none';
+    document.getElementById('endView').style.display = 'none';
+});
+  
   socket.on('errorMsg', (msg) => showToast('⚠️ ERRO', msg, 'zunk'));
   socket.on('ludoRoomsList', (data) => {
     renderLudoRoomsList(data.rooms);
