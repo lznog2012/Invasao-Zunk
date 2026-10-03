@@ -242,13 +242,25 @@ if (socket) {
   socket.on('errorMsg', msg => showToast('⚠️ ERRO', msg, 'zunk'));
 
 socket.on('reconnected', d => {
-    // O Ludo ainda não tem sistema de reconexão próprio.
-    // Se o servidor mandar esse evento (por engano ou por conflito de clientId),
-    // força o setup a aparecer pra não travar a interface.
-    document.getElementById('setupView').style.display = 'block';
-    document.getElementById('lobbyView').style.display = 'none';
-    document.getElementById('gameView').style.display = 'none';
-    document.getElementById('endView').style.display = 'none';
+    if (!d || !d.roomCode || !d.state) {
+      document.getElementById('setupView').style.display = 'block';
+      document.getElementById('lobbyView').style.display = 'none';
+      document.getElementById('gameView').style.display = 'none';
+      return;
+    }
+    currentRoomCode = d.roomCode;
+    myPlayerData.isHost = d.isHost;
+    myPlayerData.roleKey = d.roleKey;
+    myPlayerData.role = d.role;
+    myPlayerData.faction = d.faction;
+    document.getElementById('setupView').style.display = 'none';
+    document.getElementById('lobbyView').style.display = d.state === 'LOBBY' ? 'block' : 'none';
+    document.getElementById('gameView').style.display = d.state !== 'LOBBY' ? 'flex' : 'none';
+    document.getElementById('displayRoomCode').innerText = d.roomCode;
+    document.getElementById('btnStartMatch').style.display = d.isHost ? 'block' : 'none';
+    document.getElementById('myRole').innerText = d.role || '---';
+    document.getElementById('myFaction').innerText = d.faction || '---';
+    showToast('🔄 RECONECTADO', `Você voltou para a sala ${d.roomCode}!`, 'cyan');
 });
   
   socket.on('roomsList', (data) => {
