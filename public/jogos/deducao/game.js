@@ -6,7 +6,7 @@ const socket = typeof io !== 'undefined' ? io() : null;
 let myPlayerData = {};
 let currentRoomCode = null;
 let myVote = null;
-let currentPlayers = [];F
+let currentPlayers = [];
 
 // ========== PERSISTÊNCIA ==========
 const STORAGE = {
@@ -185,10 +185,18 @@ function toggleForm(type) {
   const bj = document.getElementById('btnMenuJoin');
   const fc = document.getElementById('formCreate');
   const fj = document.getElementById('formJoin');
-  bc.classList.remove('active'); bj.classList.remove('active');
-  fc.style.display = 'none'; fj.style.display = 'none';
-  if (type === 'create') { bc.classList.add('active'); fc.style.display = 'block'; }
-  else { bj.classList.add('active'); fj.style.display = 'block'; }
+  bc.classList.remove('active');
+  bj.classList.remove('active');
+  fc.style.display = 'none';
+  fj.style.display = 'none';
+  if (type === 'create') {
+    bc.classList.add('active');
+    fc.style.display = 'block';
+  } else {
+    bj.classList.add('active');
+    fj.style.display = 'block';
+    refreshRoomsList();
+  }
 }
 
 function generateAvatarHTML(c, extra) {
@@ -232,7 +240,11 @@ if (socket) {
   });
 
   socket.on('errorMsg', msg => showToast('⚠️ ERRO', msg, 'zunk'));
-
+  
+  socket.on('roomsList', (data) => {
+    renderRoomsList(data.rooms);
+  });
+  
    socket.on('roomJoined', d => {
     currentRoomCode = d.roomCode;
     myPlayerData.isHost = d.isHost;
