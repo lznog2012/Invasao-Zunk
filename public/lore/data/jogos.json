@@ -1,0 +1,32 @@
+{
+  "secao": "jogos",
+  "icone": "🎮",
+  "nome": "Os Jogos",
+  "range": "300-302",
+  "artigos": [
+    {
+      "numero": "300",
+      "titulo": "O Que São as Simulações",
+      "autor": "Instrutor Rimk Vayle",
+      "data": "Ano 802 da Aliança",
+      "icone": "🎯",
+      "conteudo": "<p><em>Placeholder: aqui vai explicar o que são as simulações oficiais.</em></p><p>Este artigo vai abordar:</p><ul><li>O que são as simulações</li><li>Por que foram criadas</li><li>Como funcionam</li><li>Quem pode participar</li><li>Consequências reais de desempenho</li></ul>"
+    },
+    {
+      "numero": "301",
+      "titulo": "O Jogo da Dedução: Manual de Treinamento",
+      "autor": "Instrutor Rimk Vayle",
+      "data": "Ano 843 da Aliança",
+      "icone": "🎭",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar o Jogo da Dedução.</em></p><p>Este artigo vai abordar:</p><ul><li>Contexto: pânico pela volta dos Zunks</li><li>Propósito: treinar identificação de infiltrados</li><li>Como funciona (regras resumidas)</li><li>Lore in-game</li><li>Como se destacar nas simulações</li></ul>"
+    },
+    {
+      "numero": "302",
+      "titulo": "O Ludo da Aliança: A Copa dos Mundos",
+      "autor": "Comentarista Sahrin Ravi",
+      "data": "Ano 844 da Aliança",
+      "icone": "🎲",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar o Ludo da Aliança.</em></p><p>Este artigo vai abordar:</p><ul><li>Contexto: é como uma Copa do Mundo entre os mundos</li><li>Propósito: diplomacia + competição amistosa</li><li>Modo A: torneio interno</li><li>Modo B: simulação de infiltração</li><li>Prestígio político e hierarquia</li></ul>"
+    }
+  ]
+}
