@@ -1017,3 +1017,112 @@ h1, h2, h3, h4 {
   .solar-title { font-size: 1.2em; }
   .solar-subtitle { font-size: 0.75em; }
 }
+
+/* ============================================
+   LISTA DE ARTIGOS (dentro da seção)
+   ============================================ */
+.article-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.article-card {
+  background: rgba(0,15,10,0.6);
+  border: 1px solid rgba(0,255,102,0.25);
+  border-radius: 8px;
+  padding: 18px 22px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.article-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--matrix-green);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+}
+
+.article-card:hover {
+  border-color: var(--matrix-green);
+  background: rgba(0,40,20,0.5);
+  transform: translateX(5px);
+  box-shadow: 0 0 20px rgba(0,255,102,0.2);
+}
+
+.article-card:hover::before {
+  transform: scaleY(1);
+}
+
+.article-card-number {
+  font-size: 0.7em;
+  color: var(--gold-yellow);
+  letter-spacing: 3px;
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(255,204,0,0.4);
+  margin-bottom: 6px;
+}
+
+.article-card h3 {
+  font-size: 1.05em;
+  color: var(--matrix-green);
+  margin: 0 0 8px 0;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 8px var(--matrix-green);
+}
+
+.article-card-meta {
+  font-size: 0.75em;
+  color: #88aa99;
+  font-style: italic;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.article-card-cta {
+  font-size: 0.75em;
+  color: var(--cyan-glow);
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.article-card:hover .article-card-cta {
+  color: #fff;
+  text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* ============================================
+   RODAPÉ DO ARTIGO (botões nav)
+   ============================================ */
+.article-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,255,102,0.2);
+}
+
+.article-footer .article-nav-btn {
+  flex: 1;
+  min-width: 140px;
+  font-size: 0.75em;
+}
+
+@media (max-width: 700px) {
+  .article-footer {
+    flex-direction: column;
+  }
+  .article-footer .article-nav-btn {
+    width: 100%;
+  }
+}
