@@ -90,16 +90,15 @@ function updateGlobalBackBtn() {
   const current = document.querySelector('.view.active');
   if (!current) return;
 
-  // Se estiver na estante, o botão vai pra home normalmente (href="/")
-  // Se estiver em outra view, precisa voltar pra estante via JS
+  // Só mostra o botão global quando estamos na ESTANTE (hub principal)
   if (current.id === 'view-shelf') {
+    btn.style.display = 'block';
     btn.href = '/';
     btn.textContent = '← VOLTAR AO PORTAL';
     btn.dataset.action = 'home';
   } else {
-    btn.href = '#';
-    btn.textContent = '← VOLTAR À ESTANTE';
-    btn.dataset.action = 'shelf';
+    // Nas outras views (artigo, mundos, zunk), esconde o botão global
+    btn.style.display = 'none';
   }
 }
 
