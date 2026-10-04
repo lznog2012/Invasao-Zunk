@@ -385,40 +385,101 @@ function cancelVault() {
   viewHistory = [];
 }
 
-function renderVaultPlaceholder() {
+async function renderVaultPlaceholder(paginaIdx) {
   const container = document.getElementById('vaultContent');
   const breadcrumb = document.getElementById('articleBreadcrumb');
+  if (!container) return;
 
-  if (breadcrumb) {
-    breadcrumb.innerHTML = `📚 Biblioteca › 🔴 Arquivo Zunk`;
+  if (paginaIdx === undefined) paginaIdx = 0;
+
+  container.innerHTML = '<header><h1>Carregando...</h1></header>';
+
+  const data = await loadSection('zunk');
+  if (!data || !data.paginas) {
+    container.innerHTML = '<header><h1>Erro ao carregar arquivo</h1></header>';
+    return;
   }
 
-  container.innerHTML = `
-    <header>
-      <span class="archive-number">⚠️ CONFIDENCIAL</span>
-      <h1>ARQUIVO ZUNK</h1>
-      <div class="meta">
-        <span>Comissão de Defesa do Sistema Rímkar</span>
-        <span>Ano 847 da Aliança</span>
+  const pagina = data.paginas[paginaIdx];
+  if (!pagina) return;
+
+  const anterior = data.paginas[paginaIdx - 1];
+  const proximo = data.paginas[paginaIdx + 1];
+
+  if (breadcrumb) {
+    breadcrumb.innerHTML = `📚 Biblioteca › 🔴 Arquivo Zunk › Página ${paginaIdx + 1} de ${data.paginas.length}`;
+  }
+
+  // Foto principal (cabeça do alien)
+  const fotoHTML = pagina.foto
+    ? `<div class="vault-foto-box">
+         <img src="${pagina.foto}" alt="${pagina.titulo}" class="vault-foto">
+         <span class="vault-foto-legenda">AMOSTRA VISUAL — ${pagina.numero}</span>
+       </div>`
+    : '';
+
+  // Card do planeta natal (só nas castas)
+  const planetaHTML = pagina.planeta ? `
+    <div class="vault-planeta-box">
+      <div class="vault-planeta-label">PLANETA NATAL:</div>
+      <div class="vault-planeta-row">
+        <img src="${pagina.planeta_foto}" alt="${pagina.planeta}" class="vault-planeta-img">
+        <div>
+          <div class="vault-planeta-nome">${pagina.planeta}</div>
+          <div class="vault-planeta-sub">Sistema Zunk'nir</div>
+        </div>
       </div>
-    </header>
-    <div class="article-body">
-      <p><em>Este arquivo será preenchido na Etapa 4.</em></p>
-      <p>Aqui vai estar o <strong>relatório completo</strong> sobre os Zunks:</p>
-      <ul style="padding-left: 20px; line-height: 2;">
-        <li>📋 <strong>O Que Sabemos</strong> — fatos confirmados</li>
-        <li>❓ <strong>O Que Suspeitamos</strong> — hipóteses</li>
-        <li>🕳️ <strong>O Que Não Sabemos</strong> — lacunas</li>
-        <li>🟣 <strong>Os Vharn</strong> — perfil da casta roxa</li>
-        <li>⚪ <strong>Os Thrakk</strong> — perfil da casta branca</li>
-        <li>🎭 <strong>Metamorfos</strong> — a arte da camuflagem</li>
-      </ul>
-      <p>Alguns trechos aparecerão como <span class="censored">████████████</span> — informação corrompida ou censurada.</p>
     </div>
+  ` : '';
+
+  container.innerHTML = `
+    <!-- Selo confidencial -->
+    <div class="vault-selo">⚠️ CONFIDENCIAL · NÃO REPRODUZIR ⚠️</div>
+
+    <header class="vault-header">
+      <div class="vault-header-top">
+        <span class="vault-org">COMISSÃO DE DEFESA DO SISTEMA RÍMKAR</span>
+        <span class="vault-ano">${data.ano}</span>
+      </div>
+      <div class="vault-header-line"></div>
+      <span class="archive-number vault-archive-number">ARQUIVO #${pagina.numero} · ${pagina.icone} ${data.classificacao}</span>
+      <h1>${pagina.titulo}</h1>
+      <p class="vault-subtitulo">${pagina.subtitulo}</p>
+      <div class="vault-header-line"></div>
+    </header>
+
+    <div class="vault-layout">
+      <div class="vault-content-area">
+        <div class="vault-body">
+          ${pagina.conteudo}
+        </div>
+        ${planetaHTML}
+      </div>
+      <div class="vault-side">
+        ${fotoHTML}
+      </div>
+    </div>
+
     <footer class="article-footer">
-      <button class="article-nav-btn" onclick="goBack()">← Voltar à Estante</button>
+      ${anterior
+        ? `<button class="article-nav-btn vault-nav" onclick="renderVaultPlaceholder(${paginaIdx - 1})">← ${anterior.titulo}</button>`
+        : `<button class="article-nav-btn" disabled>← Início do Arquivo</button>`
+      }
+      <button class="article-nav-btn vault-nav" onclick="viewHistory = []; showView('view-shelf', { pushHistory: false });">📚 Sair do Cofre</button>
+      ${proximo
+        ? `<button class="article-nav-btn vault-nav" onclick="renderVaultPlaceholder(${paginaIdx + 1})">${proximo.titulo} →</button>`
+        : `<button class="article-nav-btn" disabled>Fim do Arquivo →</button>`
+      }
     </footer>
+
+    <div class="vault-rodape">— FIM DA PÁGINA ${paginaIdx + 1} —</div>
   `;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (typeof attachSoundsLore === 'function') {
+    setTimeout(attachSoundsLore, 100);
+  }
 }
 
 // ============================================
