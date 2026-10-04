@@ -1,0 +1,41 @@
+{
+  "secao": "zunk",
+  "nome": "Arquivo Zunk",
+  "icone": "🔴",
+  "classificacao": "CONFIDENCIAL",
+  "autoridade": "Comissão de Defesa do Sistema Rímkar",
+  "ano": "847 da Aliança",
+  "paginas": [
+    {
+      "id": "introducao",
+      "numero": "900",
+      "titulo": "O Que Sabemos",
+      "subtitulo": "Introdução ao Fenômeno Zunk",
+      "icone": "⚠️",
+      "foto": null,
+      "conteudo": "<p><em>Placeholder: aqui vai a introdução geral ao problema Zunk. Deve ser dividido em 3 seções: O Que Sabemos (fatos confirmados), O Que Suspeitamos (hipóteses), O Que Não Sabemos (lacunas).</em></p><h3>O Que Sabemos</h3><p>Origem fora da galáxia. Duas castas conhecidas: Vharn e Thrakk. São metamorfos. Não têm bigode — a marca da ausência.</p><h3>O Que Suspeitamos</h3><p>Podem se camuflar por décadas. Podem se comunicar por telepatia. Podem escolher quando revelar.</p><h3>O Que Não Sabemos</h3><p>Quantos são. Como chegam. Por que atacam. Se têm fraquezas. Como encontrá-los definitivamente.</p><p><span class='censored'>████████████████</span></p>"
+    },
+    {
+      "id": "vharn",
+      "numero": "901",
+      "titulo": "Os Vharn",
+      "subtitulo": "A Mente Que Sussurra",
+      "icone": "🟣",
+      "foto": "/jogos/ludo/art/pawns/vharn.png",
+      "planeta": "Nyxaris",
+      "planeta_foto": "/images/planetas/nyxaris.png",
+      "conteudo": "<p><em>Placeholder: aqui vai o perfil completo da casta Vharn.</em></p><h3>Classificação</h3><p><b>Tipo:</b> Infiltrador mental<br><b>Aparência real:</b> Massa roxa pulsante<br><b>Planeta natal:</b> Nyxaris</p><h3>Comportamento</h3><p>Fala muito, mente, manipula. Planta discórdia antes de atacar. Gosta de plantar suspeita entre os aliados antes de agir.</p><h3>Marca do Disfarce</h3><p>Seu disfarce perfeito tem um detalhe sutil: um <b>terceiro olho</b> sempre entreaberto na testa. Quem sabe olhar, encontra.</p><p><span class='censored'>████████████████████████</span></p>"
+    },
+    {
+      "id": "thrakk",
+      "numero": "902",
+      "titulo": "Os Thrakk",
+      "subtitulo": "O Osso Silencioso",
+      "icone": "⚪",
+      "foto": "/jogos/ludo/art/pawns/thrakk.png",
+      "planeta": "Kaldr",
+      "planeta_foto": "/images/planetas/kaldr.png",
+      "conteudo": "<p><em>Placeholder: aqui vai o perfil completo da casta Thrakk.</em></p><h3>Classificação</h3><p><b>Tipo:</b> Infiltrador físico<br><b>Aparência real:</b> Pele branca-óssea, olhos vazios<br><b>Planeta natal:</b> Kaldr</p><h3>Comportamento</h3><p>Silencioso, brutal, direto. Não se importa em ser descoberto — se descobrirem, mata e assume o próximo.</p><h3>Marca do Disfarce</h3><p>Nunca usa bigode. É a única coisa que não consegue replicar — <b>bigode é a marca dos filhos dos Rimks</b>.</p><p><span class='censored'>██████████████████████████████████</span></p>"
+    }
+  ]
+}
