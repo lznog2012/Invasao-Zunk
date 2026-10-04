@@ -2,7 +2,7 @@
   "secao": "politica",
   "icone": "⚖️",
   "nome": "Política & Economia",
-  "range": "200-205",
+  "range": "200-206",
   "artigos": [
     {
       "numero": "200",
@@ -51,16 +51,14 @@
       "data": "Ano 205 da Aliança",
       "icone": "🔵",
       "conteudo": "<p><em>Placeholder: aqui vai detalhar o sistema telepático dos Nereids.</em></p><p>Este artigo vai abordar:</p><ul><li>Decisões por telepatia</li><li>Cristais de memória como registro</li><li>Porta-vozes temporários</li><li>Como a mente coletiva lida com dissidência</li><li>Desafios da Era da Sombra</li></ul>"
-    }
-  ]
-  },
+    },
     {
       "numero": "206",
       "titulo": "O Conselho da Aliança",
       "autor": "Arquivista Rimk Theon",
       "data": "Ano 12 da Aliança · Atualizado em 847",
       "icone": "🏛️",
-      "conteudo": "<p><em>O Conselho da Aliança Rímkar é o órgão supremo que governa o sistema. Seis representantes, quatro mundos, um Pacto.</em></p><h3>O Que É</h3><p>Após a Grande Fratura, quando os Zunks foram supostamente expurgados, os quatro mundos entenderam que nunca mais poderiam se enfrentar. Daquela união nasceu o <strong>Conselho da Aliança</strong> — um órgão permanente, com sede em Nereida, que reúne representantes de todos os mundos para decidir sobre o futuro do sistema.</p><p>O Conselho decide sobre:</p><ul><li>Comércio entre os mundos</li><li>Defesa contra ameaças externas</li><li>Aplicação do Pacto dos Quatro</li><li>Novos tratados e alianças</li></ul><h3>Como Funciona</h3><p>O Conselho não tem um líder único. Segue o modelo <strong>cooperativista rimk</strong>: os três ministros de Rimkópolis têm peso igual entre si nas decisões. A cada ano-sistema, um deles assume o título de <strong>Líder Trabalhador</strong> — mas apenas para presidir sessões e desempatar votações. Não é hierarquia, é organização.</p><p><strong>Maioria simples:</strong> decisões do dia a dia.</p><p><strong>Maioria qualificada (4 de 6):</strong> mudanças no Pacto.</p><p><strong>Unanimidade (6 de 6):</strong> entrar em guerra, dissolver a Aliança.</p><h3>Os 6 Representantes</h3><p>Atualmente, o Conselho é formado por:</p></div>",
+      "conteudo": "<p><em>O Conselho da Aliança Rímkar é o órgão supremo que governa o sistema. Seis representantes, quatro mundos, um Pacto.</em></p><h3>O Que É</h3><p>Após a Grande Fratura, quando os Zunks foram supostamente expurgados, os quatro mundos entenderam que nunca mais poderiam se enfrentar. Daquela união nasceu o <strong>Conselho da Aliança</strong> — um órgão permanente, com sede em Nereida, que reúne representantes de todos os mundos para decidir sobre o futuro do sistema.</p><p>O Conselho decide sobre:</p><ul><li>Comércio entre os mundos</li><li>Defesa contra ameaças externas</li><li>Aplicação do Pacto dos Quatro</li><li>Novos tratados e alianças</li></ul><h3>Como Funciona</h3><p>O Conselho não tem um líder único. Segue o modelo <strong>cooperativista rimk</strong>: os três ministros de Rimkópolis têm peso igual entre si nas decisões. A cada ano-sistema, um deles assume o título de <strong>Líder Trabalhador</strong> — mas apenas para presidir sessões e desempatar votações. Não é hierarquia, é organização.</p><p><strong>Maioria simples:</strong> decisões do dia a dia.</p><p><strong>Maioria qualificada (4 de 6):</strong> mudanças no Pacto.</p><p><strong>Unanimidade (6 de 6):</strong> entrar em guerra, dissolver a Aliança.</p><h3>Os 6 Representantes</h3><p>Atualmente, o Conselho é formado por:</p>",
       "representantes": [
         {
           "mundo": "Rimkópolis",
