@@ -208,8 +208,10 @@ async function openArticle(section, numero) {
         <span>${artigo.data}</span>
       </div>
     </header>
-    <div class="article-body">
+     <div class="article-body">
       ${artigo.conteudo}
+      ${artigo.eixos ? renderEixos(artigo.eixos) : ''}
+      ${artigo.transversais ? renderTransversais(artigo.transversais) : ''}
       ${artigo.representantes ? renderCouncilCards(artigo.representantes) : ''}
       ${artigo.extra ? `<div class="article-extra">${artigo.extra}</div>` : ''}
     </div>
@@ -251,6 +253,44 @@ function renderCouncilCards(representantes) {
       Os nomes dos representantes serão anunciados em breve pelo Conselho.
     </div>
     <div class="council-grid">
+      ${cards}
+    </div>
+  `;
+}
+
+function renderEixos(eixos) {
+  const cards = eixos.lista.map(e => `
+    <div class="eixo-card">
+      <div class="eixo-icon">${e.icone}</div>
+      <div class="eixo-nome">${e.nome}</div>
+      <div class="eixo-desc">${e.descricao}</div>
+    </div>
+  `).join('');
+
+  return `
+    <h3 class="section-divider">${eixos.titulo}</h3>
+    <p class="section-intro">${eixos.subtitulo}</p>
+    <div class="eixos-grid">
+      ${cards}
+    </div>
+  `;
+}
+
+function renderTransversais(t) {
+  const cards = t.lista.map(e => `
+    <div class="transversal-card">
+      <div class="transversal-icon">${e.icone}</div>
+      <div class="transversal-info">
+        <div class="transversal-nome">${e.nome}</div>
+        <div class="transversal-desc">${e.descricao}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <h3 class="section-divider">${t.titulo}</h3>
+    <p class="section-intro">${t.subtitulo}</p>
+    <div class="transversais-grid">
       ${cards}
     </div>
   `;
