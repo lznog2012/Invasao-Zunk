@@ -2175,3 +2175,37 @@ h1, h2, h3, h4 {
     letter-spacing: 2px;
   }
 }
+
+/* ============================================
+   AJUSTE — Título do bloco dos representantes
+   ============================================ */
+.council-highlight {
+  margin-top: 45px !important;   /* espaço pro título não bater na borda */
+  padding-top: 35px !important;
+}
+
+.council-highlight::before {
+  content: '⚜️ OS SEIS REPRESENTANTES ⚜️' !important;
+  top: -18px !important;
+  padding: 8px 28px !important;
+  font-size: 0.8em !important;
+  letter-spacing: 3px !important;
+  background: #020a05 !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 0 0 3px #020a05,
+    0 0 15px rgba(255, 204, 0, 0.4) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* Mobile: diminui o título pra caber */
+@media (max-width: 700px) {
+  .council-highlight::before {
+    content: '⚜️ REPRESENTANTES ⚜️' !important;
+    font-size: 0.7em !important;
+    letter-spacing: 2px !important;
+    padding: 6px 18px !important;
+    top: -15px !important;
+  }
+}
