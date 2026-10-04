@@ -1,3 +1,7 @@
+/* ============================================
+   BIBLIOTECA DE RIMKANDRIA — Estilos
+   ============================================ */
+
 :root {
   --matrix-green: #00ff66;
   --matrix-dark-green: #003311;
@@ -6,7 +10,10 @@
   --alert-red: #ff3366;
   --gold-yellow: #ffcc00;
   --ghost-purple: #aa66ff;
-  --codex-bg: #020508;
+  --book-orange: #ff8800;
+
+  --shadow-green: 0 0 20px rgba(0, 255, 102, 0.15);
+  --shadow-strong: 0 0 30px rgba(0, 255, 102, 0.4);
 }
 
 * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
@@ -32,31 +39,17 @@ body::after {
 h1, h2, h3, h4 {
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px var(--matrix-green);
   color: var(--matrix-green);
-  margin: 20px 0 10px;
+  margin: 0;
 }
 
-h1 { font-size: 2.2em; }
-h2 { font-size: 1.6em; border-bottom: 1px solid rgba(0,255,102,0.3); padding-bottom: 10px; margin-top: 40px; }
-h3 { font-size: 1.15em; color: var(--cyan-glow); text-shadow: 0 0 8px var(--cyan-glow); margin-top: 25px; }
-h4 { font-size: 0.95em; color: var(--gold-yellow); text-shadow: 0 0 6px var(--gold-yellow); }
-
-p { margin: 12px 0; color: #b8ddc8; }
-strong { color: var(--matrix-green); }
-em { color: var(--cyan-glow); font-style: italic; }
-
-a { color: var(--cyan-glow); text-decoration: none; }
-a:hover { color: var(--matrix-green); text-decoration: underline; }
-
-ul { padding-left: 20px; }
-li { margin: 6px 0; color: #b8ddc8; }
-li::marker { color: var(--matrix-green); }
-
-/* BOTÃO VOLTAR */
+/* ============================================
+   BOTÃO GLOBAL VOLTAR
+   ============================================ */
 .back-btn {
   position: fixed;
   top: 15px; left: 15px;
+  z-index: 1001;
   background: #002211;
   border: 1px solid var(--matrix-green);
   color: var(--matrix-green);
@@ -64,31 +57,52 @@ li::marker { color: var(--matrix-green); }
   border-radius: 5px;
   font-size: 0.85em;
   font-weight: bold;
-  z-index: 1001;
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-family: inherit;
 }
-.back-btn:hover { background: var(--matrix-green); color: #000; text-decoration: none; }
+.back-btn:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
 
-/* CONTAINER */
-.container {
+/* ============================================
+   WRAPPER + SISTEMA DE VIEWS
+   ============================================ */
+.codex-wrapper {
   width: 100%;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 60px 20px 40px;
+  padding: 60px 15px 40px;
   position: relative;
   z-index: 1;
 }
 
-/* HEADER DO CÓDICE */
+.view {
+  display: none;
+  animation: viewIn 0.5s ease;
+}
+.view.active { display: block; }
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   HEADER DO CODEX
+   ============================================ */
 .codex-header {
   text-align: center;
-  padding: 30px 20px;
+  padding: 30px 20px 25px;
   border: 2px solid var(--matrix-green);
   border-radius: 12px;
   background: var(--card-bg);
-  box-shadow: 0 0 40px rgba(0,255,102,0.2), inset 0 0 60px rgba(0,255,102,0.05);
-  margin-bottom: 30px;
+  box-shadow: 0 0 40px rgba(0,255,102,0.15), inset 0 0 60px rgba(0,255,102,0.03);
+  margin-bottom: 25px;
   position: relative;
   overflow: hidden;
 }
@@ -104,13 +118,13 @@ li::marker { color: var(--matrix-green); }
 .codex-header::before { top: 10px; left: 10px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
 .codex-header::after { bottom: 10px; right: 10px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
 
-.codex-emblem-img {
-  width: 130px;
-  height: 130px;
-  margin: 0 auto 15px;
-  display: block;
-  filter: drop-shadow(0 0 20px rgba(255,204,0,0.5));
-  animation: emblemPulse 4s ease-in-out infinite;
+.codex-emblem {
+  font-size: 3em;
+  color: var(--gold-yellow);
+  text-shadow: 0 0 20px var(--gold-yellow), 0 0 40px rgba(255,204,0,0.5);
+  line-height: 1;
+  margin-bottom: 12px;
+  animation: emblemPulse 3s ease-in-out infinite;
 }
 @keyframes emblemPulse {
   0%, 100% { transform: scale(1); filter: brightness(1); }
@@ -118,360 +132,357 @@ li::marker { color: var(--matrix-green); }
 }
 
 .codex-header h1 {
-  font-size: 2.4em;
-  margin: 10px 0;
+  font-size: 2.2em;
   color: var(--gold-yellow);
   text-shadow: 0 0 20px var(--gold-yellow);
+  margin: 10px 0;
+  letter-spacing: 5px;
 }
 
 .codex-header .subtitle {
   color: var(--cyan-glow);
-  letter-spacing: 3px;
-  font-size: 0.85em;
-  margin: 5px 0;
+  letter-spacing: 4px;
+  font-size: 0.8em;
+  margin: 8px 0;
   text-shadow: 0 0 8px var(--cyan-glow);
 }
 
 .codex-header .meta {
   color: #88aa99;
-  font-size: 0.8em;
+  font-size: 0.75em;
   font-style: italic;
   margin-top: 15px;
-}
-
-/* ÍNDICE */
-.toc {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  padding: 15px;
-  border: 1px dashed rgba(0,255,255,0.3);
-  border-radius: 8px;
-  background: rgba(0,15,20,0.5);
-  margin-bottom: 40px;
-}
-
-.toc a {
-  padding: 6px 12px;
-  border: 1px solid rgba(0,255,255,0.3);
-  border-radius: 4px;
-  font-size: 0.8em;
-  transition: all 0.2s;
-  text-transform: uppercase;
   letter-spacing: 1px;
 }
-.toc a:hover {
-  background: var(--cyan-glow);
-  color: #000;
-  border-color: var(--cyan-glow);
-  text-decoration: none;
-  box-shadow: 0 0 15px var(--cyan-glow);
+
+/* ============================================
+   INTRO (CITAÇÃO)
+   ============================================ */
+.shelf-intro {
+  text-align: center;
+  padding: 15px 20px;
+  margin-bottom: 35px;
 }
 
-/* CAPÍTULOS */
-.chapter {
-  background: var(--card-bg);
-  border: 1px solid rgba(0,255,102,0.4);
-  border-radius: 10px;
-  padding: 25px 30px;
-  margin-bottom: 25px;
-  box-shadow: 0 0 20px rgba(0,255,102,0.08);
-  animation: chapterIn 0.5s ease backwards;
+.intro-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
 }
 
-@keyframes chapterIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.chapter-number {
-  font-size: 0.75em;
+.intro-quote {
+  font-size: 1.1em;
   color: var(--gold-yellow);
-  letter-spacing: 4px;
-  text-shadow: 0 0 8px var(--gold-yellow);
-  margin-bottom: 5px;
+  font-style: italic;
+  text-shadow: 0 0 10px rgba(255,204,0,0.4);
+  letter-spacing: 1px;
 }
 
-/* PLANETAS */
-.planet-card {
-  background: rgba(0, 10, 15, 0.6);
-  border: 2px solid var(--planet-color);
-  border-radius: 10px;
-  padding: 20px 25px;
-  margin: 20px 0;
+.intro-author {
+  font-size: 0.75em;
+  color: #88aa99;
+  letter-spacing: 2px;
+}
+
+/* ============================================
+   ESTANTE (GRID DE LIVROS)
+   ============================================ */
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+  padding: 0 5px;
+}
+
+/* ============================================
+   CARD-LIVRO
+   ============================================ */
+.book-card {
+  display: flex;
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a150a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
-  box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.3);
-  transition: all 0.3s;
+  min-height: 220px;
+  border: 1px solid rgba(0,255,102,0.15);
 }
 
-.planet-card:hover {
-  box-shadow: 0 0 30px var(--planet-color), inset 0 0 40px rgba(0,0,0,0.3);
-  transform: translateY(-2px);
+.book-card:hover {
+  transform: translateY(-6px) rotateY(-3deg);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7), 0 0 25px var(--book-color, var(--matrix-green));
 }
 
-.planet-header {
+/* Lombada (faixa esquerda) */
+.book-spine {
+  width: 55px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg,
+    var(--book-color, var(--matrix-green)) 0%,
+    rgba(0,0,0,0.8) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-right: 2px solid #000;
+  position: relative;
+}
+
+.book-spine::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  width: 2px;
+  background: rgba(0,0,0,0.6);
+}
+
+.spine-icon {
+  font-size: 1.5em;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.8));
+}
+
+.spine-range {
+  font-size: 0.65em;
+  font-weight: bold;
+  color: #000;
+  letter-spacing: 1px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  opacity: 0.8;
+}
+
+/* Capa (área principal) */
+.book-cover {
+  flex: 1;
+  padding: 22px 22px 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #0a150a 0%, #050a05 100%);
+  position: relative;
+}
+
+/* Efeito "páginas" em L (linhas decorativas) */
+.book-cover::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 85%;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0,255,102,0.3) 0px,
+    rgba(0,255,102,0.3) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border-top: 1px solid rgba(0,255,102,0.2);
+}
+
+.book-cover h3 {
+  font-size: 1.1em;
+  color: var(--book-color, var(--matrix-green));
+  text-shadow: 0 0 10px var(--book-color, var(--matrix-green));
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+
+.book-subtitle {
+  font-size: 0.75em;
+  color: var(--cyan-glow);
+  letter-spacing: 2px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.book-desc {
+  font-size: 0.8em;
+  color: #aaccaa;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.book-cta {
+  margin-top: 15px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: var(--book-color, var(--matrix-green));
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.book-card:hover .book-cta {
+  color: #fff;
+  text-shadow: 0 0 10px var(--book-color, var(--matrix-green));
+}
+
+.book-tag {
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  opacity: 0.8;
+}
+
+/* ============================================
+   CORES DOS LIVROS (por seção)
+   ============================================ */
+.book-card[data-color="gold"]   { --book-color: var(--gold-yellow); }
+.book-card[data-color="green"]  { --book-color: var(--matrix-green); }
+.book-card[data-color="cyan"]   { --book-color: var(--cyan-glow); }
+.book-card[data-color="orange"] { --book-color: var(--book-orange); }
+
+/* ============================================
+   SEÇÃO COFRE (ARQUIVO ZUNK)
+   ============================================ */
+.vault-section {
+  margin-top: 45px;
+  padding-top: 15px;
+}
+
+.vault-divider {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  opacity: 0.8;
 }
 
-.planet-header h3 {
-  margin: 0;
-  color: var(--planet-color);
-  text-shadow: 0 0 10px var(--planet-color);
-  font-size: 1.3em;
+.vault-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--alert-red), transparent);
 }
 
-.planet-epithet {
-  margin: 2px 0 0 0;
-  font-size: 0.8em;
-  color: #88aa99;
-  font-style: italic;
-  letter-spacing: 2px;
+.vault-label {
+  font-size: 0.75em;
+  color: var(--alert-red);
+  letter-spacing: 3px;
+  font-weight: bold;
+  text-shadow: 0 0 10px var(--alert-red);
+  white-space: nowrap;
 }
 
-.planet-meta {
-  font-size: 0.8em;
-  color: #aabbcc;
-  padding: 8px 12px;
-  background: rgba(0,0,0,0.3);
-  border-left: 3px solid var(--planet-color);
-  border-radius: 4px;
-  margin: 10px 0;
-}
-.planet-meta b { color: var(--cyan-glow); }
-
-.planet-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 15px 0;
-}
-
-@media (max-width: 550px) {
-  .planet-columns { grid-template-columns: 1fr; gap: 10px; }
-}
-
-.planet-columns > div {
-  background: rgba(0,15,10,0.5);
-  border: 1px solid rgba(0,255,102,0.2);
-  border-radius: 6px;
-  padding: 12px 15px;
-}
-
-.planet-columns h4 {
-  margin: 0 0 8px 0;
-  font-size: 0.85em;
-  letter-spacing: 2px;
-}
-
-.planet-columns ul {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 0.85em;
-}
-.planet-columns li { margin: 4px 0; }
-
-.planet-warning {
-  background: rgba(60, 10, 10, 0.4);
-  border-left: 3px solid var(--alert-red);
-  padding: 10px 15px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  color: #ffbbcc;
-  margin-top: 12px;
-}
-
-.planet-clean {
-  background: rgba(0, 40, 30, 0.5);
-  border-left: 3px solid var(--matrix-green);
-  padding: 10px 15px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  color: #aaffcc;
-  margin-top: 12px;
-}
-
-/* TABELA */
-.codex-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 0.9em;
-  background: rgba(0,10,15,0.6);
-  border: 1px solid rgba(0,255,102,0.3);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.codex-table thead {
-  background: rgba(0,50,30,0.7);
-}
-
-.codex-table th {
-  padding: 12px;
-  text-align: left;
-  color: var(--cyan-glow);
-  text-shadow: 0 0 6px var(--cyan-glow);
-  letter-spacing: 1px;
-  font-size: 0.85em;
-  border-bottom: 2px solid rgba(0,255,102,0.4);
-}
-
-.codex-table td {
-  padding: 10px 12px;
-  color: #b8ddc8;
-  border-bottom: 1px solid rgba(0,255,102,0.15);
-}
-
-.codex-table tbody tr:last-child td { border-bottom: none; }
-.codex-table tbody tr:hover { background: rgba(0,50,30,0.3); }
-
-/* CAIXA DE DESTAQUE */
-.highlight-box {
-  background: rgba(0, 30, 30, 0.6);
-  border: 1px solid var(--cyan-glow);
-  border-radius: 8px;
-  padding: 15px 20px;
-  margin: 20px 0;
-  box-shadow: inset 0 0 30px rgba(0,255,255,0.1), 0 0 20px rgba(0,255,255,0.15);
-}
-.highlight-box h4 { margin-top: 0; }
-.highlight-box ul { margin-bottom: 0; }
-
-/* CITAÇÃO */
-.codex-quote {
-  background: linear-gradient(135deg, rgba(30,20,0,0.6), rgba(40,30,0,0.4));
-  border-left: 4px solid var(--gold-yellow);
-  padding: 20px 25px;
-  margin: 25px 0;
-  border-radius: 6px;
-  font-style: italic;
-  box-shadow: 0 0 25px rgba(255,204,0,0.15);
-  position: relative;
-}
-
-.codex-quote::before {
-  content: '"';
-  position: absolute;
-  top: -10px;
-  left: 10px;
-  font-size: 4em;
-  color: var(--gold-yellow);
-  opacity: 0.3;
-  font-family: Georgia, serif;
-}
-
-.codex-quote p {
-  color: #ffeebb;
-  font-size: 1em;
-  line-height: 1.9;
-  margin: 0 0 10px 0;
-}
-
-.codex-quote cite {
-  display: block;
-  text-align: right;
-  color: var(--gold-yellow);
-  font-size: 0.8em;
-  letter-spacing: 2px;
-  margin-top: 10px;
-}
-
-/* ZUNKS */
-.zunk-card {
-  background: rgba(20, 0, 30, 0.5);
-  border: 2px solid var(--zunk-color);
+.vault-card {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 25px 30px;
+  background: linear-gradient(135deg, rgba(40,0,10,0.7), rgba(20,0,5,0.9));
+  border: 2px solid var(--alert-red);
   border-radius: 10px;
-  padding: 20px 25px;
-  margin: 20px 0;
-  box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: all 0.35s;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 0 30px rgba(255,51,102,0.2), inset 0 0 40px rgba(0,0,0,0.5);
 }
 
-.zunk-card::before {
-  content: '';
+.vault-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 50px rgba(255,51,102,0.5), inset 0 0 40px rgba(0,0,0,0.5);
+}
+
+.vault-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, var(--zunk-color) 0%, transparent 60%);
-  opacity: 0.08;
+  background: radial-gradient(circle at 30% 50%, rgba(255,51,102,0.15) 0%, transparent 60%);
   pointer-events: none;
+  animation: vaultGlowPulse 3s ease-in-out infinite;
 }
 
-.zunk-card h3 {
-  color: var(--zunk-color);
-  text-shadow: 0 0 10px var(--zunk-color);
-  margin-top: 0;
-  position: relative;
+@keyframes vaultGlowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
-.zunk-card .planet-meta { border-left-color: var(--zunk-color); }
-
-/* JOGOS */
-.game-card {
-  background: rgba(0, 20, 10, 0.5);
-  border: 1px solid var(--matrix-green);
-  border-radius: 8px;
-  padding: 18px 22px;
-  margin: 18px 0;
-  box-shadow: 0 0 20px rgba(0,255,102,0.15);
+.vault-icon {
+  font-size: 2.5em;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 12px var(--alert-red));
+  animation: vaultIconPulse 2s ease-in-out infinite;
 }
 
-.game-card h3 {
-  margin-top: 0;
-  color: var(--matrix-green);
+@keyframes vaultIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-/* STATS */
-.stats-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
-  margin: 25px 0;
+.vault-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.stats-list li {
-  text-align: center;
-  padding: 15px;
-  background: rgba(0,15,10,0.6);
-  border: 1px solid rgba(0,255,102,0.3);
-  border-radius: 8px;
-}
-
-.stats-list span {
-  display: block;
-  font-size: 2em;
-  color: var(--gold-yellow);
-  text-shadow: 0 0 15px var(--gold-yellow);
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-/* UTILITÁRIOS */
-.centered { text-align: center; }
-
-.final-line {
+.vault-content h3 {
+  color: var(--alert-red);
+  text-shadow: 0 0 12px var(--alert-red);
   font-size: 1.2em;
-  color: var(--gold-yellow);
-  text-shadow: 0 0 15px var(--gold-yellow);
-  line-height: 2;
-  margin-top: 30px;
-  padding: 20px;
-  border-top: 1px solid rgba(255,204,0,0.3);
-  border-bottom: 1px solid rgba(255,204,0,0.3);
+  margin-bottom: 6px;
+  letter-spacing: 3px;
 }
 
-/* RODAPÉ */
+.vault-warning {
+  font-size: 0.7em;
+  color: #ff8899;
+  letter-spacing: 2px;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.vault-desc {
+  font-size: 0.85em;
+  color: #ddbbcc;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.vault-range {
+  font-size: 0.7em;
+  color: #888;
+  letter-spacing: 2px;
+  font-family: inherit;
+}
+
+.vault-action {
+  font-size: 0.8em;
+  font-weight: bold;
+  color: var(--alert-red);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  padding: 10px 18px;
+  border: 1px solid var(--alert-red);
+  border-radius: 4px;
+  background: rgba(0,0,0,0.3);
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.vault-card:hover .vault-action {
+  background: var(--alert-red);
+  color: #fff;
+  box-shadow: 0 0 20px var(--alert-red);
+}
+
+/* ============================================
+   RODAPÉ
+   ============================================ */
 .codex-footer {
   text-align: center;
   padding: 30px 20px;
-  margin-top: 40px;
-  border-top: 2px solid rgba(0,255,102,0.3);
+  margin-top: 50px;
+  border-top: 2px solid rgba(0,255,102,0.2);
   color: var(--matrix-green);
   font-size: 0.85em;
   letter-spacing: 2px;
@@ -482,171 +493,472 @@ li::marker { color: var(--matrix-green); }
   font-size: 0.75em;
   font-style: italic;
   letter-spacing: 1px;
-}
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #001108; }
-::-webkit-scrollbar-thumb { background: #004422; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--matrix-green); }
-
-/* RESPONSIVO */
-@media (max-width: 700px) {
-  .container { padding: 55px 10px 20px; }
-  .codex-header h1 { font-size: 1.5em; }
-  .codex-header .subtitle { font-size: 0.7em; }
-  .codex-emblem { font-size: 2em; }
-  .chapter { padding: 18px 18px; }
-  h2 { font-size: 1.3em; }
-  .toc a { font-size: 0.7em; padding: 4px 8px; }
-  .final-line { font-size: 1em; padding: 15px; }
-  .back-btn { font-size: 0.7em; padding: 6px 10px; }
+  margin-top: 5px;
 }
 
 /* ============================================
-   ZUNK CARDS — Header com miniatura do planeta
+   VIEW 2 — LEITURA DE ARTIGOS
    ============================================ */
-.zunk-header {
+.article-topbar {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 15px;
-  position: relative;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 15px 20px;
+  background: var(--card-bg);
+  border: 1px solid rgba(0,255,102,0.3);
+  border-radius: 8px;
+  margin-bottom: 25px;
 }
 
-.zunk-planet-thumb {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--zunk-color);
-  box-shadow:
-    0 0 15px var(--zunk-color),
-    0 0 30px rgba(0,0,0,0.5),
-    inset 0 0 20px rgba(0,0,0,0.4);
-  background: #000;
-  animation: zunkPlanetPulse 3s ease-in-out infinite;
-  transition: transform 0.3s;
-}
-
-.zunk-planet-thumb:hover {
-  transform: scale(1.1) rotate(-3deg);
-}
-
-@keyframes zunkPlanetPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 15px var(--zunk-color),
-      0 0 30px rgba(0,0,0,0.5),
-      inset 0 0 20px rgba(0,0,0,0.4);
-  }
-  50% {
-    box-shadow:
-      0 0 25px var(--zunk-color),
-      0 0 45px var(--zunk-color),
-      inset 0 0 20px rgba(0,0,0,0.4);
-  }
-}
-
-.zunk-header > div {
-  flex: 1;
-  min-width: 0;
-}
-
-.zunk-header h3 {
-  margin: 0 0 6px 0;
-  font-size: 1.15em;
-}
-
-.zunk-header .planet-meta {
-  margin: 0;
-  font-size: 0.75em;
-  padding: 6px 10px;
-  background: rgba(0,0,0,0.3);
-  border-left: 3px solid var(--zunk-color);
+.article-back {
+  background: transparent;
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  padding: 8px 16px;
   border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8em;
+  transition: all 0.2s;
 }
 
-/* Responsivo: em telas pequenas, empilha */
-@media (max-width: 550px) {
-  .zunk-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .zunk-planet-thumb {
-    width: 65px;
-    height: 65px;
-  }
-  .zunk-header h3 {
-    font-size: 1em;
-  }
+.article-back:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.article-breadcrumb {
+  font-size: 0.8em;
+  color: var(--cyan-glow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.codex-article {
+  background: var(--card-bg);
+  border: 1px solid rgba(0,255,102,0.3);
+  border-radius: 10px;
+  padding: 40px 45px;
+  box-shadow: 0 0 30px rgba(0,255,102,0.1);
+  min-height: 400px;
+}
+
+.codex-article header {
+  border-bottom: 2px solid rgba(0,255,102,0.3);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.archive-number {
+  display: inline-block;
+  font-size: 0.75em;
+  color: var(--gold-yellow);
+  letter-spacing: 4px;
+  font-weight: bold;
+  padding: 4px 12px;
+  border: 1px solid var(--gold-yellow);
+  border-radius: 3px;
+  margin-bottom: 15px;
+  background: rgba(255,204,0,0.05);
+}
+
+.codex-article h1 {
+  font-size: 2em;
+  color: var(--matrix-green);
+  text-shadow: 0 0 15px var(--matrix-green);
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+}
+
+.codex-article .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 0.75em;
+  color: #88aa99;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+.article-body {
+  font-size: 1em;
+  color: #b8ddc8;
+  line-height: 1.9;
+}
+
+.article-body p {
+  margin: 15px 0;
+}
+
+.article-body h3 {
+  font-size: 1.05em;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px var(--cyan-glow);
+  margin: 30px 0 12px 0;
+  letter-spacing: 2px;
+}
+
+.article-body strong { color: var(--matrix-green); }
+.article-body em { color: var(--cyan-glow); font-style: italic; }
+
+.article-body blockquote {
+  border-left: 4px solid var(--gold-yellow);
+  background: rgba(30,25,0,0.4);
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+  font-style: italic;
+  color: #ffeebb;
+}
+
+.article-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,255,102,0.2);
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.article-nav-btn {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 18px;
+  background: rgba(0,20,10,0.5);
+  border: 1px solid rgba(0,255,102,0.3);
+  border-radius: 6px;
+  color: var(--matrix-green);
+  text-decoration: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: inherit;
+  text-align: center;
+}
+
+.article-nav-btn:hover:not(:disabled) {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.article-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 /* ============================================
-   PLANET THUMBS (aliados)
+   VIEW 3 — SISTEMA SOLAR
    ============================================ */
-.planet-thumb {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
+.solar-system-container {
+  text-align: center;
+  padding: 25px 15px;
+  background: var(--card-bg);
+  border: 1px solid rgba(0,255,102,0.3);
+  border-radius: 10px;
+  min-height: 600px;
+  box-shadow: 0 0 30px rgba(0,255,102,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.solar-title {
+  font-size: 1.6em;
+  color: var(--gold-yellow);
+  text-shadow: 0 0 15px var(--gold-yellow);
+  letter-spacing: 5px;
+  margin-bottom: 8px;
+}
+
+.solar-subtitle {
+  font-size: 0.85em;
+  color: var(--cyan-glow);
+  letter-spacing: 2px;
+  margin: 0 0 20px 0;
+}
+
+.solar-system {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 1;
+  margin: 20px auto;
+}
+
+.sun {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60px; height: 60px;
+  margin: -30px 0 0 -30px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--planet-color);
-  box-shadow:
-    0 0 15px var(--planet-color),
-    0 0 30px rgba(0,0,0,0.5),
-    inset 0 0 20px rgba(0,0,0,0.4);
+  background: radial-gradient(circle, #fff5cc 0%, #ffcc00 40%, #cc7700 100%);
+  box-shadow: 0 0 40px #ffcc00, 0 0 80px rgba(255,204,0,0.5);
+  animation: sunPulse 3s ease-in-out infinite;
+  z-index: 5;
+}
+
+@keyframes sunPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  border: 1px dashed rgba(0,255,102,0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: orbitSpin linear infinite;
+  pointer-events: none;
+}
+
+@keyframes orbitSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.planet-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.planet-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--planet-color);
   background: #000;
-  animation: planetThumbPulse 3s ease-in-out infinite;
-  transition: transform 0.3s;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 20px var(--planet-color);
+  transition: all 0.3s;
+  position: relative;
+  animation: counterSpin linear infinite;
 }
 
-.planet-thumb:hover {
-  transform: scale(1.1) rotate(-3deg);
+@keyframes counterSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
 }
 
-@keyframes planetThumbPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 15px var(--planet-color),
-      0 0 30px rgba(0,0,0,0.5),
-      inset 0 0 20px rgba(0,0,0,0.4);
-  }
-  50% {
-    box-shadow:
-      0 0 25px var(--planet-color),
-      0 0 45px var(--planet-color),
-      inset 0 0 20px rgba(0,0,0,0.4);
-  }
+.planet-btn:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 35px var(--planet-color), 0 0 60px var(--planet-color);
 }
 
-@media (max-width: 550px) {
-  .planet-thumb {
-    width: 65px;
-    height: 65px;
-  }
+.planet-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  font-size: 0.7em;
+  color: var(--planet-color);
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px var(--planet-color);
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ============================================
-   BOTÕES FIXOS — LORE (posicionamento padronizado)
+   VIEW 4 — AVISO DO COFRE
    ============================================ */
-
-.back-btn {
-  position: fixed !important;
-  top: 15px !important;
-  left: 15px !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: 1001;
+.vault-warning-screen {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 40px 35px;
+  background: linear-gradient(135deg, rgba(40,0,10,0.9), rgba(20,0,5,0.95));
+  border: 2px solid var(--alert-red);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(255,51,102,0.3), inset 0 0 60px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
 }
 
-@media (max-width: 550px) {
-  .back-btn {
-    top: 10px !important;
-    left: 10px !important;
-    font-size: 0.65em !important;
-    padding: 6px 9px !important;
+.vault-warning-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255,51,102,0.05) 0, rgba(255,51,102,0.05) 2px, transparent 2px, transparent 6px);
+  pointer-events: none;
+}
+
+.warning-glitch {
+  font-size: 4em;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 0 15px var(--alert-red));
+  animation: warningShake 0.6s ease-in-out infinite;
+}
+
+@keyframes warningShake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  75% { transform: translate(3px, -2px); }
+}
+
+.vault-warning-screen h1 {
+  color: var(--alert-red);
+  text-shadow: 0 0 20px var(--alert-red);
+  font-size: 1.8em;
+  letter-spacing: 5px;
+  margin-bottom: 20px;
+}
+
+.warning-line {
+  color: var(--alert-red);
+  opacity: 0.5;
+  letter-spacing: 3px;
+  font-size: 0.9em;
+  margin: 15px 0;
+}
+
+.warning-text {
+  color: #ffbbcc;
+  font-size: 0.9em;
+  line-height: 1.7;
+  margin: 15px 0;
+  letter-spacing: 1px;
+}
+
+.warning-text strong {
+  color: var(--alert-red);
+  text-shadow: 0 0 8px var(--alert-red);
+}
+
+.warning-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.warning-cancel,
+.warning-accept {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: 1px solid;
+}
+
+.warning-cancel {
+  background: transparent;
+  border-color: #666;
+  color: #888;
+}
+.warning-cancel:hover {
+  border-color: #999;
+  color: #ccc;
+}
+
+.warning-accept {
+  background: var(--alert-red);
+  border-color: var(--alert-red);
+  color: #fff;
+}
+.warning-accept:hover {
+  background: #ff5577;
+  box-shadow: 0 0 20px var(--alert-red);
+}
+
+/* ============================================
+   VIEW 5 — ARTIGOS DO COFRE (ZUNK)
+   ============================================ */
+.vault-article {
+  background: linear-gradient(135deg, rgba(25,0,10,0.85), rgba(10,0,5,0.95));
+  border-color: rgba(255,51,102,0.4);
+  box-shadow: 0 0 30px rgba(255,51,102,0.15);
+}
+
+.vault-article .archive-number {
+  color: var(--alert-red);
+  border-color: var(--alert-red);
+  background: rgba(255,51,102,0.08);
+}
+
+.vault-article h1 {
+  color: var(--alert-red);
+  text-shadow: 0 0 15px var(--alert-red);
+}
+
+.vault-article .article-body {
+  color: #ddbbcc;
+}
+
+.vault-article .article-body strong { color: var(--alert-red); }
+.vault-article .article-body em { color: #ffaacc; }
+
+.censored {
+  background: #000;
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 2px;
+  user-select: none;
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+@media (max-width: 700px) {
+  .codex-header h1 { font-size: 1.5em; letter-spacing: 3px; }
+  .codex-header .subtitle { font-size: 0.7em; letter-spacing: 2px; }
+  .codex-emblem { font-size: 2.2em; }
+
+  .shelf { grid-template-columns: 1fr; gap: 18px; }
+
+  .book-spine { width: 42px; }
+  .spine-icon { font-size: 1.2em; }
+  .book-cover { padding: 18px; }
+  .book-cover h3 { font-size: 0.95em; }
+
+  .codex-article { padding: 25px 20px; }
+  .codex-article h1 { font-size: 1.4em; letter-spacing: 2px; }
+  .article-body { font-size: 0.95em; }
+
+  .article-topbar { flex-direction: column; align-items: stretch; text-align: center; }
+  .article-back { width: 100%; }
+
+  .vault-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
   }
+  .vault-action { width: 100%; text-align: center; }
+
+  .vault-warning-screen { padding: 25px 20px; margin: 20px 10px; }
+  .vault-warning-screen h1 { font-size: 1.3em; }
+  .warning-glitch { font-size: 3em; }
+
+  .solar-system { max-width: 100%; }
+  .planet-btn { width: 55px; height: 55px; }
+  .sun { width: 45px; height: 45px; margin: -22px 0 0 -22px; }
+}
+
+@media (max-width: 400px) {
+  .back-btn { font-size: 0.65em; padding: 6px 9px; }
+  .codex-header { padding: 20px 12px; }
+  .intro-quote { font-size: 0.9em; }
 }
