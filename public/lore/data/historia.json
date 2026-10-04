@@ -1,0 +1,56 @@
+{
+  "secao": "historia",
+  "icone": "📖",
+  "nome": "História",
+  "range": "001-006",
+  "artigos": [
+    {
+      "numero": "001",
+      "titulo": "A Semeadura",
+      "autor": "Arquivista Rimk Lumen",
+      "data": "Ano 12 da Aliança",
+      "icone": "🌱",
+      "conteudo": "<p><em>Placeholder: aqui vai contar como os Rimks foram o primeiro povo do sistema, evoluíram rapidamente e decidiram semear vida nos outros mundos.</em></p><p>Este artigo vai abordar:</p><ul><li>A origem dos Rimks em Rimkópolis</li><li>A decisão de explorar o sistema</li><li>A descoberta de condições favoráveis à vida em outros planetas</li><li>O processo de aceleração evolutiva</li></ul>"
+    },
+    {
+      "numero": "002",
+      "titulo": "O Florescimento",
+      "autor": "Historiador Sahrin Vern",
+      "data": "Ano 210 da Semeadura",
+      "icone": "🌟",
+      "conteudo": "<p><em>Placeholder: aqui vai contar a era de ouro do sistema, quando os quatro mundos estavam prósperos e em harmonia.</em></p><p>Este artigo vai abordar:</p><ul><li>A consolidação das civilizações</li><li>O início da troca de recursos</li><li>A criação das primeiras alianças</li><li>O auge da cooperação</li></ul>"
+    },
+    {
+      "numero": "003",
+      "titulo": "A Primeira Infiltração",
+      "autor": "Analista Ferrum Korvin",
+      "data": "Ano 341 da Semeadura",
+      "icone": "👁️",
+      "conteudo": "<p><em>Placeholder: aqui vai contar sobre os Zunks chegando ao sistema pela primeira vez e começando a se infiltrar silenciosamente.</em></p><p>Este artigo vai abordar:</p><ul><li>Os primeiros sinais de algo errado</li><li>A descoberta dos metamorfos</li><li>A paranoia coletiva</li><li>Como ninguém sabia em quem confiar</li></ul>"
+    },
+    {
+      "numero": "004",
+      "titulo": "A Grande Fratura",
+      "autor": "Cronista Nereid Sylvaris",
+      "data": "Ano 389 da Semeadura",
+      "icone": "🔥",
+      "conteudo": "<p><em>Placeholder: aqui vai contar sobre as guerras que destruíram o sistema quando os mundos começaram a se acusar.</em></p><p>Este artigo vai abordar:</p><ul><li>As acusações entre os mundos</li><li>As guerras por suspeita</li><li>Os danos ambientais causados</li><li>As vidas perdidas</li></ul>"
+    },
+    {
+      "numero": "005",
+      "titulo": "O Pacto dos Quatro",
+      "autor": "Arquivista Rimk Theon",
+      "data": "Ano 1 da Aliança",
+      "icone": "✍️",
+      "conteudo": "<p><em>Placeholder: aqui vai contar sobre a assinatura do Pacto dos Quatro após os Zunks serem expurgados.</em></p><p>Este artigo vai abordar:</p><ul><li>A vitória contra os Zunks</li><li>A reunião dos líderes em Nereida</li><li>A assinatura do Pacto</li><li>O início da Era da Aliança</li></ul>"
+    },
+    {
+      "numero": "006",
+      "titulo": "A Era da Sombra",
+      "autor": "Correspondente Nereid Mira",
+      "data": "Ano 847 da Aliança (AGORA)",
+      "icone": "🌑",
+      "conteudo": "<p><em>Placeholder: aqui vai contar sobre o pânico atual. Os Zunks estão de volta e ninguém sabe como.</em></p><p>Este artigo vai abordar:</p><ul><li>Os novos sinais de infiltração</li><li>O medo coletivo</li><li>As simulações de treinamento</li><li>O futuro incerto do sistema</li></ul>"
+    }
+  ]
+}
