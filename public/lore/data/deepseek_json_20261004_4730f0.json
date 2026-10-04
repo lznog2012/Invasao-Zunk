@@ -1,0 +1,56 @@
+{
+  "secao": "ciencias",
+  "icone": "🔬",
+  "nome": "Ciências",
+  "range": "400-405",
+  "artigos": [
+    {
+      "numero": "400",
+      "titulo": "Astronomia: O Sistema Rímkar",
+      "autor": "Astrônomo Sahrin Vega",
+      "data": "Ano 412 da Aliança",
+      "icone": "🌌",
+      "conteudo": "<p><em>Placeholder: aqui vai contar sobre a estrela central, os planetas, o cinturão de asteroides e as rotas de navegação.</em></p><p>Este artigo vai abordar:</p><ul><li>A estrela central Rímkar Prime</li><li>A formação dos planetas</li><li>O cinturão de asteroides e o Kryon</li><li>Rotas de navegação e tempo de viagem</li></ul>"
+    },
+    {
+      "numero": "401",
+      "titulo": "Materiais: Kryon, Ferrum e Cristais",
+      "autor": "Geólogo Ferrum Haldor",
+      "data": "Ano 423 da Aliança",
+      "icone": "💎",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar cada material raro do sistema e suas propriedades.</em></p><p>Este artigo vai abordar:</p><ul><li>Kryon (supercondutor, vindo do cinturão)</li><li>Ligas de ferrum (resistência extrema)</li><li>Cristais de silício (componentes de IA)</li><li>Cristais vivos de Nereida</li><li>Como cada material é usado na tecnologia</li></ul>"
+    },
+    {
+      "numero": "402",
+      "titulo": "Biologia: As Raças do Sistema",
+      "autor": "Biólogo Rimk Kael",
+      "data": "Ano 501 da Aliança",
+      "icone": "🧬",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar a biologia de cada raça do sistema.</em></p><p>Este artigo vai abordar:</p><ul><li>Os Rimks (bioluminescência, bigode)</li><li>Os Sahrin (adaptação ao deserto)</li><li>Os Ferrum (força, adaptação ao calor)</li><li>Os Nereids (telepatia, olhos sem pupila)</li><li>Como os Zunks se infiltram (metamorfose)</li></ul>"
+    },
+    {
+      "numero": "403",
+      "titulo": "Tecnologia Rímkar",
+      "autor": "Engenheiro Rimk Theon",
+      "data": "Ano 588 da Aliança",
+      "icone": "⚙️",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar a tecnologia dos Rimks, a mais avançada do sistema.</em></p><p>Este artigo vai abordar:</p><ul><li>IA de navegação</li><li>Reatores de fusão</li><li>Nanotecnologia médica</li><li>Impressão molecular 3D</li><li>Por que só Rimkópolis tem esse nível tecnológico</li></ul>"
+    },
+    {
+      "numero": "404",
+      "titulo": "Atmosferas & Os Vapores Impuros",
+      "autor": "Cientista Nereid Sylvaris",
+      "data": "Ano 612 da Aliança",
+      "icone": "🌫️",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar o problema dos vapores impuros em cada planeta.</em></p><p>Este artigo vai abordar:</p><ul><li>Vapor Rimkal (Rimkópolis)</li><li>Névoa Sílica (Kaal-7)</li><li>Vapor Ferroso (Ferrum)</li><li>Por que Nereida é imune</li><li>Como isso força a interdependência dos mundos</li></ul>"
+    },
+    {
+      "numero": "405",
+      "titulo": "Medicina Interplanetária",
+      "autor": "Médica Nereid Mira",
+      "data": "Ano 701 da Aliança",
+      "icone": "💊",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar a medicina do sistema, que combina nanotecnologia rimk com cura nereid.</em></p><p>Este artigo vai abordar:</p><ul><li>Nanotecnologia médica rimk</li><li>Cura telepática nereid</li><li>Antídotos contra vapores impuros</li><li>Como cada raça trata doenças</li><li>Desafios médicos da Era da Sombra</li></ul>"
+    }
+  ]
+}
