@@ -197,112 +197,153 @@ h1, h2, h3, h4 {
 }
 
 /* ============================================
-   CARD-LIVRO
+   CARD-LIVRO (visto de cima, com páginas)
    ============================================ */
 .book-card {
-  display: flex;
+  position: relative;
   cursor: pointer;
-  border-radius: 6px;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 10px 12px 12px 10px;
+  /* espaço pras páginas aparecerem atrás */
+}
+
+/* Páginas empilhadas (ficam atrás da capa) */
+.book-pages {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 0;
+  bottom: 0;
+  background: #f5f0df;
+  border-radius: 2px 8px 8px 2px;
+  box-shadow:
+    2px 2px 0 #e5dfc8,
+    4px 4px 0 #d5cfb8,
+    6px 6px 0 #c5bfa8,
+    8px 8px 15px rgba(0,0,0,0.5);
   overflow: hidden;
-  background: #0a150a;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  min-height: 220px;
-  border: 1px solid rgba(0,255,102,0.15);
+  z-index: 1;
 }
 
-.book-card:hover {
-  transform: translateY(-6px) rotateY(-3deg);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.7), 0 0 25px var(--book-color, var(--matrix-green));
-}
-
-/* Lombada (faixa esquerda) */
-.book-spine {
-  width: 55px;
-  flex-shrink: 0;
-  background: linear-gradient(180deg,
-    var(--book-color, var(--matrix-green)) 0%,
-    rgba(0,0,0,0.8) 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 0;
-  border-right: 2px solid #000;
-  position: relative;
-}
-
-.book-spine::before {
+/* Linhas sutis nas páginas (efeito de folhas empilhadas) */
+.book-pages::before {
   content: '';
   position: absolute;
-  top: 0; bottom: 0; right: 0;
-  width: 2px;
-  background: rgba(0,0,0,0.6);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0px,
+    transparent 1px,
+    rgba(0,0,0,0.15) 1px,
+    rgba(0,0,0,0.15) 2px
+  );
+}
+
+/* Capa do livro (fica na frente, deslocada pra cima/esquerda) */
+.book-cover {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 200px;
+  border-radius: 3px 10px 10px 3px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--book-color) 25%, #0a150a) 0%,
+      color-mix(in srgb, var(--book-color) 10%, #050a05) 100%);
+  border: 2px solid var(--book-color);
+  box-shadow:
+    -3px -3px 0 rgba(0,0,0,0.4),
+    0 0 15px color-mix(in srgb, var(--book-color) 40%, transparent),
+    inset 0 0 30px rgba(0,0,0,0.4);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: left center;
+}
+
+/* Brilho da capa */
+.book-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--book-color) 15%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,0.3) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Lombada — faixa vertical na esquerda */
+.book-spine-band {
+  width: 45px;
+  flex-shrink: 0;
+  background: linear-gradient(to right,
+    color-mix(in srgb, var(--book-color) 70%, #000) 0%,
+    color-mix(in srgb, var(--book-color) 30%, #000) 60%,
+    transparent 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15px;
+  position: relative;
+  z-index: 1;
+  border-right: 2px solid rgba(0,0,0,0.5);
+  box-shadow: inset -3px 0 8px rgba(0,0,0,0.4);
 }
 
 .spine-icon {
-  font-size: 1.5em;
-  filter: drop-shadow(0 0 6px rgba(0,0,0,0.8));
+  font-size: 1.4em;
+  filter: drop-shadow(0 0 5px var(--book-color));
 }
 
-.spine-range {
-  font-size: 0.65em;
-  font-weight: bold;
-  color: #000;
-  letter-spacing: 1px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  opacity: 0.8;
-}
-
-/* Capa (área principal) */
-.book-cover {
+/* Conteúdo do livro */
+.book-content {
   flex: 1;
-  padding: 22px 22px 25px;
+  padding: 18px 20px 18px 15px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  background: linear-gradient(135deg, #0a150a 0%, #050a05 100%);
+  gap: 6px;
   position: relative;
+  z-index: 1;
+  min-width: 0;
 }
 
-/* Efeito "páginas" em L (linhas decorativas) */
-.book-cover::after {
-  content: '';
-  position: absolute;
-  bottom: 0; right: 0;
-  width: 85%;
-  height: 6px;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(0,255,102,0.3) 0px,
-    rgba(0,255,102,0.3) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-  border-top: 1px solid rgba(0,255,102,0.2);
-}
-
-.book-cover h3 {
-  font-size: 1.1em;
-  color: var(--book-color, var(--matrix-green));
-  text-shadow: 0 0 10px var(--book-color, var(--matrix-green));
-  letter-spacing: 3px;
+.book-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 4px;
 }
 
+.book-cover h3 {
+  font-size: 1em;
+  color: var(--book-color);
+  text-shadow: 0 0 10px var(--book-color);
+  letter-spacing: 3px;
+  margin: 0;
+}
+
+.book-range {
+  font-size: 0.6em;
+  color: #88aa99;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
 .book-subtitle {
-  font-size: 0.75em;
+  font-size: 0.7em;
   color: var(--cyan-glow);
   letter-spacing: 2px;
-  margin: 0 0 10px 0;
+  margin: 0;
   text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .book-desc {
-  font-size: 0.8em;
+  font-size: 0.78em;
   color: #aaccaa;
   line-height: 1.5;
   margin: 0;
@@ -310,10 +351,10 @@ h1, h2, h3, h4 {
 }
 
 .book-cta {
-  margin-top: 15px;
-  font-size: 0.8em;
+  margin-top: 12px;
+  font-size: 0.75em;
   font-weight: bold;
-  color: var(--book-color, var(--matrix-green));
+  color: var(--book-color);
   letter-spacing: 2px;
   text-transform: uppercase;
   transition: all 0.25s;
@@ -323,17 +364,67 @@ h1, h2, h3, h4 {
   gap: 10px;
 }
 
-.book-card:hover .book-cta {
-  color: #fff;
-  text-shadow: 0 0 10px var(--book-color, var(--matrix-green));
+.book-tag {
+  font-size: 0.85em;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  opacity: 0.8;
 }
 
-.book-tag {
-  font-size: 0.75em;
-  padding: 2px 8px;
-  border: 1px solid currentColor;
-  border-radius: 10px;
-  opacity: 0.8;
+/* ============================================
+   HOVER DO LIVRO — capa "abre" e sobe
+   ============================================ */
+.book-card:hover {
+  transform: translate(-4px, -4px) scale(1.02);
+}
+
+.book-card:hover .book-cover {
+  transform: rotateY(-8deg);
+  box-shadow:
+    -5px -5px 0 rgba(0,0,0,0.4),
+    0 0 30px var(--book-color),
+    inset 0 0 30px rgba(0,0,0,0.4);
+}
+
+.book-card:hover .book-cta {
+  color: #fff;
+  text-shadow: 0 0 10px var(--book-color);
+}
+
+.book-card:hover .book-pages {
+  transform: translate(2px, 2px);
+}
+
+/* ============================================
+   MOBILE
+   ============================================ */
+@media (max-width: 700px) {
+  .book-card {
+    padding: 8px 10px 10px 8px;
+  }
+
+  .book-pages {
+    top: 12px;
+    left: 16px;
+  }
+
+  .book-spine-band {
+    width: 38px;
+  }
+
+  .book-content {
+    padding: 15px 15px 15px 12px;
+  }
+
+  .book-cover h3 {
+    font-size: 0.85em;
+    letter-spacing: 2px;
+  }
+
+  .book-desc {
+    font-size: 0.72em;
+  }
 }
 
 /* ============================================
