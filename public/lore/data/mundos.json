@@ -1,0 +1,216 @@
+{
+  "secao": "mundos",
+  "icone": "🪐",
+  "nome": "Mundos & Povos",
+  "range": "100-137",
+  "planetas": [
+    {
+      "id": "rimkopolis",
+      "nome": "Rimkópolis",
+      "epiteto": "O Berço",
+      "cor": "#aaff00",
+      "imagem": "rimkopolis.png",
+      "range": "100-107",
+      "secoes": [
+        {
+          "id": "povos",
+          "icone": "👽",
+          "titulo": "Os Povos",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar os Rimks — biologia, bigode, bioluminescência, personalidade pacífica, valorização da educação.</em></p>"
+        },
+        {
+          "id": "geografia",
+          "icone": "🗺️",
+          "titulo": "Geografia",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever o planeta, continentes, cidades verticais, vegetação bioluminescente.</em></p>"
+        },
+        {
+          "id": "clima",
+          "icone": "🌦️",
+          "titulo": "Clima",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a atmosfera densa, o problema do Vapor Rimkal, e como isso afeta a vida.</em></p>"
+        },
+        {
+          "id": "politica",
+          "icone": "⚖️",
+          "titulo": "Política",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar a sociedade cooperativista, o líder trabalhador eleito por consenso.</em></p>"
+        },
+        {
+          "id": "cultura",
+          "icone": "🎭",
+          "titulo": "Cultura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a cultura rimk — curiosidade, ciência, arte, filosofia do 'semear não colonizar'.</em></p>"
+        },
+        {
+          "id": "arquitetura",
+          "icone": "🏛️",
+          "titulo": "Arquitetura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever as torres verticais, cúpulas de vidro, integração com a natureza bioluminescente.</em></p>"
+        },
+        {
+          "id": "culinaria",
+          "icone": "🍲",
+          "titulo": "Culinária",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a culinária rimk — baseada em vegetais bioluminescentes, pratos simples e nutritivos.</em></p>"
+        }
+      ]
+    },
+    {
+      "id": "kaal7",
+      "nome": "Kaal-7",
+      "epiteto": "O Deserto Dourado",
+      "cor": "#ffcc00",
+      "imagem": "kaal7.png",
+      "range": "110-117",
+      "secoes": [
+        {
+          "id": "povos",
+          "icone": "👽",
+          "titulo": "Os Povos",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar os Sahrin — corpos esguios, pele ocre, olhos adaptados ao brilho.</em></p>"
+        },
+        {
+          "id": "geografia",
+          "icone": "🗺️",
+          "titulo": "Geografia",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever o deserto infinito, as cidades subterrâneas, as cavernas de cristal.</em></p>"
+        },
+        {
+          "id": "clima",
+          "icone": "🌦️",
+          "titulo": "Clima",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever as tempestades de areia e o problema da Névoa Sílica.</em></p>"
+        },
+        {
+          "id": "politica",
+          "icone": "⚖️",
+          "titulo": "Política",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar o Conselho dos Anciãos e como funciona a escolha.</em></p>"
+        },
+        {
+          "id": "cultura",
+          "icone": "🎭",
+          "titulo": "Cultura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a cultura nômade, os rituais de passagem, a astronomia.</em></p>"
+        },
+        {
+          "id": "arquitetura",
+          "icone": "🏛️",
+          "titulo": "Arquitetura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever os túneis escavados, as cúpulas de areia compactada, as torres de observação.</em></p>"
+        },
+        {
+          "id": "culinaria",
+          "icone": "🍲",
+          "titulo": "Culinária",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a culinária sahrin — baseada em raízes do deserto, conservas e especiarias raras.</em></p>"
+        }
+      ]
+    },
+    {
+      "id": "ferrum",
+      "nome": "Ferrum",
+      "epiteto": "A Forja Vermelha",
+      "cor": "#ff3344",
+      "imagem": "ferrum.png",
+      "range": "120-127",
+      "secoes": [
+        {
+          "id": "povos",
+          "icone": "👽",
+          "titulo": "Os Povos",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar os Ferrum — guerreiros, ferreiros, pele vermelho-cobre, força física.</em></p>"
+        },
+        {
+          "id": "geografia",
+          "icone": "🗺️",
+          "titulo": "Geografia",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever as minas profundas, as forjas ancestrais, as crateras de mineração.</em></p>"
+        },
+        {
+          "id": "clima",
+          "icone": "🌦️",
+          "titulo": "Clima",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever o clima árido, os vapores ferrosos, os terremotos recentes.</em></p>"
+        },
+        {
+          "id": "politica",
+          "icone": "⚖️",
+          "titulo": "Política",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar os clãs familiares, as alianças, a honra e dívida de sangue.</em></p>"
+        },
+        {
+          "id": "cultura",
+          "icone": "🎭",
+          "titulo": "Cultura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a cultura marcial, os rituais de forja, as canções de guerra.</em></p>"
+        },
+        {
+          "id": "arquitetura",
+          "icone": "🏛️",
+          "titulo": "Arquitetura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever as cidades-fortaleza, as grandes forjas centrais, as muralhas de metal.</em></p>"
+        },
+        {
+          "id": "culinaria",
+          "icone": "🍲",
+          "titulo": "Culinária",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a culinária ferrum — carnes grelhadas em pedra vulcânica, metais comestíveis refinados.</em></p>"
+        }
+      ]
+    },
+    {
+      "id": "nereida",
+      "nome": "Nereida",
+      "epiteto": "O Coração Líquido",
+      "cor": "#00ffcc",
+      "imagem": "nereida.png",
+      "range": "130-137",
+      "secoes": [
+        {
+          "id": "povos",
+          "icone": "👽",
+          "titulo": "Os Povos",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar os Nereids — telepatas, empáticos, pele ciano, olhos sem pupila.</em></p>"
+        },
+        {
+          "id": "geografia",
+          "icone": "🗺️",
+          "titulo": "Geografia",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever o oceano global, as cidades de cristal submersas, os cristais vivos no fundo.</em></p>"
+        },
+        {
+          "id": "clima",
+          "icone": "🌦️",
+          "titulo": "Clima",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever o clima ameno, a ausência de vapores impuros, a água 100% pura.</em></p>"
+        },
+        {
+          "id": "politica",
+          "icone": "⚖️",
+          "titulo": "Política",
+          "conteudo": "<p><em>Placeholder: aqui vai detalhar a mente coletiva, os porta-vozes temporários, os cristais de memória.</em></p>"
+        },
+        {
+          "id": "cultura",
+          "icone": "🎭",
+          "titulo": "Cultura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a cultura contemplativa, os templos de memória, a filosofia da unidade.</em></p>"
+        },
+        {
+          "id": "arquitetura",
+          "icone": "🏛️",
+          "titulo": "Arquitetura",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever as cúpulas transparentes, os templos de cristal, as pontes de coral vivo.</em></p>"
+        },
+        {
+          "id": "culinaria",
+          "icone": "🍲",
+          "titulo": "Culinária",
+          "conteudo": "<p><em>Placeholder: aqui vai descrever a culinária nereid — algas bioluminescentes, corais cultivados, água pura como base.</em></p>"
+        }
+      ]
+    }
+  ]
+}
