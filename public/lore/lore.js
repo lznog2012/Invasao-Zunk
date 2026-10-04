@@ -288,42 +288,88 @@ function renderSolarSystem() {
   });
 }
 
-function openPlanet(nome) {
-  // Placeholder até a Etapa 3
+async function openPlanet(nome) {
   const container = document.getElementById('articleContent');
   const breadcrumb = document.getElementById('articleBreadcrumb');
+  if (!container) return;
+
+  container.innerHTML = '<header><h1>Carregando...</h1></header>';
+
+  // Carrega dados dos mundos
+  const data = await loadSection('mundos');
+  if (!data) {
+    container.innerHTML = '<header><h1>Erro ao carregar</h1></header>';
+    return;
+  }
+
+  // Acha o planeta (aceita nome OU id, case-insensitive)
+  const planet = data.planetas.find(p =>
+    p.nome.toLowerCase() === nome.toLowerCase() ||
+    p.id.toLowerCase() === nome.toLowerCase()
+  );
+  if (!planet) {
+    container.innerHTML = `<header><h1>Planeta não encontrado: ${nome}</h1></header>`;
+    return;
+  }
 
   if (breadcrumb) {
-    breadcrumb.innerHTML = `📚 Biblioteca › 🪐 Mundos › ${nome}`;
+    breadcrumb.innerHTML = `📚 Biblioteca › 🪐 Mundos › ${planet.nome}`;
   }
+
+  // Renderiza cada seção como um bloco
+  const secoesHTML = planet.secoes.map(s => `
+    <section class="planet-section" id="section-${s.id}">
+      <h3 class="planet-section-title">
+        <span class="planet-section-icon">${s.icone}</span>
+        ${s.titulo}
+      </h3>
+      <div class="planet-section-content">
+        ${s.conteudo}
+      </div>
+    </section>
+  `).join('');
+
+  // Menu de navegação lateral (âncoras)
+  const navHTML = planet.secoes.map(s =>
+    `<a href="#section-${s.id}" class="planet-nav-item">${s.icone} ${s.titulo}</a>`
+  ).join('');
 
   container.innerHTML = `
     <header>
-      <span class="archive-number">🪐 PLANETA</span>
-      <h1>${nome}</h1>
-      <div class="meta">
-        <span>Ficha completa em breve</span>
-      </div>
+      <span class="archive-number" style="color:${planet.cor}; border-color:${planet.cor}; background:${planet.cor}15;">
+        🪐 ${planet.range}
+      </span>
+      <h1 style="color:${planet.cor}; text-shadow: 0 0 15px ${planet.cor};">${planet.nome}</h1>
+      <p class="planet-epithet" style="color:${planet.cor};">${planet.epiteto}</p>
     </header>
-    <div class="article-body">
-      <p><em>Esta ficha será preenchida na Etapa 3.</em></p>
-      <p>Aqui vai aparecer:</p>
-      <ul style="padding-left: 20px; line-height: 2;">
-        <li>👽 <strong>Os Povos</strong> (primeira seção)</li>
-        <li>🗺️ Geografia</li>
-        <li>🌦️ Clima</li>
-        <li>⚖️ Política</li>
-        <li>🎭 Cultura</li>
-        <li>🏛️ Arquitetura</li>
-        <li>🍲 Culinária</li>
-      </ul>
+
+    <div class="planet-layout">
+      <aside class="planet-nav">
+        <div class="planet-nav-title">NAVEGAR</div>
+        ${navHTML}
+      </aside>
+
+      <div class="planet-body">
+        ${secoesHTML}
+      </div>
     </div>
+
     <footer class="article-footer">
-      <button class="article-nav-btn" onclick="showView('view-worlds', { pushHistory: false }); viewHistory = [];">← Voltar ao Sistema Solar</button>
+      <button class="article-nav-btn" onclick="backToSolarSystem()">← Voltar ao Sistema Solar</button>
     </footer>
   `;
 
   showView('view-article');
+
+  if (typeof attachSoundsLore === 'function') {
+    setTimeout(attachSoundsLore, 100);
+  }
+}
+
+// Volta pro sistema solar sem quebrar o histórico
+function backToSolarSystem() {
+  viewHistory = [];
+  showView('view-worlds', { pushHistory: false });
 }
 
 // ============================================
