@@ -962,3 +962,48 @@ h1, h2, h3, h4 {
   .codex-header { padding: 20px 12px; }
   .intro-quote { font-size: 0.9em; }
 }
+
+/* ============================================
+   BOTÃO DE SOM
+   ============================================ */
+.sound-toggle {
+  position: fixed !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 1001;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2em;
+  background: #002211;
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.sound-toggle:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.sound-toggle.muted {
+  opacity: 0.4;
+  border-color: #666;
+  color: #666;
+}
+
+@media (max-width: 550px) {
+  .sound-toggle {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 38px;
+    height: 38px;
+    font-size: 1em;
+  }
+}
