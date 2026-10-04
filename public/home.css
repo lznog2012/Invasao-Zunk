@@ -1385,3 +1385,42 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
     font-size: 0.7em;
   }
 }
+
+/* ============================================
+   BOTÕES FIXOS — HOME (posicionamento padronizado)
+   ============================================ */
+.radio-corner {
+  top: 15px !important;
+  left: 15px !important;
+}
+
+.profile-corner {
+  top: 15px !important;
+  right: 15px !important;
+}
+
+.sound-toggle {
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+@media (max-width: 550px) {
+  .radio-corner {
+    top: 10px !important;
+    left: 10px !important;
+    padding: 5px 9px 5px 6px !important;
+  }
+  .profile-corner {
+    top: 10px !important;
+    right: 10px !important;
+    padding: 5px 10px !important;
+  }
+  .sound-toggle {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
