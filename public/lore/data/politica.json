@@ -10,8 +10,24 @@
       "autor": "Arquivista Rimk Theon",
       "data": "Ano 12 da Aliança",
       "icone": "📜",
-      "conteudo": "<p><em>Placeholder: aqui vai detalhar como o Pacto funciona no dia a dia.</em></p><p>Este artigo vai abordar:</p><ul><li>O texto original do Pacto</li><li>Como as trocas funcionam entre os mundos</li><li>Consequências práticas do Pacto</li><li>O que acontece se alguém quebra o Pacto</li></ul>",
- "eixos": {
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar como o Pacto funciona no dia a dia.</em></p><p>Este artigo vai abordar:</p><ul><li>O texto original do Pacto</li><li>Como as trocas funcionam entre os mundos</li><li>Consequências práticas do Pacto</li><li>O que acontece se alguém quebra o Pacto</li></ul>"
+    },
+    {
+      "numero": "201",
+      "titulo": "A Matriz de Abastecimento",
+      "autor": "Economista Sahrin Halim",
+      "data": "Ano 87 da Aliança",
+      "icone": "🔄",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar quem fornece o que pra quem.</em></p><p>Este artigo vai abordar:</p><ul><li>Rimkópolis → Tecnologia</li><li>Kaal-7 → Cristais de silício</li><li>Ferrum → Ligas metálicas</li><li>Nereida → Água pura</li><li>Como cada mundo depende dos outros 3</li></ul>"
+    },
+    {
+      "numero": "202",
+      "titulo": "Rimkópolis: Sociedade Cooperativista",
+      "autor": "Sociólogo Rimk Vael",
+      "data": "Ano 156 da Aliança",
+      "icone": "🟢",
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar a sociedade cooperativista dos Rimks.</em></p><p>Este artigo vai abordar:</p><ul><li>Líder trabalhador eleito por consenso</li><li>Decisões coletivas</li><li>Educação universal</li><li>Zero pobreza, zero miséria</li><li>Filosofia: semear, não colonizar</li></ul>",
+      "eixos": {
         "titulo": "Os Três Ministérios de Rimkópolis",
         "subtitulo": "O modelo político rimk se organiza em três ministérios complementares. Todos são necessários para que a vida funcione.",
         "lista": [
@@ -32,21 +48,6 @@
           }
         ]
       }
-      
-      "numero": "201",
-      "titulo": "A Matriz de Abastecimento",
-      "autor": "Economista Sahrin Halim",
-      "data": "Ano 87 da Aliança",
-      "icone": "🔄",
-      "conteudo": "<p><em>Placeholder: aqui vai detalhar quem fornece o que pra quem.</em></p><p>Este artigo vai abordar:</p><ul><li>Rimkópolis → Tecnologia</li><li>Kaal-7 → Cristais de silício</li><li>Ferrum → Ligas metálicas</li><li>Nereida → Água pura</li><li>Como cada mundo depende dos outros 3</li></ul>"
-    },
-    {
-      "numero": "202",
-      "titulo": "Rimkópolis: Sociedade Cooperativista",
-      "autor": "Sociólogo Rimk Vael",
-      "data": "Ano 156 da Aliança",
-      "icone": "🟢",
-      "conteudo": "<p><em>Placeholder: aqui vai detalhar a sociedade cooperativista dos Rimks.</em></p><p>Este artigo vai abordar:</p><ul><li>Líder trabalhador eleito por consenso</li><li>Decisões coletivas</li><li>Educação universal</li><li>Zero pobreza, zero miséria</li><li>Filosofia: semear, não colonizar</li></ul>"
     },
     {
       "numero": "203",
