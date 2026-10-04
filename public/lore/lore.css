@@ -1377,3 +1377,296 @@ h1, h2, h3, h4 {
     letter-spacing: 2px;
   }
 }
+
+/* ============================================
+   ARQUIVO ZUNK — Dossiê Confidencial
+   ============================================ */
+
+/* Selo topo */
+.vault-selo {
+  text-align: center;
+  color: var(--alert-red);
+  font-size: 0.75em;
+  font-weight: bold;
+  letter-spacing: 4px;
+  padding: 8px 15px;
+  border: 1px solid var(--alert-red);
+  border-radius: 4px;
+  background: rgba(255,51,102,0.08);
+  margin-bottom: 25px;
+  animation: vaultSeloPulse 2s ease-in-out infinite;
+}
+
+@keyframes vaultSeloPulse {
+  0%, 100% { background: rgba(255,51,102,0.08); }
+  50% { background: rgba(255,51,102,0.18); }
+}
+
+/* Header do dossiê */
+.vault-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+}
+
+.vault-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7em;
+  color: #ff8899;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vault-org {
+  font-weight: bold;
+}
+
+.vault-ano {
+  color: #ffaacc;
+  font-style: italic;
+}
+
+.vault-header-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--alert-red), transparent);
+  margin: 10px 0;
+}
+
+.vault-archive-number {
+  color: var(--alert-red) !important;
+  border-color: var(--alert-red) !important;
+  background: rgba(255,51,102,0.08) !important;
+}
+
+.vault-header h1 {
+  color: var(--alert-red);
+  text-shadow: 0 0 20px var(--alert-red), 0 0 40px rgba(255,51,102,0.4);
+  font-size: 2em;
+  margin: 15px 0 8px;
+  letter-spacing: 5px;
+}
+
+.vault-subtitulo {
+  color: #ff8899;
+  font-size: 0.9em;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-style: italic;
+  margin: 5px 0;
+}
+
+/* Layout: conteúdo + foto */
+.vault-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.vault-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.vault-body {
+  color: #ddbbcc;
+  line-height: 1.9;
+  font-size: 1em;
+}
+
+.vault-body p {
+  margin: 14px 0;
+}
+
+.vault-body h3 {
+  color: var(--alert-red);
+  font-size: 1.05em;
+  letter-spacing: 3px;
+  margin: 25px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255,51,102,0.3);
+  text-shadow: 0 0 8px rgba(255,51,102,0.5);
+}
+
+.vault-body strong {
+  color: var(--alert-red);
+}
+
+.vault-body em {
+  color: #ffaacc;
+  font-style: italic;
+}
+
+/* Texto censurado */
+.censored {
+  background: #000;
+  color: #000 !important;
+  padding: 2px 8px;
+  border-radius: 2px;
+  user-select: none;
+  letter-spacing: 2px;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+/* Sidebar da direita — foto do alien */
+.vault-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vault-foto-box {
+  background: rgba(40,0,10,0.6);
+  border: 2px solid var(--alert-red);
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255,51,102,0.2), inset 0 0 30px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.vault-foto-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255,51,102,0.05) 0, rgba(255,51,102,0.05) 1px, transparent 1px, transparent 3px);
+  pointer-events: none;
+}
+
+.vault-foto {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+  filter: drop-shadow(0 0 15px var(--alert-red));
+}
+
+.vault-foto-legenda {
+  display: block;
+  font-size: 0.65em;
+  color: #ff8899;
+  letter-spacing: 2px;
+  font-weight: bold;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,51,102,0.3);
+}
+
+/* Card do planeta natal */
+.vault-planeta-box {
+  background: rgba(40,0,10,0.5);
+  border: 1px solid rgba(255,51,102,0.4);
+  border-radius: 8px;
+  padding: 15px 18px;
+}
+
+.vault-planeta-label {
+  font-size: 0.7em;
+  color: #ff8899;
+  letter-spacing: 3px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.vault-planeta-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.vault-planeta-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--alert-red);
+  box-shadow: 0 0 15px var(--alert-red);
+  flex-shrink: 0;
+}
+
+.vault-planeta-nome {
+  font-size: 1.1em;
+  color: var(--alert-red);
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(255,51,102,0.5);
+}
+
+.vault-planeta-sub {
+  font-size: 0.75em;
+  color: #ff8899;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* Botões especiais do cofre */
+.vault-nav {
+  border-color: var(--alert-red) !important;
+  color: #ff8899 !important;
+  background: rgba(40,0,10,0.5) !important;
+}
+
+.vault-nav:hover {
+  background: var(--alert-red) !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px var(--alert-red) !important;
+}
+
+/* Rodapé de página */
+.vault-rodape {
+  text-align: center;
+  color: #ff8899;
+  font-size: 0.7em;
+  letter-spacing: 4px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(255,51,102,0.3);
+  opacity: 0.7;
+}
+
+/* Responsivo */
+@media (max-width: 800px) {
+  .vault-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .vault-side {
+    order: -1;
+  }
+
+  .vault-foto {
+    max-width: 140px;
+  }
+
+  .vault-header h1 {
+    font-size: 1.4em;
+    letter-spacing: 3px;
+  }
+
+  .vault-subtitulo {
+    font-size: 0.75em;
+  }
+
+  .vault-selo {
+    font-size: 0.65em;
+    letter-spacing: 2px;
+  }
+
+  .vault-header-top {
+    font-size: 0.6em;
+  }
+
+  .vault-body h3 {
+    font-size: 0.95em;
+  }
+}
