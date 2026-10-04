@@ -1112,7 +1112,7 @@ h1, h2, h3, h4 {
 }
 
 /* ============================================
-   LISTA DE ARTIGOS (dentro da seção)
+   LISTA DE ARTIGOS
    ============================================ */
 .article-list {
   display: grid;
@@ -1192,9 +1192,6 @@ h1, h2, h3, h4 {
   text-shadow: 0 0 10px var(--cyan-glow);
 }
 
-/* ============================================
-   RODAPÉ DO ARTIGO (botões nav)
-   ============================================ */
 .article-footer {
   display: flex;
   justify-content: space-between;
