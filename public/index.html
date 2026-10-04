@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal da Aliança Rímkar</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚜️</text></svg>">
+  <link rel="stylesheet" href="portal.css">
+</head>
+<body>
+
+  <!-- TOPBAR FIXA -->
+  <div class="portal-topbar">
+    <a href="/portal/" class="topbar-brand">
+      <span class="topbar-brand-icon">⚜️</span>
+      <span>Portal da Aliança</span>
+    </a>
+    <div class="topbar-actions">
+      <a href="https://rimkradio.onrender.com/" target="_blank" rel="noopener noreferrer" class="topbar-btn">🎧 Rádio</a>
+      <div class="profile-mini" id="profileMini" onclick="openProfileModal()">
+        <div class="profile-mini-avatar" id="profileMiniAvatar">👽</div>
+        <span class="profile-mini-name" id="profileMiniName">Cidadão</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="portal-container">
+
+    <!-- HEADER -->
+    <header class="portal-header">
+      <svg class="brasao" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffee88" stop-opacity="1"/>
+            <stop offset="50%" stop-color="#ffcc00" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="rimkGlow"><stop offset="0%" stop-color="#ccff88"/><stop offset="100%" stop-color="#aaff00"/></radialGradient>
+          <radialGradient id="sahrinGlow"><stop offset="0%" stop-color="#ffee99"/><stop offset="100%" stop-color="#ffcc00"/></radialGradient>
+          <radialGradient id="nereidGlow"><stop offset="0%" stop-color="#aaffee"/><stop offset="100%" stop-color="#00ffcc"/></radialGradient>
+          <radialGradient id="ferrumGlow"><stop offset="0%" stop-color="#ff8899"/><stop offset="100%" stop-color="#ff3344"/></radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="none" stroke="#00ff66" stroke-width="1" opacity="0.5" stroke-dasharray="3 5"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#ffcc00" stroke-width="1.5" opacity="0.7"/>
+        <g opacity="0.55" stroke-width="1.2" fill="none">
+          <ellipse cx="100" cy="100" rx="80" ry="30" stroke="#aaff00" transform="rotate(0 100 100)"/>
+          <ellipse cx="100" cy="100" rx="80" ry="30" stroke="#ffcc00" transform="rotate(45 100 100)"/>
+          <ellipse cx="100" cy="100" rx="80" ry="30" stroke="#00ffcc" transform="rotate(90 100 100)"/>
+          <ellipse cx="100" cy="100" rx="80" ry="30" stroke="#ff3344" transform="rotate(135 100 100)"/>
+        </g>
+        <circle cx="180" cy="100" r="7" fill="url(#rimkGlow)"/>
+        <circle cx="156.6" cy="156.6" r="7" fill="url(#sahrinGlow)"/>
+        <circle cx="100" cy="180" r="7" fill="url(#nereidGlow)"/>
+        <circle cx="43.4" cy="156.6" r="7" fill="url(#ferrumGlow)"/>
+        <circle cx="100" cy="100" r="22" fill="url(#coreGlow)" opacity="0.6"/>
+        <circle cx="100" cy="100" r="12" fill="#ffcc00"/>
+        <circle cx="100" cy="100" r="6" fill="#fff8cc"/>
+        <line x1="100" y1="88" x2="100" y2="70" stroke="#ffcc00" stroke-width="1.5" opacity="0.7"/>
+        <line x1="100" y1="112" x2="100" y2="130" stroke="#ffcc00" stroke-width="1.5" opacity="0.7"/>
+        <line x1="88" y1="100" x2="70" y2="100" stroke="#ffcc00" stroke-width="1.5" opacity="0.7"/>
+        <line x1="112" y1="100" x2="130" y2="100" stroke="#ffcc00" stroke-width="1.5" opacity="0.7"/>
+      </svg>
+
+      <h1 class="portal-title">Portal da Aliança Rímkar</h1>
+      <div class="portal-divider"></div>
+      <p class="portal-subtitle">Registro Oficial do Sistema</p>
+      <p class="portal-era">Ano 847 · Era da Aliança Estável</p>
+    </header>
+
+    <!-- COMUNICADOS OFICIAIS -->
+    <section class="portal-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">🔔</span>
+        Comunicados Oficiais
+      </h2>
+
+      <div class="comunicado-box">
+        <div class="comunicado-icon" id="comunicadoIcon">📡</div>
+        <div class="comunicado-content" id="comunicadoContent">
+          <div class="comunicado-tipo" id="comunicadoTipo">DIVISÃO DE INTELIGÊNCIA</div>
+          <div class="comunicado-texto" id="comunicadoTexto">
+            Rumores de novas infiltrações Zunkianas. Para mais informações, acompanhe a Rimk Radio.
+          </div>
+          <div class="comunicado-autor" id="comunicadoAutor">— Comunicado #847-001</div>
+        </div>
+      </div>
+
+      <div class="comunicado-dots" id="comunicadoDots"></div>
+    </section>
+
+    <!-- SERVIÇOS AO CIDADÃO -->
+    <section class="portal-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">🏛️</span>
+        Serviços ao Cidadão
+      </h2>
+
+      <div class="servicos-grid">
+
+        <a href="/lore/" class="servico-card">
+          <div class="servico-icon" style="color:#ffcc00;">📚</div>
+          <div class="servico-nome">Biblioteca de Rimkandria</div>
+          <div class="servico-desc">
+            Todo o conhecimento do sistema em um só lugar. História, ciências, política e arquivos confidenciais.
+          </div>
+          <div class="servico-cta">Acessar →</div>
+        </a>
+
+        <a href="https://rimkradio.onrender.com/" target="_blank" rel="noopener noreferrer" class="servico-card">
+          <div class="servico-icon" style="color:#96ff00;">🎧</div>
+          <div class="servico-nome">Rimk Radio</div>
+          <div class="servico-desc">
+            Transmissão ao vivo 24h. Notícias, música interdimensional e as vozes do sistema.
+          </div>
+          <div class="servico-cta">Sintonizar →</div>
+        </a>
+
+        <a href="/" class="servico-card">
+          <div class="servico-icon" style="color:#00ff66;">🕹️</div>
+          <div class="servico-nome">Rimkerama</div>
+          <div class="servico-desc">
+            Simulações oficiais de treinamento. Prepare-se para identificar infiltrados Zunks.
+          </div>
+          <div class="servico-cta">Jogar →</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- NÍVEL DE AMEAÇA -->
+    <section class="portal-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">📊</span>
+        Status do Sistema
+      </h2>
+
+      <div class="threat-panel">
+        <div class="threat-header">
+          <div>
+            <div class="threat-label">NÍVEL DE AMEAÇA ZUNK</div>
+            <div class="threat-level">
+              <span class="threat-dot"></span>
+              <span>BAIXO</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="threat-label">ÚLTIMA ATUALIZAÇÃO</div>
+            <div style="color:var(--text-primary); font-size:0.9em; margin-top:4px;">
+              Hoje · 14:32
+            </div>
+          </div>
+        </div>
+
+        <div class="threat-bar">
+          <div class="threat-bar-fill" style="width:12%;"></div>
+        </div>
+
+        <div class="threat-stats">
+          <div class="threat-stat">
+            <div class="threat-stat-label">Última infiltração detectada</div>
+            <div class="threat-stat-value">Há 247 dias</div>
+          </div>
+          <div class="threat-stat">
+            <div class="threat-stat-label">Simulações esta semana</div>
+            <div class="threat-stat-value">142</div>
+          </div>
+          <div class="threat-stat">
+            <div class="threat-stat-label">Mundos operacionais</div>
+            <div class="threat-stat-value">🟢 4 / 4</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer class="portal-footer">
+    <span class="footer-emblem">⚜️</span>
+    <div>© Conselho Rímkar · Rimkópolis · Ano 847 da Aliança Estável</div>
+    <div class="footer-small">Acesso livre a todos os cidadãos do sistema</div>
+  </footer>
+
+  <!-- MODAL DE PERFIL -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content profile-modal-content">
+      <h2>👤 PERFIL DO CIDADÃO</h2>
+      <p style="color: #88aa99; font-size: 0.85em; margin-top: 0;">
+        Seu nome e avatar são usados em todos os serviços da Aliança.
+      </p>
+
+      <label>Raça de Origem:</label>
+      <div class="race-picker" id="racePicker">
+        <div class="race-option" data-race="Rimk" onclick="selectRace('Rimk')">
+          <img src="/images/rimk.png" alt="Rimk" class="race-icon">
+          <span class="race-name">RIMK</span>
+          <span class="race-home">Rimkópolis</span>
+        </div>
+        <div class="race-option" data-race="Sahrin" onclick="selectRace('Sahrin')">
+          <img src="/images/sahrin.png" alt="Sahrin" class="race-icon">
+          <span class="race-name">SAHRIN</span>
+          <span class="race-home">Kaal-7</span>
+        </div>
+        <div class="race-option" data-race="Ferrum" onclick="selectRace('Ferrum')">
+          <img src="/images/ferrum.png" alt="Ferrum" class="race-icon">
+          <span class="race-name">FERRUM</span>
+          <span class="race-home">Marte</span>
+        </div>
+        <div class="race-option" data-race="Nereid" onclick="selectRace('Nereid')">
+          <img src="/images/nereid.png" alt="Nereid" class="race-icon">
+          <span class="race-name">NEREID</span>
+          <span class="race-home">Nereida</span>
+        </div>
+      </div>
+
+      <label>Nome do Cidadão:</label>
+      <input type="text" id="modalUsername" placeholder="Ex: Capitão Zorblax" maxlength="20">
+
+      <div class="profile-preview-row">
+        <div>
+          <div class="profile-preview-box" id="modalAvatarPreview"></div>
+          <small style="display:block;text-align:center;color:var(--matrix-green);margin-top:6px;font-size:0.75em;">PRÉVIA</small>
+        </div>
+
+        <div class="profile-customizer">
+          <div>
+            <label>Acessório</label>
+            <select id="modalOptEyewear" onchange="updateModalPreview()">
+              <option value="none">Nenhum</option>
+              <option value="6.png">Óculos Escuros</option>
+              <option value="7.png">Monóculo</option>
+              <option value="turbante.png">Turbante Sahrin</option>
+            </select>
+          </div>
+          <div>
+            <label>Traje</label>
+            <select id="modalOptSuit" onchange="updateModalPreview()">
+              <option value="none">Nenhum</option>
+              <option value="17.png">Traje Verde (Rimk)</option>
+              <option value="trajeamarelo.png">Traje Amarelo (Sahrin)</option>
+              <option value="trajevermelho.png">Traje Vermelho (Ferrum)</option>
+              <option value="trajeazul.png">Traje Azul (Nereid)</option>
+            </select>
+          </div>
+          <div>
+            <label>Fundo do Avatar</label>
+            <select id="modalOptBg" onchange="updateModalPreview()">
+              <option value="none">Padrão Escuro</option>
+              <option value="4.jpg">Rimkópolis</option>
+              <option value="planetaamarelo.jpg">Kaal-7</option>
+              <option value="3.jpg">Ferrum (Marte)</option>
+              <option value="planetaazul.jpg">Nereida</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="danger" onclick="closeProfileModal()">CANCELAR</button>
+        <button onclick="saveProfileFromModal()">✔ SALVAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="portal.js"></script>
+</body>
+</html>
