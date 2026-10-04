@@ -10,9 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// TEMPORÁRIO: redireciona raiz pro Portal enquanto não migramos de vez
+app.get('/', (_, res) => res.redirect('/portal/'));
 
 // Agora a raiz '/' carrega o index.html da pasta public automaticamente
 // Rotas específicas para os jogos:
