@@ -434,6 +434,8 @@ function attachSounds() {
     '.modal-actions button',
     '.race-option',
     '.mode-option'
+    '.library-banner',
+    '.library-quickbtn',
   ];
 
   selectors.forEach(sel => {
