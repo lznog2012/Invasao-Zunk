@@ -10,9 +10,29 @@
       "autor": "Arquivista Rimk Theon",
       "data": "Ano 12 da Aliança",
       "icone": "📜",
-      "conteudo": "<p><em>Placeholder: aqui vai detalhar como o Pacto funciona no dia a dia.</em></p><p>Este artigo vai abordar:</p><ul><li>O texto original do Pacto</li><li>Como as trocas funcionam entre os mundos</li><li>Consequências práticas do Pacto</li><li>O que acontece se alguém quebra o Pacto</li></ul>"
-    },
-    {
+      "conteudo": "<p><em>Placeholder: aqui vai detalhar como o Pacto funciona no dia a dia.</em></p><p>Este artigo vai abordar:</p><ul><li>O texto original do Pacto</li><li>Como as trocas funcionam entre os mundos</li><li>Consequências práticas do Pacto</li><li>O que acontece se alguém quebra o Pacto</li></ul>",
+ "eixos": {
+        "titulo": "Os Três Ministérios de Rimkópolis",
+        "subtitulo": "O modelo político rimk se organiza em três ministérios complementares. Todos são necessários para que a vida funcione.",
+        "lista": [
+          {
+            "nome": "Ministério da Vida",
+            "icone": "🌱",
+            "descricao": "Cuida do funcionamento interno da população. Saúde, educação, cultura, bem-estar, saúde, tecnologia, distribuição interna e organização social. Define como as pessoas vivem juntas."
+          },
+          {
+            "nome": "Ministério Midiático",
+            "icone": "📡",
+            "descricao": "Controla e regula a informação. Mídia, comunicação, percepção coletiva, divulgação de conhecimentos científicos. Define a regulação midiática e, consequentemente, como a realidade é percebida."
+          },
+          {
+            "nome": "Ministério do Exterior",
+            "icone": "🌍",
+            "descricao": "Gerencia a posição do planeta no sistema. Diplomacia, alianças, trocas e fluxo de recursos entre planetas. Define como o planeta se conecta ao resto."
+          }
+        ]
+      }
+      
       "numero": "201",
       "titulo": "A Matriz de Abastecimento",
       "autor": "Economista Sahrin Halim",
