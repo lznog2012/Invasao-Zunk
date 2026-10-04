@@ -116,6 +116,7 @@ async function openBook(section) {
   }
 
   if (section === 'zunk') {
+    soundVaultAlarm();
     showView('view-vault-warning');
     return;
   }
@@ -376,11 +377,14 @@ function backToSolarSystem() {
 // COFRE ZUNK
 // ============================================
 function acceptVault() {
+  soundVaultAccept();
   renderVaultPlaceholder();
   showView('view-vault-content');
 }
 
 function cancelVault() {
+  // Som curto de "fechando" — descendente
+  playSeqLore([[880, 0.06], [660, 0.06], [440, 0.1]]);
   showView('view-shelf', { pushHistory: false });
   viewHistory = [];
 }
@@ -666,6 +670,27 @@ function attachSoundsLore() {
       });
     });
   });
+}
+
+function soundVaultAlarm() {
+  // Sirene de alerta — sequência grave e repetida
+  playSeqLore([
+    [440, 0.15, 'sawtooth', 0.06],
+    [330, 0.15, 'sawtooth', 0.06],
+    [440, 0.15, 'sawtooth', 0.06],
+    [330, 0.15, 'sawtooth', 0.06],
+    [220, 0.4, 'sawtooth', 0.07],
+    [150, 0.6, 'sawtooth', 0.07]
+  ]);
+}
+
+function soundVaultAccept() {
+  // Bipe de acesso concedido — 3 tons subindo
+  playSeqLore([
+    [660, 0.08, 'square', 0.05],
+    [880, 0.08, 'square', 0.05],
+    [1320, 0.2, 'triangle', 0.06]
+  ]);
 }
 
 // Aplica quando carregar
