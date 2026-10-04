@@ -161,11 +161,11 @@ function renderSolarSystem() {
   solar.appendChild(sun);
 
   // Planetas — cada um com um offset inicial pra não alinhar
-  const planets = [
-    { nome: 'RIMKÓPOLIS', imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 180, velocidade: 30, offset: 0 },
+ const planets = [
+    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 180, velocidade: 30, offset: 0 },
     { nome: 'KAAL-7',     imagem: 'kaal7.png',      cor: '#ffcc00', tamanho: 260, velocidade: 45, offset: 90 },
-    { nome: 'NEREIDA',    imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 340, velocidade: 60, offset: 200 },
-    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 420, velocidade: 75, offset: 305 }
+    { nome: 'RIMKÓPOLIS', imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 340, velocidade: 60, offset: 200 },
+    { nome: 'NEREIDA',    imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 420, velocidade: 75, offset: 305 }
   ];
 
   planets.forEach(p => {
