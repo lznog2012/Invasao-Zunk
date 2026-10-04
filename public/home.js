@@ -433,7 +433,7 @@ function attachSounds() {
     '.intro-skip',
     '.modal-actions button',
     '.race-option',
-    '.mode-option'
+    '.mode-option',
     '.library-banner',
     '.library-quickbtn',
   ];
