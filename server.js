@@ -20,6 +20,9 @@ app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/jogos/ludo', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'ludo', 'index.html')));
 app.get('/lore', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
 app.get('/lore/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
+// Rota do Portal (temporária — enquanto não é a raiz)
+app.get('/portal', (_, res) => res.sendFile(path.join(__dirname, 'public', 'portal', 'index.html')));
+app.get('/portal/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'portal', 'index.html')));
 
 const rooms = {};
 
