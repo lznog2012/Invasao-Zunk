@@ -690,7 +690,7 @@ h1, h2, h3, h4 {
 .solar-system {
   position: relative;
   width: 100%;
-  max-width: 700px;
+  max-width: min(900px, 92vw);   /* cresce junto com a tela, mas não passa do viewport */
   aspect-ratio: 1;
   margin: 20px auto;
 }
@@ -736,8 +736,8 @@ h1, h2, h3, h4 {
 }
 
 .planet-btn {
-  width: 70px;
-  height: 70px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   cursor: pointer;
   border: 3px solid var(--planet-color);
@@ -953,7 +953,9 @@ h1, h2, h3, h4 {
   .warning-glitch { font-size: 3em; }
 
   .solar-system { max-width: 100%; }
-  .planet-btn { width: 55px; height: 55px; }
+  .planet-btn { width: 48px; height: 48px; }
+  .planet-label { font-size: 0.6em; }
+  .sun { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
   .sun { width: 45px; height: 45px; margin: -22px 0 0 -22px; }
 }
 
@@ -1006,4 +1008,12 @@ h1, h2, h3, h4 {
     height: 38px;
     font-size: 1em;
   }
+}
+
+@media (max-width: 480px) {
+  .planet-btn { width: 38px; height: 38px; border-width: 2px; }
+  .planet-label { font-size: 0.5em; letter-spacing: 1px; }
+  .sun { width: 32px; height: 32px; margin: -16px 0 0 -16px; }
+  .solar-title { font-size: 1.2em; }
+  .solar-subtitle { font-size: 0.75em; }
 }
