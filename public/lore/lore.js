@@ -94,7 +94,7 @@ function updateGlobalBackBtn() {
   // Se estiver em outra view, precisa voltar pra estante via JS
   if (current.id === 'view-shelf') {
     btn.href = '/';
-    btn.textContent = '← VOLTAR À ESTAÇÃO';
+    btn.textContent = '← VOLTAR AO PORTAL';
     btn.dataset.action = 'home';
   } else {
     btn.href = '#';
