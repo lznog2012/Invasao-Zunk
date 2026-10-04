@@ -10,6 +10,26 @@ let currentSection = null;   // seção atual (historia, mundos, etc)
 let currentArticle = null;   // artigo atual (001, 002, etc)
 
 // ============================================
+// CARREGAMENTO DE DADOS (JSON)
+// ============================================
+const JSON_CACHE = {};
+
+async function loadSection(section) {
+  if (JSON_CACHE[section]) return JSON_CACHE[section];
+
+  try {
+    const resp = await fetch(`data/${section}.json`);
+    if (!resp.ok) throw new Error(`Erro ao carregar ${section}.json`);
+    const data = await resp.json();
+    JSON_CACHE[section] = data;
+    return data;
+  } catch (err) {
+    console.error(`Erro carregando ${section}:`, err);
+    return null;
+  }
+}
+
+// ============================================
 // TROCA DE VIEWS
 // ============================================
 function showView(viewId, options = {}) {
@@ -86,64 +106,130 @@ function updateGlobalBackBtn() {
 // ============================================
 // NAVEGAÇÃO — LIVROS
 // ============================================
-function openBook(section) {
+async function openBook(section) {
   currentSection = section;
 
   if (section === 'mundos') {
-    // Mundos abre o sistema solar
     renderSolarSystem();
     showView('view-worlds');
-  } else if (section === 'zunk') {
-    // Zunk abre o aviso do cofre
+    return;
+  }
+
+  if (section === 'zunk') {
     showView('view-vault-warning');
-  } else {
-    // Outros abrem a view de artigo (por enquanto com placeholder)
-    renderSectionPlaceholder(section);
-    showView('view-article');
+    return;
+  }
+
+  // Seções com JSON (historia, politica, jogos)
+  await renderSectionList(section);
+  showView('view-article');
   }
 }
 
 // ============================================
-// PLACEHOLDER DE SEÇÃO (temporário até Etapa 2)
+// LISTA DE ARTIGOS DE UMA SEÇÃO
 // ============================================
-function renderSectionPlaceholder(section) {
+async function renderSectionList(section) {
   const container = document.getElementById('articleContent');
   const breadcrumb = document.getElementById('articleBreadcrumb');
   if (!container) return;
 
-  const info = {
-    historia: { icone: '📖', nome: 'História', range: '001-006' },
-    politica: { icone: '⚖️', nome: 'Política & Economia', range: '200-205' },
-    jogos:    { icone: '🎮', nome: 'Os Jogos', range: '300-302' }
-  };
+  container.innerHTML = '<header><h1>Carregando...</h1></header>';
 
-  const data = info[section] || { icone: '📚', nome: section, range: '???' };
+  const data = await loadSection(section);
+  if (!data) {
+    container.innerHTML = '<header><h1>Erro ao carregar</h1></header><div class="article-body"><p>Não foi possível carregar esta seção.</p></div>';
+    return;
+  }
 
   if (breadcrumb) {
     breadcrumb.innerHTML = `📚 Biblioteca › ${data.icone} ${data.nome}`;
   }
 
+  const cards = data.artigos.map(art => `
+    <div class="article-card" onclick="openArticle('${section}', '${art.numero}')">
+      <div class="article-card-number">ARQUIVO #${art.numero}</div>
+      <h3>${art.icone} ${art.titulo}</h3>
+      <div class="article-card-meta">por ${art.autor} · ${art.data}</div>
+      <div class="article-card-cta">Ler artigo →</div>
+    </div>
+  `).join('');
+
   container.innerHTML = `
     <header>
-      <span class="archive-number">${data.icone} ${data.nome}</span>
+      <span class="archive-number">${data.icone} SEÇÃO ${data.range}</span>
       <h1>${data.nome}</h1>
       <div class="meta">
-        <span>Arquivos ${data.range}</span>
-        <span>Em breve: lista completa de artigos</span>
+        <span>${data.artigos.length} arquivos disponíveis</span>
+      </div>
+    </header>
+    <div class="article-list">
+      ${cards}
+    </div>
+    <footer class="article-footer">
+      <button class="article-nav-btn" onclick="goBack()">← Voltar à Estante</button>
+    </footer>
+  `;
+
+  if (typeof attachSoundsLore === 'function') {
+    setTimeout(attachSoundsLore, 100);
+  }
+}
+
+// ============================================
+// RENDERIZAR ARTIGO INDIVIDUAL
+// ============================================
+async function openArticle(section, numero) {
+  const container = document.getElementById('articleContent');
+  const breadcrumb = document.getElementById('articleBreadcrumb');
+  if (!container) return;
+
+  container.innerHTML = '<header><h1>Carregando...</h1></header>';
+
+  const data = await loadSection(section);
+  if (!data) return;
+
+  const index = data.artigos.findIndex(a => a.numero === numero);
+  const artigo = data.artigos[index];
+  if (!artigo) return;
+
+  const anterior = data.artigos[index - 1];
+  const proximo = data.artigos[index + 1];
+
+  if (breadcrumb) {
+    breadcrumb.innerHTML = `📚 Biblioteca › ${data.icone} ${data.nome} › #${numero}`;
+  }
+
+  container.innerHTML = `
+    <header>
+      <span class="archive-number">ARQUIVO #${artigo.numero}</span>
+      <h1>${artigo.titulo}</h1>
+      <div class="meta">
+        <span>por ${artigo.autor}</span>
+        <span>${artigo.data}</span>
       </div>
     </header>
     <div class="article-body">
-      <p><em>Esta seção será preenchida na próxima etapa.</em></p>
-      <p>Aqui vai aparecer a lista de todos os artigos de <strong>${data.nome}</strong>.</p>
-      <p>Quando você clicar em um artigo, ele abrirá em tela cheia com o conteúdo completo.</p>
-      <h3>Por enquanto...</h3>
-      <p>Você pode testar o botão <strong>← Voltar à Estante</strong> para retornar ao hub da biblioteca.</p>
+      ${artigo.conteudo}
     </div>
     <footer class="article-footer">
-      <button class="article-nav-btn" disabled>← Anterior</button>
-      <button class="article-nav-btn" disabled>Próximo →</button>
+      ${anterior
+        ? `<button class="article-nav-btn" onclick="openArticle('${section}', '${anterior.numero}')">← ${anterior.titulo}</button>`
+        : `<button class="article-nav-btn" disabled>← Início da Linha</button>`
+      }
+      <button class="article-nav-btn" onclick="renderSectionList('${section}')">📖 Lista Completa</button>
+      ${proximo
+        ? `<button class="article-nav-btn" onclick="openArticle('${section}', '${proximo.numero}')">${proximo.titulo} →</button>`
+        : `<button class="article-nav-btn" disabled>Fim da Linha →</button>`
+      }
     </footer>
   `;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (typeof attachSoundsLore === 'function') {
+    setTimeout(attachSoundsLore, 100);
+  }
 }
 
 // ============================================
