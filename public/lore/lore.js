@@ -248,12 +248,14 @@ function renderCouncilCards(representantes) {
   `).join('');
 
   return `
-    <div class="council-notice">
-      ⚜️ <b>ASSENTOS EM PROCESSO DE DESIGNAÇÃO</b><br>
-      Os nomes dos representantes serão anunciados em breve pelo Conselho.
-    </div>
-    <div class="council-grid">
-      ${cards}
+    <div class="council-highlight">
+      <div class="council-notice">
+        ⚜️ <b>ASSENTOS EM PROCESSO DE DESIGNAÇÃO</b><br>
+        Os nomes dos representantes serão anunciados em breve pelo Conselho.
+      </div>
+      <div class="council-grid">
+        ${cards}
+      </div>
     </div>
   `;
 }
