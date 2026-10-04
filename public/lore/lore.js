@@ -161,19 +161,19 @@ function renderSolarSystem() {
   solar.appendChild(sun);
 
   // Planetas — cada um com um offset inicial pra não alinhar
- const planets = [
-    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 180, velocidade: 30, offset: 0 },
-    { nome: 'KAAL-7',     imagem: 'kaal7.png',      cor: '#ffcc00', tamanho: 260, velocidade: 45, offset: 90 },
-    { nome: 'RIMKÓPOLIS', imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 340, velocidade: 60, offset: 200 },
-    { nome: 'NEREIDA',    imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 420, velocidade: 75, offset: 305 }
+  const planets = [
+    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 20, velocidade: 30, offset: 0 },
+    { nome: 'KAAL-7',     imagem: 'kaal7.png',      cor: '#ffcc00', tamanho: 40, velocidade: 45, offset: 90 },
+    { nome: 'RIMKÓPOLIS', imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 60, velocidade: 60, offset: 200 },
+    { nome: 'NEREIDA',    imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 80, velocidade: 75, offset: 305 }
   ];
 
   planets.forEach(p => {
     // Órbita
     const orbit = document.createElement('div');
     orbit.className = 'orbit';
-    orbit.style.width = p.tamanho + 'px';
-    orbit.style.height = p.tamanho + 'px';
+    orbit.style.width = p.tamanho + '%';
+    orbit.style.height = p.tamanho + '%';
     orbit.style.animationDuration = p.velocidade + 's';
     // ⚡ Delay negativo faz começar em posição diferente
     orbit.style.animationDelay = `-${(p.offset / 360) * p.velocidade}s`;
