@@ -123,7 +123,6 @@ async function openBook(section) {
   // Seções com JSON (historia, politica, jogos)
   await renderSectionList(section);
   showView('view-article');
-  }
 }
 
 // ============================================
