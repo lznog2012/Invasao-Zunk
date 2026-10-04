@@ -3,391 +3,200 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>O Códice Rímkar · Estação Alpha</title>
+  <title>Biblioteca de Rimkandria · Sistema Rímkar</title>
   <link rel="icon" type="image/svg+xml" href="emblem.svg">
   <link rel="stylesheet" href="lore.css">
 </head>
 <body>
 
-  <a href="/" class="back-btn">← VOLTAR À ESTAÇÃO</a>
+  <!-- BOTÕES FIXOS (canto superior esquerdo) -->
+  <a href="/" class="back-btn" id="globalBackBtn">← VOLTAR À ESTAÇÃO</a>
 
-  <div class="container">
+  <div class="codex-wrapper">
 
-    <header class="codex-header">
-     <img src="emblem.svg" alt="Brasão da Aliança" class="codex-emblem-img">
-      <h1>O CÓDICE RÍMKAR</h1>
-      <p class="subtitle">REGISTRO OFICIAL DA ALIANÇA DOS QUATRO MUNDOS</p>
-      <p class="meta">Era da Aliança Estável · Ano 847</p>
-    </header>
+    <!-- ============================================
+         VIEW 1 — ESTANTE (HUB DA BIBLIOTECA)
+         ============================================ -->
+    <section id="view-shelf" class="view active">
 
-    <nav class="toc">
-      <a href="#p1">I. A Semeadura</a>
-      <a href="#p2">II. Os Quatro Mundos</a>
-      <a href="#p3">III. Os Vapores Impuros</a>
-      <a href="#p4">IV. O Metal Perdido</a>
-      <a href="#p5">V. O Pacto</a>
-      <a href="#p6">VI. A Ameaça Zunk</a>
-      <a href="#p7">VII. Os Jogos</a>
-      <a href="#p8">VIII. Época Atual</a>
-    </nav>
+      <header class="codex-header">
+        <div class="codex-emblem">◈</div>
+        <h1>BIBLIOTECA DE RIMKANDRIA</h1>
+        <p class="subtitle">TODO CONHECIMENTO DO SISTEMA EM UM SÓ LUGAR</p>
+        <p class="meta">Era da Aliança Estável · Ano 847 · Acesso Livre a Todos os Cidadãos</p>
+      </header>
 
-    <main>
+      <div class="shelf-intro">
+        <p class="intro-text">
+          <span class="intro-quote">"A curiosidade é a única arma que não fere."</span>
+          <span class="intro-author">— Lema Rimk, gravado no portal de entrada</span>
+        </p>
+      </div>
 
-      <!-- ============================================
-           PARTE I — A SEMEADURA
-           ============================================ -->
-      <section id="p1" class="chapter">
-        <div class="chapter-number">PARTE I</div>
-        <h2>A Semeadura</h2>
+      <!-- ESTANTE: 4 LIVROS PRINCIPAIS -->
+      <div class="shelf">
 
-        <h3>A Origem</h3>
-        <p>Há incontáveis eras, o <strong>Sistema Rímkar</strong> era apenas uma estrela entre bilhões. Seu único mundo habitado era um planeta verde de atmosfera densa: <strong>Rimkópolis</strong>.</p>
-        <p>Nele, a vida evoluiu numa velocidade anômala. Enquanto outros mundos levariam bilhões de anos para produzir civilização, Rimkópolis produziu <strong>os Rimks</strong> em uma fração desse tempo. Não se sabe se foi sorte cósmica, intervenção externa, ou simplesmente a combinação perfeita de elementos. Só se sabe que aconteceu.</p>
-        <p>Os Rimks foram <strong>o primeiro povo do sistema. E, por muito tempo, o único.</strong></p>
-
-        <h3>A Expansão</h3>
-        <p>Quando a tecnologia rimk alcançou a capacidade de viagem interplanetária, eles fizeram o que qualquer civilização curiosa faria: <strong>exploraram</strong>.</p>
-        <p>Em cada planeta vizinho, encontraram o mesmo padrão:</p>
-        <ul>
-          <li>Condições favoráveis à vida</li>
-          <li>Vida em estágio primitivo</li>
-          <li>Bilhões de anos de evolução pela frente</li>
-        </ul>
-        <p>Os Rimks tomaram uma decisão que definiria o destino do sistema: <strong>acelerar o processo</strong>. Não por conquista. Não por vaidade. Por <strong>solidão</strong>. Eles queriam irmãos.</p>
-
-        <h3>O Dom</h3>
-        <p>Em cada mundo, os Rimks:</p>
-        <ul>
-          <li>Estabilizaram atmosferas</li>
-          <li>Semearam microrganismos base</li>
-          <li>Aceleraram ciclos evolutivos</li>
-          <li>Deixaram tecnologia-guia para as futuras civilizações</li>
-        </ul>
-        <p>O resultado: em algumas gerações, os mundos estavam habitados. E todos, de alguma forma, <strong>carregavam a marca dos Rimks</strong>.</p>
-      </section>
-
-      <!-- ============================================
-           PARTE II — OS QUATRO MUNDOS
-           ============================================ -->
-      <section id="p2" class="chapter">
-        <div class="chapter-number">PARTE II</div>
-        <h2>Os Quatro Mundos</h2>
-
-        <article class="planet-card" style="--planet-color:#00ff66;">
-          <header class="planet-header">
-            <img src="/images/planetas/rimkopolis.png" alt="Planeta Rimkópolis" class="planet-thumb">
-            <div>
-              <h3>RIMKÓPOLIS</h3>
-              <p class="planet-epithet">O Berço</p>
-            </div>
-          </header>
-          <p class="planet-meta"><b>Tipo:</b> Planeta capital · <b>População:</b> Rimks · <b>Especialidade:</b> Tecnologia de ponta</p>
-          <p>Rimkópolis é o coração do sistema. Cidades verticais cobertas de vegetação bioluminescente se estendem por continentes inteiros. Não há indústria pesada — a produção rimk é limpa, silenciosa e invisível.</p>
-          <div class="planet-columns">
-            <div>
-              <h4>◆ Fornece</h4>
-              <ul>
-                <li>IA de navegação</li>
-                <li>Reatores de fusão</li>
-                <li>Nanotecnologia médica</li>
-                <li>Impressão molecular 3D</li>
-              </ul>
-            </div>
-            <div>
-              <h4>◆ Precisa</h4>
-              <ul>
-                <li>Cristais de silício (Kaal-7)</li>
-                <li>Ligas de ferrum (Marte)</li>
-                <li>Água pura (Nereida)</li>
-              </ul>
-            </div>
+        <!-- LIVRO 1: HISTÓRIA -->
+        <article class="book-card" data-section="historia" data-color="gold">
+          <div class="book-spine">
+            <span class="spine-icon">📖</span>
+            <span class="spine-range">001-006</span>
           </div>
-          <p class="planet-warning"><b>⚠ Vapor Rimkal:</b> ácido fraco que corrói equipamentos. Não é letal, mas reduz a vida útil de qualquer máquina.</p>
+          <div class="book-cover">
+            <h3>HISTÓRIA</h3>
+            <p class="book-subtitle">A Linha do Tempo</p>
+            <p class="book-desc">Da Semeadura à Era da Sombra. Como o sistema chegou ao Ano 847.</p>
+            <div class="book-cta">→ Explorar</div>
+          </div>
         </article>
 
-        <article class="planet-card" style="--planet-color:#ffcc00;">
-          <header class="planet-header">
-            <img src="/images/planetas/kaal7.png" alt="Planeta Kaal-7" class="planet-thumb">
-            <div>
-              <h3>KAAL-7</h3>
-              <p class="planet-epithet">O Deserto Dourado</p>
-            </div>
-          </header>
-          <p class="planet-meta"><b>Tipo:</b> Planeta desértico · <b>População:</b> Sahrin · <b>Especialidade:</b> Cristais de silício</p>
-          <p>Kaal-7 é um mundo de tempestades de areia dourada. Seus habitantes, os Sahrin, evoluíram como nômades — corpos esguios, pele ocre, olhos adaptados ao brilho intenso. Vivem em cidades subterrâneas conectadas por túneis escavados ao longo de milênios.</p>
-          <div class="planet-columns">
-            <div>
-              <h4>◆ Fornece</h4>
-              <ul>
-                <li>Cristais de silício</li>
-              </ul>
-            </div>
-            <div>
-              <h4>◆ Precisa</h4>
-              <ul>
-                <li>Tecnologia (Rimkópolis)</li>
-                <li>Água pura (Nereida)</li>
-                <li>Ferramentas (Ferrum)</li>
-              </ul>
-            </div>
+        <!-- LIVRO 2: MUNDOS & POVOS -->
+        <article class="book-card" data-section="mundos" data-color="green">
+          <div class="book-spine">
+            <span class="spine-icon">🪐</span>
+            <span class="spine-range">100-137</span>
           </div>
-          <p class="planet-warning"><b>⚠ Névoa Sílica:</b> partículas microscópicas de vidro suspensas no ar. Respirar por muito tempo causa cicatrizes pulmonares.</p>
+          <div class="book-cover">
+            <h3>MUNDOS & POVOS</h3>
+            <p class="book-subtitle">O Sistema Solar Vivo</p>
+            <p class="book-desc">Explore cada planeta, seus povos, geografia, clima e cultura.</p>
+            <div class="book-cta">→ Explorar <span class="book-tag">✦ Interativo</span></div>
+          </div>
         </article>
 
-        <article class="planet-card" style="--planet-color:#ff3344;">
-          <header class="planet-header">
-            <img src="/images/planetas/ferrum.png" alt="Planeta Ferrum" class="planet-thumb">
-            <div>
-              <h3>FERRUM (MARTE)</h3>
-              <p class="planet-epithet">A Forja Vermelha</p>
-            </div>
-          </header>
-          <p class="planet-meta"><b>Tipo:</b> Planeta mineral · <b>População:</b> Ferrum · <b>Especialidade:</b> Ligas metálicas raras</p>
-          <p>Ferrum é o mundo mais bruto do sistema. Superfície rica em minérios raros, e seus habitantes — os Ferrum — evoluíram como guerreiros e ferreiros. Cada família tem sua forja ancestral, passada por gerações. São os únicos capazes de trabalhar a liga de ferrum, um metal tão resistente que só existe lá.</p>
-          <div class="planet-columns">
-            <div>
-              <h4>◆ Fornece</h4>
-              <ul>
-                <li>Ligas de ferrum</li>
-                <li>Ferramentas de mineração</li>
-              </ul>
-            </div>
-            <div>
-              <h4>◆ Precisa</h4>
-              <ul>
-                <li>Tecnologia (Rimkópolis)</li>
-                <li>Água pura (Nereida)</li>
-                <li>Cristais (Kaal-7)</li>
-              </ul>
-            </div>
+        <!-- LIVRO 3: POLÍTICA & ECONOMIA -->
+        <article class="book-card" data-section="politica" data-color="cyan">
+          <div class="book-spine">
+            <span class="spine-icon">⚖️</span>
+            <span class="spine-range">200-205</span>
           </div>
-          <p class="planet-warning"><b>⚠ Vapor Ferroso:</b> gás denso, avermelhado, que corrói metal e pulmão. Por isso, cidades ferrum são subterrâneas ou hermeticamente seladas.</p>
+          <div class="book-cover">
+            <h3>POLÍTICA & ECONOMIA</h3>
+            <p class="book-subtitle">O Motor da Aliança</p>
+            <p class="book-desc">O Pacto dos Quatro na prática. Quem fornece o quê, e por quê.</p>
+            <div class="book-cta">→ Explorar</div>
+          </div>
         </article>
 
-        <article class="planet-card" style="--planet-color:#00ffcc;">
-          <header class="planet-header">
-            <img src="/images/planetas/nereida.png" alt="Planeta Nereida" class="planet-thumb">
-            <div>
-              <h3>NEREIDA</h3>
-              <p class="planet-epithet">O Coração Líquido</p>
-            </div>
-          </header>
-          <p class="planet-meta"><b>Tipo:</b> Planeta-água · <b>População:</b> Nereids · <b>Especialidade:</b> Água 100% pura</p>
-          <p>Nereida não tem continentes. É um oceano sem fim, pontuado por cidades de cristal submersas. Seus habitantes evoluíram como telepatas empáticos. A água de Nereida é 100% pura por causa dos cristais vivos que cobrem o fundo do oceano — é a biosfera que purifica, não o planeta.</p>
-          <div class="planet-columns">
-            <div>
-              <h4>◆ Fornece</h4>
-              <ul>
-                <li>Água 100% pura</li>
-                <li>Cristais vivos (memória)</li>
-              </ul>
-            </div>
-            <div>
-              <h4>◆ Precisa</h4>
-              <ul>
-                <li>Tecnologia (Rimkópolis)</li>
-                <li>Ligas (Ferrum)</li>
-                <li>Cristais (Kaal-7)</li>
-              </ul>
-            </div>
+        <!-- LIVRO 4: OS JOGOS -->
+        <article class="book-card" data-section="jogos" data-color="orange">
+          <div class="book-spine">
+            <span class="spine-icon">🎮</span>
+            <span class="spine-range">300-302</span>
           </div>
-          <p class="planet-clean"><b>✦ Vapor Puro:</b> evapora limpo, sem deixar resíduo. Nereida é o único mundo imune ao ciclo corrosivo.</p>
+          <div class="book-cover">
+            <h3>OS JOGOS</h3>
+            <p class="book-subtitle">Simulações Oficiais</p>
+            <p class="book-desc">Para que servem o Jogo da Dedução e o Ludo da Aliança.</p>
+            <div class="book-cta">→ Explorar</div>
+          </div>
         </article>
 
-      </section>
+      </div>
 
-      <!-- ============================================
-           PARTE III — OS VAPORES IMPUROS
-           ============================================ -->
-      <section id="p3" class="chapter">
-        <div class="chapter-number">PARTE III</div>
-        <h2>Os Vapores Impuros</h2>
-        <p>Toda água do sistema, exceto a de Nereida, contém impurezas minerais e químicas. Quando evapora:</p>
-
-        <table class="codex-table">
-          <thead>
-            <tr>
-              <th>Planeta</th>
-              <th>Nome científico</th>
-              <th>Efeito</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>🟢 Rimkópolis</td><td><i>Vapor Rimkal</i></td><td>Ácido fraco, corrói equipamento</td></tr>
-            <tr><td>🟡 Kaal-7</td><td><i>Névoa Sílica</i></td><td>Partículas de vidro, cicatrizes pulmonares</td></tr>
-            <tr><td>🔴 Ferrum</td><td><i>Vapor Ferroso</i></td><td>Gás denso, corrói metal e pulmão</td></tr>
-            <tr><td>🔵 Nereida</td><td><i>Vapor Puro</i></td><td>Sem efeito, evapora limpo</td></tr>
-          </tbody>
-        </table>
-
-        <p><strong>Por isso Nereida é insubstituível.</strong> Não há tecnologia capaz de replicar em escala planetária o que os cristais vivos fazem. Os Rimks tentariam, mas consumiria todos os cristais de silício de Kaal-7, esgotaria todo o ferrum de Marte, levaria séculos, e quebraria o Pacto dos Quatro.</p>
-      </section>
-
-      <!-- ============================================
-           PARTE IV — O METAL PERDIDO
-           ============================================ -->
-      <section id="p4" class="chapter">
-        <div class="chapter-number">PARTE IV</div>
-        <h2>O Metal Perdido</h2>
-        <p>Nos confins do sistema, existe um cinturão de asteroides. Nele, há um metal raro chamado <strong>Kryon</strong>. Ninguém sabe sua origem — não existe em nenhum dos quatro planetas.</p>
-        <div class="highlight-box">
-          <h4>Propriedades do Kryon</h4>
-          <ul>
-            <li>Conduz energia <strong>sem perda</strong> (supercondutor perfeito)</li>
-            <li>Amplifica sinais mentais — por isso os Nereids o usam em seus templos</li>
-            <li><strong>Não pode ser sintetizado</strong> — só encontrado no cinturão</li>
-            <li>Extremamente <strong>instável</strong> — exploração exige equipes especializadas</li>
-          </ul>
+      <!-- ÁREA CONFIDENCIAL: ARQUIVO ZUNK -->
+      <div class="vault-section">
+        <div class="vault-divider">
+          <span class="vault-line"></span>
+          <span class="vault-label">⚠️ ACESSO RESTRITO — DOCUMENTO VAZADO</span>
+          <span class="vault-line"></span>
         </div>
-        <p><strong>Quem controla o Kryon controla o futuro.</strong> Atualmente, os Rimks lideram a extração, mas Ferrum quer mais — e os Zunks <em>sabem disso</em>.</p>
-      </section>
 
-      <!-- ============================================
-           PARTE V — O PACTO DOS QUATRO
-           ============================================ -->
-      <section id="p5" class="chapter">
-        <div class="chapter-number">PARTE V</div>
-        <h2>O Pacto dos Quatro</h2>
-        <p>Escrito em Nereida no primeiro ano da Aliança, o Pacto é o documento fundador do sistema. Ele diz:</p>
-
-        <blockquote class="codex-quote">
-          <p>Nenhum mundo tentará replicar o dom do outro.<br>
-          Nenhum mundo reterá seu dom como arma.<br>
-          O que um tem, todos têm.<br>
-          O que um precisa, todos fornecem.<br>
-          Assim foi desde a Semeadura.<br>
-          Assim será até o fim.</p>
-          <cite>— Pacto dos Quatro, Ano 1 da Aliança</cite>
-        </blockquote>
-
-        <h4>Consequências práticas</h4>
-        <ul>
-          <li>Ferrum <strong>não pode</strong> fazer guerra sem perder acesso à tecnologia</li>
-          <li>Nereida <strong>não pode</strong> reter água sem secar a si mesma</li>
-          <li>Rimkópolis <strong>não pode</strong> cortar tech sem parar sua própria produção</li>
-          <li>Kaal-7 <strong>não pode</strong> esconder cristais sem matar seu futuro</li>
-        </ul>
-        <p class="centered"><strong>É uma paz por asfixia mútua.</strong> Frágil, mas funcional há séculos.</p>
-      </section>
-
-      <!-- ============================================
-           PARTE VI — A AMEAÇA ZUNK
-           ============================================ -->
-      <section id="p6" class="chapter">
-        <div class="chapter-number">PARTE VI</div>
-        <h2>A Ameaça Zunk</h2>
-
-        <h3>Origem</h3>
-        <p>Os Zunks <strong>não nasceram no Sistema Rímkar</strong>. Vêm do <strong>Sistema Zunk'nir</strong>, além dos mapas conhecidos. Duas castas, dois mundos: os <strong>Vharn</strong> de <strong>Nyxaris</strong>, os <strong>Thrakk</strong> de <strong>Kaldr</strong>.</p>
-        <p>Não descendem dos Rimks. Não têm marca rimk — nem bigode. Ninguém sabe como chegaram, nem quantos são. Só se sabe que <strong>um dia estavam lá</strong> — e nunca mais saíram.</p>
-        <div class="highlight-box">
-          <h4>◈ O Sistema Zunk'nir</h4>
-          <p>Além dos mapas estelares conhecidos, existe um sistema onde a luz das estrelas é mais fraca. Nele, dois mundos giram em órbitas opostas:</p>
-          <ul>
-            <li>🟣 <strong>Nyxaris</strong> — o mundo das mentes quebradas, onde nascem os <strong>Vharn</strong></li>
-            <li>⚪ <strong>Kaldr</strong> — o mundo do frio eterno, onde nascem os <strong>Thrakk</strong></li>
-          </ul>
-          <p>Nenhuma nave rimk conseguiu chegar até lá. Nenhum mapa aponta o caminho. Nenhum sinal foi captado.</p>
-        </div>
-        
-        <div class="zunk-card" style="--zunk-color:#aa66ff;">
-          <div class="zunk-header">
-            <img src="/images/planetas/nyxaris.png" alt="Planeta Nyxaris" class="zunk-planet-thumb">
-            <div>
-              <h3>🟣 VHARN — <i>"O Sussurro"</i></h3>
-              <p class="planet-meta"><b>Planeta:</b> Nyxaris · <b>Tipo:</b> Infiltrador mental</p>
-            </div>
+        <article class="vault-card" data-section="zunk">
+          <div class="vault-glow"></div>
+          <div class="vault-icon">🔴</div>
+          <div class="vault-content">
+            <h3>ARQUIVO ZUNK</h3>
+            <p class="vault-warning">CONFIDENCIAL · COMISSÃO DE DEFESA DO SISTEMA</p>
+            <p class="vault-desc">
+              O que sabemos. O que suspeitamos. O que ainda não sabemos.
+              Manuseie com cuidado.
+            </p>
+            <div class="vault-range">ARQUIVOS #900-905</div>
           </div>
-          <p><b>Aparência real:</b> Massa roxa pulsante. Fala muito, mente, manipula. Planta discórdia antes de atacar. Seu disfarce perfeito tem um detalhe sutil: um <strong>terceiro olho</strong> sempre entreaberto na testa.</p>
-          <p><b>Especialidade:</b> Estratégia · Persuasão · Sabotagem política</p>
+          <div class="vault-action">🔓 ACESSAR COFRE</div>
+        </article>
+      </div>
+
+      <footer class="codex-footer">
+        <p>◈ Biblioteca de Rimkandria é mantida pelos arquivistas de Nereida ◈</p>
+        <p class="footer-small">Todos os documentos são públicos, exceto os marcados como restritos.</p>
+      </footer>
+
+    </section>
+
+    <!-- ============================================
+         VIEW 2 — LEITURA (ARTIGOS)
+         ============================================ -->
+    <section id="view-article" class="view">
+      <header class="article-topbar">
+        <button class="article-back" id="btnBackToShelf">← VOLTAR À ESTANTE</button>
+        <span class="article-breadcrumb" id="articleBreadcrumb">📚 Biblioteca › ...</span>
+      </header>
+
+      <article class="codex-article" id="articleContent">
+        <!-- Conteúdo carregado via JS -->
+      </article>
+    </section>
+
+    <!-- ============================================
+         VIEW 3 — SISTEMA SOLAR
+         ============================================ -->
+    <section id="view-worlds" class="view">
+      <header class="article-topbar">
+        <button class="article-back" id="btnBackFromWorlds">← VOLTAR À ESTANTE</button>
+        <span class="article-breadcrumb">📚 Biblioteca › 🪐 Mundos & Povos</span>
+      </header>
+
+      <div class="solar-system-container">
+        <h2 class="solar-title">O SISTEMA RÍMKAR</h2>
+        <p class="solar-subtitle">Clique em um planeta para explorar</p>
+
+        <div class="solar-system" id="solarSystem">
+          <!-- Será preenchido via JS -->
         </div>
+      </div>
+    </section>
 
-               <div class="zunk-card" style="--zunk-color:#f0f0ff;">
-          <div class="zunk-header">
-            <img src="/images/planetas/kaldr.png" alt="Planeta Kaldr" class="zunk-planet-thumb">
-            <div>
-              <h3>⚪ THRAKK — <i>"O Osso"</i></h3>
-              <p class="planet-meta"><b>Planeta:</b> Kaldr · <b>Tipo:</b> Infiltrador físico</p>
-            </div>
-          </div>
-          <p><b>Aparência real:</b> Pele branca-óssea, olhos vazios. Silencioso, brutal, direto. Não se importa em ser descoberto — se descobrirem, mata e assume o próximo. Nunca usa bigode, porque <strong>bigode é a marca dos filhos dos Rimks</strong>.</p>
-          <p><b>Especialidade:</b> Assassinato · Extração · Execução</p>
+    <!-- ============================================
+         VIEW 4 — COFRE ZUNK (AVISO)
+         ============================================ -->
+    <section id="view-vault-warning" class="view">
+      <div class="vault-warning-screen">
+        <div class="warning-glitch">⚠️</div>
+        <h1>DOCUMENTO RESTRITO</h1>
+        <p class="warning-line">═══════════════════════════</p>
+        <p class="warning-text">
+          O arquivo a seguir contém informações classificadas como
+          <strong>CONFIDENCIAIS</strong> pela Comissão de Defesa do Sistema Rímkar.
+        </p>
+        <p class="warning-text">
+          Manuseie com cautela. Reprodução não autorizada é proibida pelo Pacto dos Quatro.
+        </p>
+        <p class="warning-line">═══════════════════════════</p>
+        <div class="warning-actions">
+          <button class="warning-cancel" id="btnCancelVault">← CANCELAR</button>
+          <button class="warning-accept" id="btnAcceptVault">ACEITO O RISCO</button>
         </div>
+      </div>
+    </section>
 
-        <h3>Por que não atacam diretamente</h3>
-        <p>Porque não podem. Quatro planetas unidos são invencíveis. Então os Zunks fazem algo mais inteligente: <strong>sabotam a harmonia</strong>.</p>
-        <ul>
-          <li>Fazem carregamentos de cristais "desaparecerem" entre Kaal-7 e Rimkópolis</li>
-          <li>Plantam suspeita de que Nereida está segurando água</li>
-          <li>Corrompem líderes de Ferrum pra atrasar entregas</li>
-          <li><strong>Se infiltram em simulações</strong> pra aprender as táticas de defesa dos aliados</li>
-        </ul>
-      </section>
+    <!-- ============================================
+         VIEW 5 — COFRE ZUNK (CONTEÚDO)
+         ============================================ -->
+    <section id="view-vault-content" class="view">
+      <header class="article-topbar">
+        <button class="article-back" id="btnBackFromVault">← VOLTAR À ESTANTE</button>
+        <span class="article-breadcrumb">📚 Biblioteca › 🔴 Arquivo Zunk</span>
+      </header>
 
-      <!-- ============================================
-           PARTE VII — OS JOGOS
-           ============================================ -->
-      <section id="p7" class="chapter">
-        <div class="chapter-number">PARTE VII</div>
-        <h2>Os Jogos</h2>
-        <p>Para treinar cidadãos de todos os planetas a reconhecer e combater Zunks, os Rimks criaram <strong>simulações oficiais</strong>. Dois jogos.</p>
-
-        <div class="game-card">
-          <h3>🎭 O Jogo da Dedução</h3>
-          <p>Cada participante recebe uma identidade secreta:</p>
-          <ul>
-            <li><strong>Aliado</strong> (Rimk, Sahrin, Nereid, Ferrum) — precisa descobrir os Zunks</li>
-            <li><strong>Zunk</strong> (Vharn ou Thrakk) — precisa eliminar aliados sem ser descoberto</li>
-          </ul>
-          <p>Simula exatamente o cenário real: Zunks infiltrados que precisam ser identificados por dedução.</p>
-        </div>
-
-        <div class="game-card">
-          <h3>🎲 O Ludo da Aliança</h3>
-          <p>Competição estratégica entre planetas:</p>
-          <ul>
-            <li><strong>Modo A (4x4)</strong> — torneio interno: cada planeta por si, mas todos amigos</li>
-            <li><strong>Modo B (2x2)</strong> — simulação de infiltração: times Aliança vs Zunks</li>
-          </ul>
-          <p>Quem vence ganha posição na hierarquia da Aliança.</p>
-        </div>
-
-        <h4>Por que é "só um jogo"</h4>
-        <p>Porque é <strong>treinamento disfarçado</strong>. Ninguém percebe que está aprendendo:</p>
-        <ul>
-          <li>Reconhecer padrões de manipulação</li>
-          <li>Avaliar caráter sob pressão</li>
-          <li>Trabalhar em equipe com raças diferentes</li>
-          <li><strong>Detectar Zunks</strong> mesmo quando parecem aliados</li>
-        </ul>
-        <p class="centered"><strong>Meta-narrativa:</strong> você, jogador, está participando de uma simulação oficial da Aliança Rímkar. Seus acertos e erros têm peso real.</p>
-      </section>
-
-      <!-- ============================================
-           PARTE VIII — ÉPOCA ATUAL
-           ============================================ -->
-      <section id="p8" class="chapter">
-        <div class="chapter-number">PARTE VIII</div>
-        <h2>Época Atual</h2>
-        <p><strong>Era da Aliança Estável</strong> — o 847º ano desde a assinatura do Pacto dos Quatro.</p>
-        <ul class="stats-list">
-          <li><span>847</span> anos sem guerra aberta</li>
-          <li><span>~12 bi</span> habitantes no sistema</li>
-          <li><span>4</span> mundos em aliança</li>
-          <li><span>?</span> Zunks infiltrados</li>
-        </ul>
-        <p>Os jogos de treinamento, antes cerimoniais, agora são <strong>obrigatórios</strong> para qualquer cidadão que queira posição de responsabilidade.</p>
-        <p class="centered final-line"><strong>Você é um desses cidadãos.<br>Bem-vindo à Aliança.</strong></p>
-      </section>
-
-    </main>
-
-    <footer class="codex-footer">
-      <p>◈ O Códice Rímkar é mantido pelos arquivistas de Nereida ◈</p>
-      <p class="footer-small">Documento vivo · Última atualização: Ano 847 da Aliança Estável</p>
-    </footer>
+      <article class="codex-article vault-article" id="vaultContent">
+        <!-- Conteúdo carregado via JS -->
+      </article>
+    </section>
 
   </div>
 
+  <script src="lore.js"></script>
 </body>
 </html>
