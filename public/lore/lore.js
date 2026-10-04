@@ -120,7 +120,7 @@ async function openBook(section) {
     return;
   }
 
-  // Seções com JSON (historia, politica, jogos)
+  // Seções com JSON (historia, ciencia, politica, jogos)
   await renderSectionList(section);
   showView('view-article');
 }
