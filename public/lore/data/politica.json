@@ -59,27 +59,6 @@
       "data": "Ano 12 da Aliança · Atualizado em 847",
       "icone": "🏛️",
       "conteudo": "<p><em>O Conselho da Aliança Rímkar é o órgão supremo que governa o sistema. Seis representantes, quatro mundos, um Pacto.</em></p><h3>O Que É</h3><p>Após a Grande Fratura, quando os Zunks foram expurgados, os quatro mundos entenderam que nunca mais poderiam se enfrentar. Daquela união nasceu o <strong>Conselho da Aliança</strong> — um órgão permanente, com sede em Nereida, que reúne representantes de todos os mundos para decidir sobre o futuro do sistema.</p><p>O Conselho decide sobre:</p><ul><li>Comércio entre os mundos</li><li>Defesa contra ameaças externas</li><li>Aplicação do Pacto dos Quatro</li><li>Novos tratados e alianças</li></ul><h3>Como Funciona</h3><p>O Conselho segue o modelo <strong>cooperativista rimk</strong>: os três representantes de Rimkópolis, juntos, têm peso 1 nas decisões. Tal qual os outros 3 representantes.</p><p><strong>Maioria simples:</strong> decisões do dia a dia.</p><p><strong>Maioria qualificada (3 de 4):</strong> mudanças no Pacto.</p><p><strong>Unanimidade (4 de 4):</strong> entrar em guerra, dissolver a Aliança.</p>",
-      "eixos": {
-        "titulo": "Os Três Ministérios de Rimkópolis",
-        "subtitulo": "O modelo político rimk se organiza em três ministérios complementares. Todos são necessários para que a vida funcione.",
-        "lista": [
-          {
-            "nome": "Ministério da Vida",
-            "icone": "🌱",
-            "descricao": "Cuida do funcionamento interno da população. Saúde, educação, cultura, bem-estar, saúde, tecnologia, distribuição interna e organização social. Define como as pessoas vivem juntas."
-          },
-          {
-            "nome": "Ministério Midiático",
-            "icone": "📡",
-            "descricao": "Controla e regula a informação. Mídia, comunicação, percepção coletiva, divulgação de conhecimentos científicos. Define a regulação midiática e, consequentemente, como a realidade é percebida."
-          },
-          {
-            "nome": "Ministério do Exterior",
-            "icone": "🌍",
-            "descricao": "Gerencia a posição do planeta no sistema. Diplomacia, alianças, trocas e fluxo de recursos entre planetas. Define como o planeta se conecta ao resto."
-          }
-        ]
-      },
       "representantes": [
         {
           "mundo": "Rimkópolis",
