@@ -70,17 +70,17 @@ function generateMiniAvatar(c, race) {
   const raceFile = RACE_FILES[race] || RACE_FILES[DEFAULT_RACE];
 
   const bg = (c.bg && c.bg !== 'none')
-    ? `<img src="//images/${c.bg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />`
+    ? `<img src="/images/${c.bg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />`
     : '';
 
-  const head = `<img src="//images/${raceFile}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
+  const head = `<img src="/images/${raceFile}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;" />`;
 
   const suit = (c.suit && c.suit !== 'none')
-    ? `<img src="//images/${c.suit}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;" />`
+    ? `<img src="/images/${c.suit}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;" />`
     : '';
 
   const eyewear = (c.eyewear && c.eyewear !== 'none')
-    ? `<img src="//images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />`
+    ? `<img src="/images/${c.eyewear}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;" />`
     : '';
 
   return `<div style="position:relative;width:100%;height:100%;background:#000;">${bg}${head}${suit}${eyewear}</div>`;
