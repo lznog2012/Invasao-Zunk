@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// TEMPORÁRIO: redireciona raiz pro Portal enquanto não migramos de vez
-app.get('/', (_, res) => res.redirect('/portal/'));
+// RAIZ — Portal da Aliança Rímkar
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // Agora a raiz '/' carrega o index.html da pasta public automaticamente
 // Rotas específicas para os jogos:
@@ -19,9 +19,9 @@ app.get('/jogos/deducao', (_, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/jogos/ludo', (_, res) => res.sendFile(path.join(__dirname, 'public', 'jogos', 'ludo', 'index.html')));
 app.get('/lore', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
 app.get('/lore/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'lore', 'index.html')));
-// Rota do Portal (temporária — enquanto não é a raiz)
-app.get('/portal', (_, res) => res.sendFile(path.join(__dirname, 'public', 'portal', 'index.html')));
-app.get('/portal/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'portal', 'index.html')));
+// Redireciona /portal/ pra raiz (caso alguém tenha o link antigo salvo)
+app.get('/portal', (_, res) => res.redirect('/'));
+app.get('/portal/', (_, res) => res.redirect('/'));
 
 const rooms = {};
 
