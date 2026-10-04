@@ -1636,3 +1636,54 @@ h1, h2, h3, h4 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 
     padding: 5px 10px;
   }
 }
+
+/* ============================================
+   BOTÃO VOLTAR AO PORTAL (Rimkerama)
+   ============================================ */
+.portal-return-btn {
+  position: fixed;
+  top: 15px;
+  right: 320px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(30,25,0,0.85);
+  border: 1px solid var(--gold-yellow);
+  border-radius: 25px;
+  color: var(--gold-yellow);
+  text-decoration: none;
+  font-size: 0.8em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.25s;
+  backdrop-filter: blur(8px);
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 0 12px rgba(255,204,0,0.25);
+}
+
+.portal-return-btn:hover {
+  background: var(--gold-yellow);
+  color: #000;
+  box-shadow: 0 0 22px rgba(255,204,0,0.6);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 700px) {
+  .portal-return-btn {
+    top: auto;
+    bottom: 115px;
+    right: 15px;
+    padding: 6px 12px;
+    font-size: 0.7em;
+  }
+}
+
+@media (max-width: 480px) {
+  .portal-return-btn {
+    font-size: 0.65em;
+    padding: 5px 10px;
+  }
+}
