@@ -70,19 +70,16 @@ function updateGlobalBackBtn() {
   const current = document.querySelector('.view.active');
   if (!current) return;
 
-  // Se estiver na estante, vai pra home
+  // Se estiver na estante, o botão vai pra home normalmente (href="/")
+  // Se estiver em outra view, precisa voltar pra estante via JS
   if (current.id === 'view-shelf') {
     btn.href = '/';
     btn.textContent = '← VOLTAR À ESTAÇÃO';
+    btn.dataset.action = 'home';
   } else {
-    // Se estiver em qualquer outra view, volta pra estante
     btn.href = '#';
     btn.textContent = '← VOLTAR À ESTANTE';
-    btn.onclick = (e) => {
-      e.preventDefault();
-      viewHistory = [];
-      showView('view-shelf', { pushHistory: false });
-    };
+    btn.dataset.action = 'shelf';
   }
 }
 
@@ -156,7 +153,6 @@ function renderSolarSystem() {
   const solar = document.getElementById('solarSystem');
   if (!solar) return;
 
-  // Limpa
   solar.innerHTML = '';
 
   // Sol
@@ -164,12 +160,12 @@ function renderSolarSystem() {
   sun.className = 'sun';
   solar.appendChild(sun);
 
-  // Planetas (posição relativa a partir do sol no centro)
+  // Planetas — cada um com um offset inicial pra não alinhar
   const planets = [
-    { nome: 'RIMK',       imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 180, velocidade: 30 },
-    { nome: 'SAHRIN',     imagem: 'kaal7.png',      cor: '#ffcc00', tamanho: 260, velocidade: 45 },
-    { nome: 'NEREID',     imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 340, velocidade: 60 },
-    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 420, velocidade: 75 }
+    { nome: 'RIMKÓPOLIS', imagem: 'rimkopolis.png', cor: '#aaff00', tamanho: 180, velocidade: 30, offset: 0 },
+    { nome: 'KAAL-7',     imagem: 'kaal7.png',      cor: '#ffcc00', tamanho: 260, velocidade: 45, offset: 90 },
+    { nome: 'NEREIDA',    imagem: 'nereida.png',    cor: '#00ffcc', tamanho: 340, velocidade: 60, offset: 200 },
+    { nome: 'FERRUM',     imagem: 'ferrum.png',     cor: '#ff3344', tamanho: 420, velocidade: 75, offset: 305 }
   ];
 
   planets.forEach(p => {
@@ -179,24 +175,23 @@ function renderSolarSystem() {
     orbit.style.width = p.tamanho + 'px';
     orbit.style.height = p.tamanho + 'px';
     orbit.style.animationDuration = p.velocidade + 's';
+    // ⚡ Delay negativo faz começar em posição diferente
+    orbit.style.animationDelay = `-${(p.offset / 360) * p.velocidade}s`;
     solar.appendChild(orbit);
 
-    // Planeta (wrapper que orbita)
+    // Planeta
     const wrapper = document.createElement('div');
     wrapper.className = 'planet-wrapper';
-    wrapper.style.left = '100%';
-    wrapper.style.top = '50%';
 
-    // Botão do planeta
     const btn = document.createElement('button');
     btn.className = 'planet-btn';
     btn.style.setProperty('--planet-color', p.cor);
     btn.style.backgroundImage = `url('/images/planetas/${p.imagem}')`;
     btn.style.animationDuration = p.velocidade + 's';
+    btn.style.animationDelay = `-${(p.offset / 360) * p.velocidade}s`;
     btn.title = `Explorar ${p.nome}`;
     btn.onclick = () => openPlanet(p.nome);
 
-    // Label embaixo
     const label = document.createElement('span');
     label.className = 'planet-label';
     label.style.setProperty('--planet-color', p.cor);
@@ -313,17 +308,18 @@ document.addEventListener('DOMContentLoaded', () => {
     vaultCard.addEventListener('click', () => openBook('zunk'));
   }
 
-  // Botão global voltar (topo esquerdo)
+    // Botão global voltar (topo esquerdo)
   const globalBtn = document.getElementById('globalBackBtn');
   if (globalBtn) {
     globalBtn.addEventListener('click', (e) => {
-      const current = document.querySelector('.view.active');
-      if (current && current.id !== 'view-shelf') {
-        e.preventDefault();
-        viewHistory = [];
-        showView('view-shelf', { pushHistory: false });
+      // Se estamos na estante, deixa ir pra home (href="/")
+      if (globalBtn.dataset.action === 'home') {
+        return; // comportamento padrão do <a>
       }
-      // senão deixa ir pra home normal
+      // Senão, força voltar pra estante
+      e.preventDefault();
+      viewHistory = [];
+      showView('view-shelf', { pushHistory: false });
     });
   }
 
