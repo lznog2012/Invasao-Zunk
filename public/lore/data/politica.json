@@ -53,13 +53,12 @@
       "conteudo": "<p><em>Placeholder: aqui vai detalhar o sistema telepático dos Nereids.</em></p><p>Este artigo vai abordar:</p><ul><li>Decisões por telepatia</li><li>Cristais de memória como registro</li><li>Porta-vozes temporários</li><li>Como a mente coletiva lida com dissidência</li><li>Desafios da Era da Sombra</li></ul>"
     },
     {
-    {
       "numero": "206",
       "titulo": "O Conselho da Aliança",
       "autor": "Arquivista Rimk Theon",
       "data": "Ano 12 da Aliança · Atualizado em 847",
       "icone": "🏛️",
-      "conteudo": "<p><em>O Conselho da Aliança Rímkar é o órgão supremo que governa o sistema. Seis representantes, quatro mundos, um Pacto.</em></p><h3>O Que É</h3><p>Após a Grande Fratura, quando os Zunks foram expurgados, os quatro mundos entenderam que nunca mais poderiam se enfrentar. Daquela união nasceu o <strong>Conselho da Aliança</strong> — um órgão permanente, com sede em Nereida, que reúne representantes de todos os mundos para decidir sobre o futuro do sistema.</p><p>O Conselho decide sobre:</p><ul><li>Comércio entre os mundos</li><li>Defesa contra ameaças externas</li><li>Aplicação do Pacto dos Quatro</li><li>Novos tratados e alianças</li></ul><h3>Como Funciona</h3><p>O Conselho segue o modelo <strong>cooperativista rimk</strong>:os três representantes de Rimkópolis, juntos, têm peso 1 nas decisões. Tal qual os outros 4 representantes.</p><p><strong>Maioria simples:</strong> decisões do dia a dia.</p><p><strong>Maioria qualificada (3 de 4):</strong> mudanças no Pacto.</p><p><strong>Unanimidade (6 de 6):</strong> entrar em guerra, dissolver a Aliança.</p>",
+      "conteudo": "<p><em>O Conselho da Aliança Rímkar é o órgão supremo que governa o sistema. Seis representantes, quatro mundos, um Pacto.</em></p><h3>O Que É</h3><p>Após a Grande Fratura, quando os Zunks foram expurgados, os quatro mundos entenderam que nunca mais poderiam se enfrentar. Daquela união nasceu o <strong>Conselho da Aliança</strong> — um órgão permanente, com sede em Nereida, que reúne representantes de todos os mundos para decidir sobre o futuro do sistema.</p><p>O Conselho decide sobre:</p><ul><li>Comércio entre os mundos</li><li>Defesa contra ameaças externas</li><li>Aplicação do Pacto dos Quatro</li><li>Novos tratados e alianças</li></ul><h3>Como Funciona</h3><p>O Conselho segue o modelo <strong>cooperativista rimk</strong>: os três representantes de Rimkópolis, juntos, têm peso 1 nas decisões. Tal qual os outros 3 representantes.</p><p><strong>Maioria simples:</strong> decisões do dia a dia.</p><p><strong>Maioria qualificada (3 de 4):</strong> mudanças no Pacto.</p><p><strong>Unanimidade (4 de 4):</strong> entrar em guerra, dissolver a Aliança.</p>",
       "eixos": {
         "titulo": "Os Três Ministérios de Rimkópolis",
         "subtitulo": "O modelo político rimk se organiza em três ministérios complementares. Todos são necessários para que a vida funcione.",
@@ -67,7 +66,7 @@
           {
             "nome": "Ministério da Vida",
             "icone": "🌱",
-            "descricao": "Cuida do funcionamento interno da população. Saúde, educação, cultura, bem-estar, saúde, tecnologia,  distribuição interna e organização social. Define como as pessoas vivem juntas."
+            "descricao": "Cuida do funcionamento interno da população. Saúde, educação, cultura, bem-estar, saúde, tecnologia, distribuição interna e organização social. Define como as pessoas vivem juntas."
           },
           {
             "nome": "Ministério Midiático",
@@ -81,27 +80,26 @@
           }
         ]
       },
-      {
       "representantes": [
         {
           "mundo": "Rimkópolis",
           "cor": "#aaff00",
-          "tipo": "Eixo",
-          "cargo": "Representante do Eixo da Vida",
+          "tipo": "Ministério",
+          "cargo": "Ministro(a) da Vida",
           "responsabilidades": "Saúde, educação, cultura, bem-estar e organização social. Define como as pessoas vivem juntas."
         },
         {
           "mundo": "Rimkópolis",
           "cor": "#aaff00",
-          "tipo": "Eixo",
-          "cargo": "Representante do Eixo da Narrativa",
+          "tipo": "Ministério",
+          "cargo": "Ministro(a) Midiático",
           "responsabilidades": "Mídia, comunicação, percepção coletiva. Define o que é divulgado ou ocultado. Define como a realidade é percebida."
         },
         {
           "mundo": "Rimkópolis",
           "cor": "#aaff00",
-          "tipo": "Eixo",
-          "cargo": "Representante do Eixo do Exterior",
+          "tipo": "Ministério",
+          "cargo": "Ministro(a) do Exterior",
           "responsabilidades": "Diplomacia, alianças, trocas. Define como o planeta se conecta ao resto do sistema."
         },
         {
@@ -128,3 +126,5 @@
       ],
       "extra": "<h3>A Sede — O Anfiteatro de Nereida</h3><p>Em <strong>Thal'Mirien</strong>, a cidade-capital submersa de Nereida, fica o Anfiteatro do Conselho. Uma estrutura de cristal vivo, semiaberta, banhada por correntes de água pura.</p><p>Quatro tronos dispostos em círculo — nunca em hierarquia, sempre em unidade. Cada trono tem a cor de seu mundo. Cristais de memória gravam todas as sessões para o registro histórico.</p><h3>Reuniões Rotativas</h3><p>Embora a sede seja em Nereida, o Conselho se reúne em quatro lugares por rotação anual:</p><ul><li><strong>Primavera:</strong> Anfiteatro de Nereida — assinatura anual do Pacto</li><li><strong>Verão:</strong> Forja Central de Ferrum — renovação dos contratos de mineração</li><li><strong>Outono:</strong> Torre dos Astrônomos em Kaal-7 — renovação das rotas estelares</li><li><strong>Inverno:</strong> Grande Salão de Rimkópolis — sessão legislativa principal</li></ul>"
     }
+  ]
+}
