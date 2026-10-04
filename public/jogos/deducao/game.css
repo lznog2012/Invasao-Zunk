@@ -311,3 +311,75 @@ body::after {
   font-weight: bold;
   text-transform: uppercase;
 }
+
+/* ============================================
+   BOTÃO VOLTAR À ESTAÇÃO
+   ============================================ */
+.back-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background: #002211;
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  padding: 8px 14px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.back-btn:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+/* Empurra o botão MANUAL pra direita pra não sobrepor */
+.guide-toggle-btn {
+  left: 175px !important;
+}
+
+/* Botão de link (voltar) dentro do painel de fim de jogo */
+.btn-link {
+  display: inline-block;
+  padding: 12px 15px;
+  background: var(--matrix-dark-green);
+  color: var(--matrix-green);
+  border: 1px solid var(--matrix-green);
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: 0.2s;
+  font-size: 0.95em;
+  font-family: inherit;
+  letter-spacing: 1px;
+}
+
+.btn-link:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+@media (max-width: 550px) {
+  .back-btn {
+    font-size: 0.7em;
+    padding: 6px 10px;
+  }
+  .guide-toggle-btn {
+    left: 140px !important;
+    font-size: 0.7em !important;
+    padding: 6px 10px !important;
+  }
+  .btn-link {
+    font-size: 0.85em;
+    padding: 10px 14px;
+  }
+}
