@@ -204,15 +204,14 @@ h1, h2, h3, h4 {
   position: relative;
   cursor: pointer;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  padding: 10px 12px 12px 10px;
-  /* espaço pras páginas aparecerem atrás */
+  padding: 0 14px 14px 0;   /* espaço só pra baixo/direita — capa fica no canto superior esquerdo */
 }
 
 /* Páginas empilhadas (ficam atrás da capa) */
 .book-pages {
   position: absolute;
-  top: 16px;
-  left: 20px;
+  top: 8px;              /* deslocamento pequeno — páginas aparecem só na direita/embaixo */
+  left: 8px;
   right: 0;
   bottom: 0;
   background: #f5f0df;
@@ -224,6 +223,7 @@ h1, h2, h3, h4 {
     8px 8px 15px rgba(0,0,0,0.5);
   overflow: hidden;
   z-index: 1;
+  transition: transform 0.35s;
 }
 
 /* Linhas sutis nas páginas (efeito de folhas empilhadas) */
