@@ -383,3 +383,72 @@ body::after {
     padding: 10px 14px;
   }
 }
+
+/* ============================================
+   BOTÕES FIXOS — DEDUÇÃO (posicionamento padronizado)
+   ============================================ */
+
+/* Botão voltar — canto superior esquerdo */
+.back-btn {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1001;
+}
+
+/* Manual — deslocado para a direita do "Voltar" */
+.guide-toggle-btn {
+  position: fixed !important;
+  top: 15px !important;
+  left: 180px !important;      /* ao lado do back-btn */
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1001;
+}
+
+/* Som — canto inferior direito */
+.sound-toggle {
+  position: fixed !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 1001;
+}
+
+/* ============ MOBILE ============ */
+@media (max-width: 550px) {
+  .back-btn {
+    top: 10px !important;
+    left: 10px !important;
+    font-size: 0.65em !important;
+    padding: 6px 9px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .guide-toggle-btn {
+    top: 10px !important;
+    left: 125px !important;      /* mais perto em mobile */
+    font-size: 0.65em !important;
+    padding: 6px 9px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .sound-toggle {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+/* ============ MOBILE EXTREMO (<= 400px) ============ */
+@media (max-width: 400px) {
+  .guide-toggle-btn {
+    /* Empilha o manual abaixo do voltar para não colidir */
+    top: 48px !important;
+    left: 10px !important;
+  }
+}
