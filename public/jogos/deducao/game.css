@@ -452,3 +452,64 @@ body::after {
     left: 10px !important;
   }
 }
+
+/* ============================================
+   BOTÕES FIXOS — DEDUÇÃO (posicionamento final)
+   ============================================ */
+.back-btn {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1001;
+}
+
+.guide-toggle-btn {
+  position: fixed !important;
+  top: 15px !important;
+  left: 215px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1001;
+}
+
+.sound-toggle {
+  position: fixed !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 1001;
+}
+
+@media (max-width: 700px) {
+  .back-btn {
+    top: 10px !important;
+    left: 10px !important;
+    font-size: 0.65em !important;
+    padding: 6px 9px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .guide-toggle-btn {
+    top: 10px !important;
+    left: 165px !important;
+    font-size: 0.65em !important;
+    padding: 6px 9px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .sound-toggle {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Empilha em telas muito pequenas */
+  .guide-toggle-btn {
+    top: 48px !important;
+    left: 10px !important;
+  }
+}
