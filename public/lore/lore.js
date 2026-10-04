@@ -211,6 +211,8 @@ async function openArticle(section, numero) {
     </header>
     <div class="article-body">
       ${artigo.conteudo}
+      ${artigo.representantes ? renderCouncilCards(artigo.representantes) : ''}
+      ${artigo.extra ? `<div class="article-extra">${artigo.extra}</div>` : ''}
     </div>
     <footer class="article-footer">
       ${anterior
@@ -230,6 +232,29 @@ async function openArticle(section, numero) {
   if (typeof attachSoundsLore === 'function') {
     setTimeout(attachSoundsLore, 100);
   }
+}
+
+function renderCouncilCards(representantes) {
+  const cards = representantes.map(r => `
+    <div class="council-card" style="--council-color: ${r.cor};">
+      <div class="council-avatar"></div>
+      <div class="council-type">${r.tipo}</div>
+      <div class="council-role">${r.cargo}</div>
+      <div class="council-world">${r.mundo}</div>
+      <div class="council-name">A DEFINIR</div>
+      <div class="council-resp">${r.responsabilidades}</div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="council-notice">
+      ⚜️ <b>ASSENTOS EM PROCESSO DE DESIGNAÇÃO</b><br>
+      Os nomes dos representantes serão anunciados em breve pelo Conselho.
+    </div>
+    <div class="council-grid">
+      ${cards}
+    </div>
+  `;
 }
 
 // ============================================
