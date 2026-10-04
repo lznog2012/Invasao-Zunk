@@ -894,3 +894,40 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
   font-weight: bold;
   text-transform: uppercase;
 }
+
+/* ============================================
+   BOTÕES FIXOS — LUDO (posicionamento padronizado)
+   ============================================ */
+
+.back-btn {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1001;
+}
+
+.sound-toggle {
+  position: fixed !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 1001;
+}
+
+@media (max-width: 550px) {
+  .back-btn {
+    top: 10px !important;
+    left: 10px !important;
+    font-size: 0.65em !important;
+    padding: 6px 9px !important;
+  }
+  .sound-toggle {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
