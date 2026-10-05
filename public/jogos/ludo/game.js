@@ -567,7 +567,7 @@ function renderTurnInfo() {
   const diceRolled = roomState.dice !== null;
 
   if (btn) {
-    btn.disabled = !myTurn || diceRolled || roomState.state !== 'PLAYING';
+    btn.disabled = !myTurn || diceRolled || roomState.state !== 'PLAYING' || roomState.isPaused;
   }
 
   if (hint) {
@@ -844,6 +844,30 @@ socket.on('reconnected', d => {
     document.getElementById('displayRoomCode').innerText = data.code;
   });
 
+  socket.on('ludoPauseVoteStarted', (data) => {
+    showPauseVoteModal(data);
+    showToast('⏸ VOTAÇÃO', `${data.proposedBy} propôs ${data.target ? 'pausar' : 'retomar'} o jogo.`, 'cyan');
+  });
+
+  socket.on('ludoPauseVoteUpdate', (data) => {
+    updatePauseVoteProgress(data.votes, data.total);
+  });
+
+  socket.on('ludoPauseVoteResult', (data) => {
+    hidePauseVoteModal();
+    if (data.approved) {
+      if (data.isPaused) {
+        showPausedOverlay();
+        showToast('⏸ PAUSADO', 'O jogo foi pausado por votação.', 'gold');
+      } else {
+        hidePausedOverlay();
+        showToast('▶ RETOMADO', 'O jogo foi retomado por votação.', 'cyan');
+      }
+    } else {
+      showToast('❌ RECUSADO', `Votação não aprovada (${data.yes} sim / ${data.no} não).`, 'zunk');
+    }
+  });
+  
   socket.on('ludoLobby', (data) => {
     const colors = data.mode === 'B'
       ? [
@@ -1043,6 +1067,11 @@ socket.on('reconnected', d => {
       document.body.appendChild(flash);
       setTimeout(() => flash.remove(), 700);
       SOUNDS.turn();
+    // Sincroniza overlay de pausa
+    if (state.state === 'PLAYING' && state.isPaused) {
+      showPausedOverlay();
+    } else {
+      hidePausedOverlay();
     }
   });
 
