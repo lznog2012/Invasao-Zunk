@@ -36,7 +36,7 @@ function init(io, rooms, broadcastStats) {
     return BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)] + '_' + Date.now().toString().slice(-3);
   }
 
-    function getTakenColors(room) {
+  function getTakenColors(room) {
     const taken = new Set();
     Object.values(room.players).forEach(p => {
       if (p.playerIndex !== null && p.playerIndex !== undefined) {
@@ -61,7 +61,6 @@ function init(io, rooms, broadcastStats) {
       if (canMovePawn(pos, dice)) valid.push({ idx, pos });
     });
     if (!valid.length) return null;
-    // Prioriza peões já no tabuleiro (mais úteis) e, entre eles, o mais avançado
     const onBoard = valid.filter(v => v.pos !== -1);
     const pool = onBoard.length ? onBoard : valid;
     pool.sort((a, b) => b.pos - a.pos);
@@ -75,17 +74,19 @@ function init(io, rooms, broadcastStats) {
     const p = room.players[currentId];
     if (!p || !p.isBot || p.eliminated) return;
     if (room.dice !== null) return;
+    if (room.isPaused) return;
 
     setTimeout(() => {
       const r = rooms[room.code];
       if (!r || r.state !== 'PLAYING') return;
       if (r.turnOrder[r.currentTurn] !== currentId) return;
       if (r.dice !== null) return;
+      if (r.isPaused) return;
       performRoll(r, currentId);
     }, 1200 + Math.random() * 900);
   }
 
-    function performRoll(room, playerId) {
+  function performRoll(room, playerId) {
     if (room.state !== 'PLAYING') return;
     const player = room.players[playerId];
     if (!player || player.eliminated) return;
@@ -117,7 +118,7 @@ function init(io, rooms, broadcastStats) {
     });
     broadcastState(room);
 
-        if (!anyMove) {
+    if (!anyMove) {
       io.to(room.code).emit('ludoChat', {
         sender: 'SISTEMA',
         text: `🎲 ${player.name} tirou ${dice}, mas não tem jogadas válidas.`,
@@ -130,13 +131,11 @@ function init(io, rooms, broadcastStats) {
       return;
     }
 
-    // Conta quantos peões podem mover
     const validMoves = [];
     player.pawns.forEach((pos, idx) => {
       if (canMovePawn(pos, dice)) validMoves.push(idx);
     });
 
-    // AUTO-MOVE: se só tem 1 jogada válida, move sozinho (humano E bot)
     if (validMoves.length === 1) {
       const delay = player.isBot ? 1300 : 1000;
       setTimeout(() => {
@@ -157,7 +156,6 @@ function init(io, rooms, broadcastStats) {
       return;
     }
 
-    // Se for bot com múltiplas jogadas, escolhe sozinho
     if (player.isBot) {
       setTimeout(() => {
         const r = rooms[room.code];
@@ -179,7 +177,6 @@ function init(io, rooms, broadcastStats) {
     const result = applyMove(room, playerId, pawnIndex);
     if (result === false) return;
 
-    // 1. ⚡ EMITE CAPTURAS PRIMEIRO (antes do state)
     if (result.captured.length) {
       io.to(room.code).emit('ludoCapture', {
         attackerId: playerId,
@@ -188,13 +185,11 @@ function init(io, rooms, broadcastStats) {
       });
     }
 
-    // 2. Fim de jogo
     if (result.finished) {
       player.finished = true;
       if (checkWin(room)) return;
     }
 
-    // 3. Transição de turno (que vai emitir ludoState)
     if (result.dice === 6) {
       if (room.sixesInARow >= MAX_SIXES) {
         room.sixesInARow = 0;
@@ -279,7 +274,7 @@ function init(io, rooms, broadcastStats) {
     io.to(room.code).emit('ludoState', publicState(room));
   }
 
-    function broadcastLobby(room) {
+  function broadcastLobby(room) {
     const taken = getTakenColors(room);
     const colors = getColors(room.mode);
     const availableColors = colors.map((c, i) => ({ idx: i, taken: taken.has(i) }));
@@ -350,7 +345,6 @@ function init(io, rooms, broadcastStats) {
     const newPos = pos === -1 ? 0 : pos + dice;
     player.pawns[pawnIndex] = newPos;
 
-    // Captura (apenas se caiu no anel, 0-50)
     const captured = [];
     if (newPos >= 0 && newPos <= 50) {
       const ringIdx = getRingIndex(player.playerIndex, newPos);
@@ -373,30 +367,6 @@ function init(io, rooms, broadcastStats) {
 
     const finished = player.pawns.every(p => p === FINISH_POS);
     return { captured, finished, dice };
-  }
-  
-    // Verifica fim de jogo
-    if (player.pawns.every(p => p === FINISH_POS)) {
-      player.finished = true;
-      if (checkWin(room)) return captured;
-    }
-
-    // Re-rolar se tirou 6
-    if (dice === 6) {
-      if (room.sixesInARow >= MAX_SIXES) {
-        room.sixesInARow = 0;
-        nextTurn(room);
-      } else {
-        room.dice = null;
-        io.to(room.code).emit('ludoRollAgain', { playerId });
-        startTurnTimer(room);
-        broadcastState(room);
-      }
-    } else {
-      nextTurn(room);
-    }
-
-    return captured;
   }
 
   function checkWin(room) {
@@ -440,7 +410,7 @@ function init(io, rooms, broadcastStats) {
         room.hostId = room.turnOrder[0];
         room.players[room.hostId].isHost = true;
       }
-           if (!room.turnOrder.length) {
+      if (!room.turnOrder.length) {
         delete rooms[room.code];
         if (typeof broadcastStats === 'function') broadcastStats();
       } else {
@@ -513,7 +483,7 @@ function init(io, rooms, broadcastStats) {
   // ========== SOCKET HANDLERS ==========
   io.on('connection', (socket) => {
 
-   socket.on('ludoCreate', ({ name, avatar, mode, maxPlayers }) => {
+    socket.on('ludoCreate', ({ name, avatar, mode, maxPlayers }) => {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
       let code;
       do {
@@ -562,7 +532,7 @@ function init(io, rooms, broadcastStats) {
       if (room.state !== 'LOBBY') return socket.emit('errorMsg', 'Partida já iniciada.');
       if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
 
-            room.players[socket.id] = {
+      room.players[socket.id] = {
         id: socket.id, name, avatar,
         color: null, colorName: null, team: null,
         playerIndex: null, isHost: false, ready: false, disconnected: false,
@@ -612,7 +582,7 @@ function init(io, rooms, broadcastStats) {
       const room = rooms[code];
       if (!room || room.hostId !== socket.id) return;
       if (room.state !== 'LOBBY') return;
-           if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
+      if (Object.keys(room.players).length >= room.maxPlayers) return socket.emit('errorMsg', 'Sala cheia.');
       const colorIdx = getFirstAvailableColor(room);
       if (colorIdx === -1) return socket.emit('errorMsg', 'Todas as cores estão em uso.');
       const colors = getColors(room.mode);
@@ -639,11 +609,10 @@ function init(io, rooms, broadcastStats) {
       const botId = botIds[botIds.length - 1];
       delete room.players[botId];
       room.turnOrder = room.turnOrder.filter(id => id !== botId);
-      // Não renumera — a cor que o bot usava fica livre pra outro escolher
       broadcastLobby(room);
     });
     
-        socket.on('ludoStart', ({ code }) => {
+    socket.on('ludoStart', ({ code }) => {
       const room = rooms[code];
       if (!room || room.hostId !== socket.id) return;
 
@@ -658,13 +627,11 @@ function init(io, rooms, broadcastStats) {
         return socket.emit('errorMsg', 'Todos precisam estar prontos.');
       }
 
-      // Todos escolheram uma cor?
       const noColor = Object.values(room.players).find(p => p.playerIndex === null || p.playerIndex === undefined);
       if (noColor) {
         return socket.emit('errorMsg', `${noColor.name} ainda não escolheu uma cor.`);
       }
 
-      // Modo B: times balanceados?
       if (room.mode === 'B') {
         const rimk = Object.values(room.players).filter(p => p.team === 'RIMK').length;
         const zunk = Object.values(room.players).filter(p => p.team === 'ZUNK').length;
@@ -685,7 +652,7 @@ function init(io, rooms, broadcastStats) {
       startTurnTimer(room);
     });
 
-   socket.on('ludoRoll', ({ code }) => {
+    socket.on('ludoRoll', ({ code }) => {
       const room = rooms[code];
       if (!room || room.state !== 'PLAYING') return;
       if (room.turnOrder[room.currentTurn] !== socket.id) return;
@@ -718,7 +685,6 @@ function init(io, rooms, broadcastStats) {
       room.pauseProposedBy = socket.id;
       room.pauseTarget = !room.isPaused;
 
-      // Propositor vota sim automaticamente
       room.pauseVotes[socket.id] = true;
 
       const alive = Object.values(room.players).filter(pl => !pl.eliminated);
@@ -731,7 +697,6 @@ function init(io, rooms, broadcastStats) {
         votes: { ...room.pauseVotes }
       });
 
-      // Bots votam sim após um delay
       alive.forEach(pl => {
         if (!pl.isBot) return;
         if (pl.id === socket.id) return;
@@ -783,5 +748,6 @@ function init(io, rooms, broadcastStats) {
       }, DISCONNECT_GRACE * 1000);
     });
   });
+}
 
 module.exports = { init };
