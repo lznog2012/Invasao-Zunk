@@ -277,7 +277,7 @@ function init(io, rooms, broadcastStats) {
       attempts++;
       const pid = room.turnOrder[room.currentTurn];
       const p = room.players[pid];
-      if (p && !p.eliminated) break;
+      if (p && !p.eliminated && !p.finished) break;
     } while (attempts < room.turnOrder.length);
     startTurnTimer(room);
     broadcastState(room);
@@ -324,6 +324,8 @@ function init(io, rooms, broadcastStats) {
       if (!SAFE_INDICES.has(ringIdx)) {
         Object.values(room.players).forEach(other => {
           if (other.id === playerId || other.eliminated) return;
+          // ⚡ NOVO: no modo dupla, não captura aliados do mesmo time
+          if (player.team && other.team && player.team === other.team) return;
           other.pawns.forEach((op, oi) => {
             if (op >= 0 && op <= 50) {
               const oRingIdx = getRingIndex(other.playerIndex, op);
