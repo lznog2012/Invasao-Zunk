@@ -807,10 +807,6 @@ function sendGameChat() {
   input.value = '';
 }
 
-function closeCaptureModal() {
-  document.getElementById('captureModal').classList.remove('open');
-}
-
 function backToLobby() {
   location.reload();
 }
@@ -1170,6 +1166,8 @@ socket.on('reconnected', d => {
       document.body.appendChild(flash);
       setTimeout(() => flash.remove(), 700);
       SOUNDS.turn();
+    }
+
     // Sincroniza overlay de pausa
     if (state.state === 'PLAYING' && state.isPaused) {
       showPausedOverlay();
@@ -1231,7 +1229,7 @@ socket.on('reconnected', d => {
   });
 
   socket.on('ludoEnd', (data) => {
-     saveLudoHistory(data);
+    saveLudoHistory(data);
     document.getElementById('gameView').style.display = 'none';
     document.getElementById('endView').style.display = 'block';
 
