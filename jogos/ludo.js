@@ -239,8 +239,8 @@ function init(io, rooms, broadcastStats) {
         pawns: [...p.pawns], finished: p.finished, eliminated: p.eliminated,
         playerIndex: p.playerIndex
       }))
-        };
-      })
+    };
+  }
 
   function broadcastState(room) {
     io.to(room.code).emit('ludoState', publicState(room));
