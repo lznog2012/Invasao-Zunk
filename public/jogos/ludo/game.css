@@ -967,3 +967,227 @@ button.ready-btn.active { background: var(--cyan-glow); color: #000; }
     height: 38px !important;
   }
 }
+
+/* ============================================
+   BOTÃO DE PAUSA
+   ============================================ */
+.pause-btn {
+  background: rgba(0, 20, 40, 0.7);
+  border: 1px solid var(--cyan-glow);
+  color: var(--cyan-glow);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.8em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.pause-btn:hover {
+  background: var(--cyan-glow);
+  color: #000;
+  box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+/* ============================================
+   MODAL DE VOTAÇÃO
+   ============================================ */
+.pause-vote-content {
+  max-width: 460px;
+  text-align: center;
+}
+
+.pause-vote-content h2 {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 15px var(--cyan-glow);
+  margin-bottom: 15px;
+  letter-spacing: 3px;
+}
+
+.pause-vote-desc {
+  color: #b8ddc8;
+  font-size: 0.95em;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.pause-vote-desc b {
+  color: var(--gold-yellow);
+}
+
+.pause-vote-progress {
+  margin-bottom: 20px;
+}
+
+.pause-vote-bar {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0,255,255,0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.pause-vote-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cyan-glow), #00aa88);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  transition: width 0.3s ease;
+}
+
+.pause-vote-count {
+  font-size: 0.75em;
+  color: #88aa99;
+  letter-spacing: 2px;
+  font-style: italic;
+}
+
+.pause-vote-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.pause-vote-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 0.9em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: 1px solid;
+}
+
+.vote-yes {
+  background: rgba(0, 100, 50, 0.4);
+  border-color: var(--matrix-green);
+  color: var(--matrix-green);
+}
+
+.vote-yes:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.vote-no {
+  background: rgba(60, 0, 20, 0.4);
+  border-color: var(--alert-red);
+  color: var(--alert-red);
+}
+
+.vote-no:hover {
+  background: var(--alert-red);
+  color: #fff;
+  box-shadow: 0 0 15px var(--alert-red);
+}
+
+.pause-vote-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pause-vote-actions button:disabled:hover {
+  background: initial;
+  box-shadow: none;
+}
+
+/* ============================================
+   OVERLAY DE JOGO PAUSADO
+   ============================================ */
+.paused-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 1500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.paused-overlay.open {
+  display: flex;
+}
+
+.paused-box {
+  background: linear-gradient(135deg, rgba(0, 30, 30, 0.95), rgba(0, 10, 15, 0.95));
+  border: 2px solid var(--cyan-glow);
+  border-radius: 16px;
+  padding: 40px 50px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.3), inset 0 0 40px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  animation: pausedIn 0.4s ease;
+}
+
+@keyframes pausedIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.paused-icon {
+  font-size: 4em;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 25px var(--cyan-glow);
+  margin-bottom: 15px;
+  animation: pausedPulse 2s ease-in-out infinite;
+}
+
+@keyframes pausedPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.paused-box h2 {
+  color: var(--cyan-glow);
+  font-size: 1.6em;
+  letter-spacing: 5px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 15px var(--cyan-glow);
+}
+
+.paused-box p {
+  color: #88aa99;
+  font-size: 0.9em;
+  margin-bottom: 25px;
+  font-style: italic;
+}
+
+.resume-btn {
+  background: rgba(0, 100, 50, 0.5);
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 0.85em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.resume-btn:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 20px var(--matrix-green);
+}
+
+@media (max-width: 600px) {
+  .paused-box {
+    padding: 30px 25px;
+  }
+  .paused-icon { font-size: 3em; }
+  .paused-box h2 { font-size: 1.2em; letter-spacing: 3px; }
+  .pause-vote-actions { flex-direction: column; }
+}
