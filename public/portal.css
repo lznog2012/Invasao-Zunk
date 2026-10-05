@@ -886,3 +886,48 @@ body::after {
   .comunicado-dot { width: 5px; height: 5px; }
   .comunicado-dot.active { width: 14px; }
 }
+
+/* ============================================
+   BOTÃO DE SOM
+   ============================================ */
+.sound-toggle {
+  position: fixed !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 2000;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2em;
+  background: rgba(0, 40, 20, 0.9);
+  border: 1px solid var(--matrix-green);
+  color: var(--matrix-green);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  box-shadow: 0 0 12px rgba(0,255,102,0.3);
+}
+
+.sound-toggle:hover {
+  background: var(--matrix-green);
+  color: #000;
+  box-shadow: 0 0 20px var(--matrix-green);
+}
+
+.sound-toggle.muted {
+  opacity: 0.4;
+  border-color: #666;
+  color: #666;
+  box-shadow: none;
+}
+
+@media (max-width: 550px) {
+  .sound-toggle {
+    width: 38px;
+    height: 38px;
+    font-size: 1em;
+  }
+}
