@@ -815,6 +815,94 @@ function spawnConfetti() {
   }
 }
 
+// ========== CAPTURA ==========
+let captureAlertTimer = null;
+
+function showCaptureAlert(attackerName, captured) {
+  const el = document.getElementById('captureAlert');
+  if (!el) return;
+
+  const names = captured.map(c => c.playerName).join(', ');
+  const count = captured.length;
+
+  el.innerHTML = `
+    <span class="alert-icon">⚠️ CAPTURA!</span>
+    <span class="alert-attacker">${attackerName}</span> abduziu <span class="alert-victim">${names}</span>
+    ${count > 1 ? `<br><small style="opacity:0.75;font-size:0.8em;letter-spacing:1px;">${count} peões abduzidos</small>` : ''}
+  `;
+
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+
+  if (captureAlertTimer) clearTimeout(captureAlertTimer);
+  captureAlertTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, 5000);
+}
+
+function startAbductionAnimation(entry) {
+  const el = entry.el;
+  const board = document.getElementById('ludoBoard');
+  if (!board || !el) return;
+
+  const left = el.style.left;
+  const top = el.style.top;
+
+  // Criar nave alienígena
+  const ship = document.createElement('div');
+  ship.className = 'abduction-ship';
+  ship.textContent = '🛸';
+  ship.style.left = left;
+  ship.style.top = top;
+  board.appendChild(ship);
+
+  // Criar feixe de luz
+  const beam = document.createElement('div');
+  beam.className = 'abduction-beam';
+  beam.style.left = left;
+  beam.style.top = top;
+  board.appendChild(beam);
+
+  // Timeline:
+  // 0ms    → nave descendo
+  // 600ms  → feixe ativa + peão começa a subir
+  // 1800ms → nave sobe, peão teleporta pra base
+  // 1900ms → peão materializa na base
+  // 2800ms → limpeza
+
+  setTimeout(() => {
+    beam.classList.add('active');
+    el.classList.add('abducting');
+  }, 600);
+
+  setTimeout(() => {
+    ship.classList.add('ascending');
+    beam.classList.remove('active');
+    beam.classList.add('fading');
+
+    el.classList.add('teleporting');
+    el.classList.remove('abducting');
+
+    setTimeout(() => {
+      entry.pos = -1;
+      entry.animating = false;
+      layoutAllPawns();
+
+      setTimeout(() => {
+        el.classList.remove('teleporting');
+        el.classList.add('materializing');
+        setTimeout(() => el.classList.remove('materializing'), 900);
+      }, 50);
+    }, 100);
+  }, 1800);
+
+  setTimeout(() => {
+    ship.remove();
+    beam.remove();
+  }, 2800);
+}
+
 // ========== SOCKET LISTENERS ==========
 if (socket) {
 
@@ -1096,17 +1184,25 @@ socket.on('reconnected', d => {
   });
 
   socket.on('ludoCapture', (data) => {
-    SOUNDS.capture();
-    const info = document.getElementById('captureInfo');
-    if (info && data.captured?.length) {
-      info.innerHTML = data.captured.map(c => `💥 <b>${c.playerName}</b> perdeu um peão!`).join('<br>');
-      const modal = document.getElementById('captureModal');
-      modal.classList.add('open');
-      modal.querySelector('.modal-content').classList.add('capture-flash');
-      setTimeout(() => {
-        modal.querySelector('.modal-content')?.classList.remove('capture-flash');
-      }, 700);
-    }
+    if (!data.captured || !data.captured.length) return;
+
+    SOUNDS.abduction();
+
+    // Mostra banner vermelho
+    showCaptureAlert(data.attackerName, data.captured);
+
+    // Anima cada peão capturado
+    data.captured.forEach(c => {
+      const key = `${c.playerId}#${c.pawnIndex}`;
+      const entry = pawnElements[key];
+      if (!entry) return;
+
+      // Trava a posição atual do peão (impede renderPawns de movê-lo)
+      entry.animating = true;
+
+      // Inicia animação de abdução
+      startAbductionAnimation(entry);
+    });
   });
 
   socket.on('ludoChat', (data) => {
