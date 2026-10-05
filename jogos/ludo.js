@@ -175,13 +175,39 @@ function init(io, rooms, broadcastStats) {
     if (room.dice === null) return;
     if (room.isPaused) return;
 
-    const captured = applyMove(room, playerId, pawnIndex);
-    if (captured === false) return;
+    const player = room.players[playerId];
+    const result = applyMove(room, playerId, pawnIndex);
+    if (result === false) return;
 
-    if (Array.isArray(captured) && captured.length) {
-      io.to(room.code).emit('ludoCapture', { captured });
+    // 1. ⚡ EMITE CAPTURAS PRIMEIRO (antes do state)
+    if (result.captured.length) {
+      io.to(room.code).emit('ludoCapture', {
+        attackerId: playerId,
+        attackerName: player.name,
+        captured: result.captured
+      });
     }
-    broadcastState(room);
+
+    // 2. Fim de jogo
+    if (result.finished) {
+      player.finished = true;
+      if (checkWin(room)) return;
+    }
+
+    // 3. Transição de turno (que vai emitir ludoState)
+    if (result.dice === 6) {
+      if (room.sixesInARow >= MAX_SIXES) {
+        room.sixesInARow = 0;
+        nextTurn(room);
+      } else {
+        room.dice = null;
+        io.to(room.code).emit('ludoRollAgain', { playerId });
+        startTurnTimer(room);
+        broadcastState(room);
+      }
+    } else {
+      nextTurn(room);
+    }
   }
   
   // ========== HELPERS ==========
@@ -331,7 +357,6 @@ function init(io, rooms, broadcastStats) {
       if (!SAFE_INDICES.has(ringIdx)) {
         Object.values(room.players).forEach(other => {
           if (other.id === playerId || other.eliminated) return;
-          // ⚡ NOVO: no modo dupla, não captura aliados do mesmo time
           if (player.team && other.team && player.team === other.team) return;
           other.pawns.forEach((op, oi) => {
             if (op >= 0 && op <= 50) {
@@ -346,6 +371,10 @@ function init(io, rooms, broadcastStats) {
       }
     }
 
+    const finished = player.pawns.every(p => p === FINISH_POS);
+    return { captured, finished, dice };
+  }
+  
     // Verifica fim de jogo
     if (player.pawns.every(p => p === FINISH_POS)) {
       player.finished = true;
