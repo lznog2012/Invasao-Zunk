@@ -232,14 +232,13 @@ function init(io, rooms, broadcastStats) {
       currentTurnId: room.turnOrder[room.currentTurn] || null,
       dice: room.dice,
       turnTimeLeft: room.turnTimeLeft,
-      players: Object.values(room.players).map(p => {
-        const viewer = room.players[Object.keys(room.players).find(id => room.players[id].clientId === arguments[1])];
-        return {
-          id: p.id, name: p.name, avatar: p.avatar,
-          color: p.color, colorName: p.colorName, team: p.team || null,
-          isHost: p.isHost, isBot: !!p.isBot, ready: p.ready, disconnected: p.disconnected,
-          pawns: [...p.pawns], finished: p.finished, eliminated: p.eliminated,
-          playerIndex: p.playerIndex
+      players: Object.values(room.players).map(p => ({
+        id: p.id, name: p.name, avatar: p.avatar,
+        color: p.color, colorName: p.colorName, team: p.team || null,
+        isHost: p.isHost, isBot: !!p.isBot, ready: p.ready, disconnected: p.disconnected,
+        pawns: [...p.pawns], finished: p.finished, eliminated: p.eliminated,
+        playerIndex: p.playerIndex
+      }))
         };
       })
 
