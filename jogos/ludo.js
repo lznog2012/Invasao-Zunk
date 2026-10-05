@@ -218,7 +218,11 @@ function init(io, rooms, broadcastStats) {
       sixesInARow: 0,
       turnTimer: null,
       turnTimeLeft: 0,
-      disconnectTimers: {}
+      disconnectTimers: {},
+      isPaused: false,
+      pauseVotes: null,
+      pauseProposedBy: null,
+      pauseTarget: null
     };
   }
 
@@ -232,6 +236,7 @@ function init(io, rooms, broadcastStats) {
       currentTurnId: room.turnOrder[room.currentTurn] || null,
       dice: room.dice,
       turnTimeLeft: room.turnTimeLeft,
+      isPaused: !!room.isPaused,
       players: Object.values(room.players).map(p => ({
         id: p.id, name: p.name, avatar: p.avatar,
         color: p.color, colorName: p.colorName, team: p.team || null,
