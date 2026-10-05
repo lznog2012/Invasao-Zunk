@@ -91,6 +91,7 @@ function init(io, rooms, broadcastStats) {
     if (!player || player.eliminated) return;
     if (room.dice !== null) return;
     if (room.turnOrder[room.currentTurn] !== playerId) return;
+    if (room.isPaused) return;
 
     const dice = rollDice();
     room.dice = dice;
@@ -172,6 +173,7 @@ function init(io, rooms, broadcastStats) {
     if (room.state !== 'PLAYING') return;
     if (room.turnOrder[room.currentTurn] !== playerId) return;
     if (room.dice === null) return;
+    if (room.isPaused) return;
 
     const captured = applyMove(room, playerId, pawnIndex);
     if (captured === false) return;
@@ -288,9 +290,9 @@ function init(io, rooms, broadcastStats) {
     broadcastState(room);
   }
 
-  function startTurnTimer(room) {
+  function startTurnTimer(room, preserveTime) {
     clearInterval(room.turnTimer);
-    room.turnTimeLeft = TURN_TIME;
+    if (!preserveTime) room.turnTimeLeft = TURN_TIME;
     io.to(room.code).emit('ludoTimer', room.turnTimeLeft);
     room.turnTimer = setInterval(() => {
       room.turnTimeLeft--;
@@ -440,6 +442,45 @@ function init(io, rooms, broadcastStats) {
     io.to(room.code).emit('ludoPlayerLeft', { playerId, playerName: p.name });
   }
 
+  function checkPauseVote(room, code) {
+    if (!room.pauseVotes) return;
+    const alive = Object.values(room.players).filter(pl => !pl.eliminated);
+    const voted = Object.keys(room.pauseVotes).length;
+
+    io.to(code).emit('ludoPauseVoteUpdate', {
+      votes: room.pauseVotes,
+      total: alive.length
+    });
+
+    if (voted < alive.length) return;
+
+    const yes = Object.values(room.pauseVotes).filter(v => v).length;
+    const no = voted - yes;
+    const approved = yes > no;
+
+    if (approved) {
+      room.isPaused = room.pauseTarget;
+      if (room.isPaused) {
+        clearInterval(room.turnTimer);
+      } else {
+        startTurnTimer(room, true);
+      }
+    }
+
+    io.to(code).emit('ludoPauseVoteResult', {
+      approved,
+      isPaused: room.isPaused,
+      yes,
+      no,
+      total: alive.length
+    });
+
+    room.pauseVotes = null;
+    room.pauseProposedBy = null;
+    room.pauseTarget = null;
+    broadcastState(room);
+  }
+  
   // ========== SOCKET HANDLERS ==========
   io.on('connection', (socket) => {
 
@@ -637,6 +678,58 @@ function init(io, rooms, broadcastStats) {
       io.to(code).emit('ludoChat', { sender: p.name, text: text.trim(), type: 'normal' });
     });
 
+    socket.on('ludoProposePause', ({ code }) => {
+      const room = rooms[code];
+      if (!room || room.state !== 'PLAYING') return;
+      const p = room.players[socket.id];
+      if (!p || p.eliminated) return;
+      if (room.pauseVotes) return socket.emit('errorMsg', 'Já existe uma votação em andamento.');
+
+      room.pauseVotes = {};
+      room.pauseProposedBy = socket.id;
+      room.pauseTarget = !room.isPaused;
+
+      // Propositor vota sim automaticamente
+      room.pauseVotes[socket.id] = true;
+
+      const alive = Object.values(room.players).filter(pl => !pl.eliminated);
+
+      io.to(code).emit('ludoPauseVoteStarted', {
+        proposedBy: p.name,
+        proposedById: socket.id,
+        target: room.pauseTarget,
+        total: alive.length,
+        votes: { ...room.pauseVotes }
+      });
+
+      // Bots votam sim após um delay
+      alive.forEach(pl => {
+        if (!pl.isBot) return;
+        if (pl.id === socket.id) return;
+        setTimeout(() => {
+          const r = rooms[code];
+          if (!r || !r.pauseVotes) return;
+          if (r.pauseVotes[pl.id] !== undefined) return;
+          r.pauseVotes[pl.id] = true;
+          checkPauseVote(r, code);
+        }, 800 + Math.random() * 1200);
+      });
+
+      checkPauseVote(room, code);
+    });
+
+    socket.on('ludoVotePause', ({ code, vote }) => {
+      const room = rooms[code];
+      if (!room || room.state !== 'PLAYING') return;
+      const p = room.players[socket.id];
+      if (!p || p.eliminated) return;
+      if (!room.pauseVotes) return;
+      if (room.pauseVotes[socket.id] !== undefined) return;
+
+      room.pauseVotes[socket.id] = !!vote;
+      checkPauseVote(room, code);
+    });
+    
     socket.on('ludoLeave', ({ code }) => {
       const room = rooms[code];
       if (!room) return;
