@@ -442,3 +442,36 @@ window.addEventListener('DOMContentLoaded', () => {
   attachSoundsPortal();
   setTimeout(attachSoundsPortal, 1000);
 });
+
+// ============================================
+// SONS EM TODOS OS ELEMENTOS INTERATIVOS
+// ============================================
+function attachSoundsPortal() {
+  const selectors = [
+    'button',
+    'a',
+    '.topbar-btn',
+    '.topbar-brand',
+    '.profile-mini',
+    '.servico-card',
+    '.comunicado-dot',
+    '.race-option',
+    '.modal-actions button'
+  ];
+
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      if (el.dataset.soundAttached) return;
+      el.dataset.soundAttached = 'true';
+
+      el.addEventListener('mouseenter', () => playSoundPortal(1400, 0.04, 'square', 0.02));
+      el.addEventListener('click', () => {
+        if (el.classList.contains('servico-card')) {
+          playSeqPortal([[880, 0.05], [1320, 0.08], [1760, 0.1]]);
+        } else {
+          playSeqPortal([[1600, 0.04, 'square', 0.04], [2000, 0.06, 'square', 0.035]]);
+        }
+      });
+    });
+  });
+}
