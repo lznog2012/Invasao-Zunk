@@ -320,7 +320,8 @@ function saveProfileFromModal() {
 // SISTEMA DE ÁUDIO
 // ============================================
 let audioCtxPortal = null;
-let audioUnlockedPortal = false;
+let audioUnlockedPortal = false;      // ← "contexto pronto?"
+let soundEnabledPortal = localStorage.getItem('portal_sound') !== 'false';   // ← "usuário quer som?"
 
 function initAudioPortal() {
   if (audioCtxPortal) return;
@@ -334,18 +335,21 @@ function unlockAudioPortal() {
   initAudioPortal();
   if (!audioCtxPortal) return;
 
+  // Tenta resumir sem esperar (não bloqueia)
   if (audioCtxPortal.state === 'suspended') {
-    audioCtxPortal.resume().then(() => { audioUnlockedPortal = true; });
-  } else {
-    audioUnlockedPortal = true;
+    audioCtxPortal.resume().catch(() => {});
   }
+  // Marca como pronto IMEDIATAMENTE (não espera o .then)
+  audioUnlockedPortal = true;
 }
 
-['click', 'touchstart', 'keydown'].forEach(evt => {
-  document.addEventListener(evt, unlockAudioPortal, { once: true, passive: true });
+// Aplica em TODOS os eventos de interação
+['click', 'touchstart', 'keydown', 'mousedown', 'pointerdown'].forEach(evt => {
+  document.addEventListener(evt, unlockAudioPortal, { passive: true });
 });
 
 function playSoundPortal(freq, duration, type, vol) {
+  if (!soundEnabledPortal) return;       // ← checa preferência
   if (!audioCtxPortal || !audioUnlockedPortal) return;
   try {
     const osc = audioCtxPortal.createOscillator();
@@ -362,6 +366,7 @@ function playSoundPortal(freq, duration, type, vol) {
 }
 
 function playSeqPortal(notes) {
+  if (!soundEnabledPortal) return;       // ← checa preferência
   if (!audioCtxPortal || !audioUnlockedPortal) return;
   let t = 0;
   notes.forEach(n => {
@@ -370,49 +375,33 @@ function playSeqPortal(notes) {
   });
 }
 
-// Som de hover
-function soundHoverPortal() {
-  playSoundPortal(1400, 0.04, 'square', 0.02);
+function toggleSoundPortal() {
+  soundEnabledPortal = !soundEnabledPortal;
+  localStorage.setItem('portal_sound', soundEnabledPortal);
+  const btn = document.getElementById('soundToggle');
+  if (btn) {
+    btn.innerText = soundEnabledPortal ? '🔊' : '🔇';
+    btn.classList.toggle('muted', !soundEnabledPortal);
+  }
+  // Se está ligando, toca um bip pra dar feedback
+  if (soundEnabledPortal) {
+    initAudioPortal();
+    if (audioCtxPortal && audioCtxPortal.state === 'suspended') {
+      audioCtxPortal.resume().catch(() => {});
+    }
+    audioUnlockedPortal = true;
+    setTimeout(() => playSeqPortal([[880, 0.05], [1320, 0.08]]), 50);
+  }
 }
 
-// Som de click
-function soundClickPortal() {
-  playSeqPortal([[1600, 0.04, 'square', 0.04], [2000, 0.06, 'square', 0.035]]);
-}
-
-// Som de abrir serviço
-function soundOpenService() {
-  playSeqPortal([[880, 0.05], [1320, 0.08], [1760, 0.1]]);
-}
-
-// Aplica sons em todos os elementos interativos
-function attachSoundsPortal() {
-  const selectors = [
-    '.topbar-btn',
-    '.topbar-brand',
-    '.profile-mini',
-    '.servico-card',
-    '.comunicado-dot',
-    '.race-option',
-    '.modal-actions button'
-  ];
-
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => {
-      if (el.dataset.soundAttached) return;
-      el.dataset.soundAttached = 'true';
-
-      el.addEventListener('mouseenter', soundHoverPortal);
-      el.addEventListener('click', () => {
-        if (el.classList.contains('servico-card')) {
-          soundOpenService();
-        } else {
-          soundClickPortal();
-        }
-      });
-    });
-  });
-}
+// Aplica estado inicial do botão
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('soundToggle');
+  if (btn) {
+    btn.innerText = soundEnabledPortal ? '🔊' : '🔇';
+    btn.classList.toggle('muted', !soundEnabledPortal);
+  }
+});
 
 // ============================================
 // INICIALIZAÇÃO
