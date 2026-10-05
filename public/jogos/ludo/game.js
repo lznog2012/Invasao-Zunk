@@ -501,19 +501,27 @@ function renderPlayersList() {
   if (!el || !roomState) return;
   const colors = getColorsForMode();
 
+  // Descobre meu time
+  const me = roomState.players.find(p => p.id === myId);
+  const myTeam = me?.team || null;
+
   el.innerHTML = roomState.players.map(p => {
     const color = colors[p.playerIndex] || colors[0];
     const finished = p.pawns.filter(x => x === FINISH_POS).length;
     const isCurrent = p.id === roomState.currentTurnId;
+    const isMe = p.id === myId;
+    // ⚡ Marca como aliado se for do mesmo time (e não for eu)
+    const isAlly = !isMe && myTeam && p.team === myTeam;
 
     let cls = 'player-row';
     if (isCurrent) cls += ' current';
     if (p.finished) cls += ' finished';
     if (p.eliminated) cls += ' eliminated';
+    if (isAlly) cls += ' ally';
 
     const teamTag = p.team ? `<span class="end-team team-${p.team.toLowerCase()}">${p.team}</span>` : '';
+    const allyTag = isAlly ? '<span class="ally-tag">🟢 ALIADO</span>' : '';
 
-    // Peão do Ludo correspondente à raça (mesmo sistema do tabuleiro)
     const pawnFile = PAWN_FILES[color.name] || 'rimk.png';
     const pawnUrl = `art/pawns/${pawnFile}`;
 
@@ -521,9 +529,10 @@ function renderPlayersList() {
       <div class="${cls}">
         <span class="player-avatar" style="--ring-color:${color.hex}; background-image:url('${pawnUrl}');"></span>
         <span class="player-name">
-          ${p.id === myId ? '👤 ' : ''}${p.name}
+          ${isMe ? '👤 ' : ''}${p.name}
           ${p.disconnected ? ' ⚠' : ''}
           ${teamTag}
+          ${allyTag}
         </span>
         <span class="pawn-count">${finished}/4 🏁</span>
       </div>
