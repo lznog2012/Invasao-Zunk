@@ -134,6 +134,19 @@ const SOUNDS = {
   dice: () => playSequence([[800, 0.06], [600, 0.06], [1000, 0.06], [500, 0.06]]),
   move: () => playBeep(700, 0.08, 'sine', 0.05),
   capture: () => playSequence([[300, 0.1, 'sawtooth'], [200, 0.15, 'sawtooth'], [100, 0.3, 'square']]),
+  abduction: () => playSequence([
+    [80,  0.30, 'sawtooth', 0.09],   // rumble grave
+    [110, 0.22, 'sawtooth', 0.08],   // rumble
+    [180, 0.18, 'square',   0.07],   // feixe começa
+    [350, 0.14, 'square',   0.07],   // sweep
+    [600, 0.12, 'square',   0.07],   // sweep
+    [1000, 0.10, 'sine',    0.06],   // sweep
+    [1500, 0.10, 'sine',    0.06],   // pico
+    [2200, 0.12, 'sine',    0.05],   // pico
+    [2800, 0.18, 'triangle',0.05],   // chegada
+    [1800, 0.12, 'sine',    0.04],   // settle
+    [900,  0.18, 'sine',    0.04]    // settle
+  ]),
   turn: () => playSequence([[600, 0.08], [800, 0.12]]),
   win: () => playSequence([[523, 0.15], [659, 0.15], [784, 0.15], [1047, 0.5]]),
   lose: () => playSequence([[400, 0.2, 'sawtooth'], [300, 0.2, 'sawtooth'], [200, 0.4, 'sawtooth']]),
@@ -146,6 +159,8 @@ function toggleSound() {
   localStorage.setItem(STORAGE.sound, soundEnabled);
   document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : '🔇';
 }
+
+
 
 // ========== TOAST ==========
 function showToast(title, message, type) {
