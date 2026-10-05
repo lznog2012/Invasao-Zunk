@@ -783,6 +783,5 @@ function init(io, rooms, broadcastStats) {
       }, DISCONNECT_GRACE * 1000);
     });
   });
-}
 
 module.exports = { init };
