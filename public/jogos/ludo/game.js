@@ -709,6 +709,65 @@ function rollDice() {
   socket.emit('ludoRoll', { code: currentRoom });
 }
 
+function proposePause() {
+  if (!currentRoom || !socket) return;
+  socket.emit('ludoProposePause', { code: currentRoom });
+}
+
+function votePause(vote) {
+  if (!currentRoom || !socket) return;
+  socket.emit('ludoVotePause', { code: currentRoom, vote });
+  const actions = document.getElementById('pauseVoteActions');
+  if (actions) actions.style.display = 'none';
+}
+
+function showPauseVoteModal(data) {
+  const modal = document.getElementById('pauseVoteModal');
+  const title = document.getElementById('pauseVoteTitle');
+  const desc = document.getElementById('pauseVoteDesc');
+  const actions = document.getElementById('pauseVoteActions');
+  if (!modal) return;
+
+  const isPausing = data.target;
+  title.innerText = isPausing ? '⏸ VOTAÇÃO DE PAUSA' : '▶ VOTAÇÃO DE RETOMADA';
+
+  if (data.proposedById === myId) {
+    desc.innerHTML = `Você propôs <b>${isPausing ? 'pausar' : 'retomar'}</b> o jogo. Aguardando os votos dos outros jogadores...`;
+    actions.style.display = 'none';
+  } else {
+    desc.innerHTML = `<b>${data.proposedBy}</b> propôs <b>${isPausing ? 'pausar' : 'retomar'}</b> o jogo. Você aceita?`;
+    actions.style.display = 'flex';
+  }
+
+  updatePauseVoteProgress(data.votes, data.total);
+  modal.classList.add('open');
+}
+
+function updatePauseVoteProgress(votes, total) {
+  const count = Object.keys(votes || {}).length;
+  const fill = document.getElementById('pauseVoteBarFill');
+  const counter = document.getElementById('pauseVoteCount');
+  if (fill) fill.style.width = (count / total * 100) + '%';
+  if (counter) counter.innerText = `${count} / ${total} votaram`;
+}
+
+function hidePauseVoteModal() {
+  const modal = document.getElementById('pauseVoteModal');
+  if (modal) modal.classList.remove('open');
+  const actions = document.getElementById('pauseVoteActions');
+  if (actions) actions.style.display = 'flex';
+}
+
+function showPausedOverlay() {
+  const ov = document.getElementById('pausedOverlay');
+  if (ov) ov.classList.add('open');
+}
+
+function hidePausedOverlay() {
+  const ov = document.getElementById('pausedOverlay');
+  if (ov) ov.classList.remove('open');
+}
+
 function movePawn(pawnIndex) {
   if (!currentRoom || !socket) return;
   SOUNDS.move();
