@@ -624,61 +624,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ============================================
-// SISTEMA DE ÁUDIO
-// ============================================
-// ============================================
-// SISTEMA DE ÁUDIO
+// SISTEMA DE ÁUDIO — versão completa e corrigida
 // ============================================
 let audioCtxLore = null;
-let audioUnlockedLore = false;      // ← "contexto pronto?"
-let soundEnabledLore = localStorage.getItem('alpha_sound') !== 'false';   // ← "usuário quer som?"
+let soundEnabledLore = localStorage.getItem('alpha_sound') !== 'false';
 
-function initAudioLore() {
-  if (audioCtxLore) return;
+function getAudioCtxLore() {
+  if (audioCtxLore) {
+    if (audioCtxLore.state === 'suspended') audioCtxLore.resume().catch(() => {});
+    return audioCtxLore;
+  }
   try {
     audioCtxLore = new (window.AudioContext || window.webkitAudioContext)();
-  } catch (e) {}
+  } catch (e) { return null; }
+  if (audioCtxLore.state === 'suspended') audioCtxLore.resume().catch(() => {});
+  return audioCtxLore;
 }
-
-function unlockAudioLore() {
-  if (audioUnlockedLore) return;
-  initAudioLore();
-  if (!audioCtxLore) return;
-  if (audioCtxLore.state === 'suspended') {
-    audioCtxLore.resume().catch(() => {});
-  }
-  audioUnlockedLore = true;
-}
-
-['click', 'touchstart', 'keydown', 'mousedown', 'pointerdown'].forEach(evt => {
-  document.addEventListener(evt, unlockAudioLore, { passive: true });
-});
 
 function playSoundLore(freq, duration, type, vol) {
   if (!soundEnabledLore) return;
-  if (!audioCtxLore || !audioUnlockedLore) return;
+  const ctx = getAudioCtxLore();
+  if (!ctx) return;
   try {
-    const osc = audioCtxLore.createOscillator();
-    const gain = audioCtxLore.createGain();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
     osc.type = type || 'square';
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol || 0.04, audioCtxLore.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtxLore.currentTime + duration);
+    gain.gain.setValueAtTime(vol || 0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.connect(gain);
-    gain.connect(audioCtxLore.destination);
+    gain.connect(ctx.destination);
     osc.start();
-    osc.stop(audioCtxLore.currentTime + duration);
+    osc.stop(ctx.currentTime + duration);
   } catch (e) {}
 }
 
 function playSeqLore(notes) {
   if (!soundEnabledLore) return;
-  if (!audioCtxLore || !audioUnlockedLore) return;
   let t = 0;
   notes.forEach(n => {
     setTimeout(() => playSoundLore(n[0], n[1], n[2] || 'square', n[3] || 0.04), t);
     t += n[1] * 1000 * 0.85;
   });
+}
+
+function soundHoverLore() {
+  playSoundLore(1400, 0.04, 'square', 0.02);
+}
+
+function soundClickLore() {
+  playSeqLore([[1600, 0.04, 'square', 0.04], [2000, 0.06, 'square', 0.035]]);
+}
+
+function soundOpenBook() {
+  playSeqLore([[880, 0.05], [1320, 0.06], [1100, 0.08], [880, 0.06]]);
+}
+
+function soundVaultAlarm() {
+  playSeqLore([
+    [440, 0.15, 'sawtooth', 0.06],
+    [330, 0.15, 'sawtooth', 0.06],
+    [440, 0.15, 'sawtooth', 0.06],
+    [330, 0.15, 'sawtooth', 0.06],
+    [220, 0.4, 'sawtooth', 0.07],
+    [150, 0.6, 'sawtooth', 0.07]
+  ]);
+}
+
+function soundVaultAccept() {
+  playSeqLore([
+    [660, 0.08, 'square', 0.05],
+    [880, 0.08, 'square', 0.05],
+    [1320, 0.2, 'triangle', 0.06]
+  ]);
 }
 
 function toggleSoundLore() {
@@ -690,20 +708,47 @@ function toggleSoundLore() {
     btn.classList.toggle('muted', !soundEnabledLore);
   }
   if (soundEnabledLore) {
-    initAudioLore();
-    if (audioCtxLore && audioCtxLore.state === 'suspended') {
-      audioCtxLore.resume().catch(() => {});
-    }
-    audioUnlockedLore = true;
-    setTimeout(() => playSeqLore([[880, 0.05], [1320, 0.08]]), 50);
+    getAudioCtxLore();
+    setTimeout(() => playSeqLore([[880, 0.05], [1320, 0.08]]), 30);
   }
 }
 
-// Aplica estado inicial
+function attachSoundsLore() {
+  const selectors = [
+    '.book-card',
+    '.vault-card',
+    '.planet-btn',
+    '.article-back',
+    '.article-nav-btn',
+    '.warning-cancel',
+    '.warning-accept',
+    '.back-btn',
+    '.sound-toggle'
+  ];
+
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      if (el.dataset.soundAttached) return;
+      el.dataset.soundAttached = 'true';
+      el.addEventListener('mouseenter', soundHoverLore);
+      el.addEventListener('click', () => {
+        if (el.classList.contains('book-card')) {
+          soundOpenBook();
+        } else {
+          soundClickLore();
+        }
+      });
+    });
+  });
+}
+
+// Inicializa botão de som + aplica sons
 window.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('soundToggle');
   if (btn) {
     btn.innerText = soundEnabledLore ? '🔊' : '🔇';
     btn.classList.toggle('muted', !soundEnabledLore);
   }
+  attachSoundsLore();
+  setTimeout(attachSoundsLore, 1000);
 });
