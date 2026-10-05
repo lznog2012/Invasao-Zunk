@@ -143,7 +143,8 @@
           <b id="turnPlayerName">----</b>
           <span class="turn-dot" id="turnDot"></span>
         </div>
-        <div class="turn-timer">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button id="btnPause" class="pause-btn" onclick="proposePause()">⏸ PAUSAR</button>
           <span class="timer-badge" id="turnTimer">30</span>
         </div>
       </div>
@@ -204,3 +205,31 @@
   <script src="game.js"></script>
 </body>
 </html>
+
+  <!-- MODAL DE VOTAÇÃO DE PAUSA -->
+  <div id="pauseVoteModal" class="modal">
+    <div class="modal-content pause-vote-content">
+      <h2 id="pauseVoteTitle">⏸ VOTAÇÃO DE PAUSA</h2>
+      <p id="pauseVoteDesc" class="pause-vote-desc"></p>
+      <div id="pauseVoteProgress" class="pause-vote-progress">
+        <div class="pause-vote-bar">
+          <div class="pause-vote-bar-fill" id="pauseVoteBarFill"></div>
+        </div>
+        <div class="pause-vote-count" id="pauseVoteCount">0 / 0 votaram</div>
+      </div>
+      <div class="pause-vote-actions" id="pauseVoteActions">
+        <button class="vote-no" onclick="votePause(false)">✕ RECUSAR</button>
+        <button class="vote-yes" onclick="votePause(true)">✓ ACEITAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY DE JOGO PAUSADO -->
+  <div id="pausedOverlay" class="paused-overlay">
+    <div class="paused-box">
+      <div class="paused-icon">⏸</div>
+      <h2>JOGO PAUSADO</h2>
+      <p>O jogo foi pausado por votação.</p>
+      <button onclick="proposePause()" class="resume-btn">▶ PROPOR RETOMADA</button>
+    </div>
+  </div>
