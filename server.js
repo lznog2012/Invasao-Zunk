@@ -70,10 +70,9 @@ function makeBot(room) {
     id: 'bot_' + room.botCounter + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     name: randomBotName(room),
     avatar: {
-      facialHair: pick(BOT_FACIAL),
-      eyewear: pick(BOT_EYES),
-      suit: pick(BOT_SUIT),
-      bg: pick(BOT_BG)
+      b: pick(['rimk', 'sahrin', 'vharn', 'thraak', 'ferrum', 'nereids']),
+      bg: pick([null, 'rimkopolis', 'ferrum', 'kaal7', 'nereid', 'cowboy']),
+      i: [pick(['chapeu-chef', 'chapeu-coroa', 'chapeu-cowboy', 'olhos-cool', 'roupa-jaleco', 'roupa-rei', 'antena-verde', 'fone-fone'])]
     },
     isHost: false, isBot: true, alive: true,
     ready: true, disconnected: false

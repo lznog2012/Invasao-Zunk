@@ -81,13 +81,8 @@ const CLIENT_ID = getClientId();
 
 function getStoredName() { return localStorage.getItem(STORAGE.name) || ''; }
 function getStoredAvatar() {
-  try {
-    const avatar = JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}');
-    const race = localStorage.getItem('alpha_race') || 'Rimk';
-    return { ...avatar, race };
-  } catch (e) {
-    return { race: 'Rimk' };
-  }
+  // O personagem do jogo é o avatar criado na conta (camadas do RimkAvatar).
+  return (window.Conta && Conta.gameAvatar && Conta.gameAvatar()) || { b: 'rimk', bg: null, i: [] };
 }
 function saveProfile(name) {
   if (name) localStorage.setItem(STORAGE.name, name);
@@ -202,6 +197,8 @@ function selectMode(mode) {
 function generateAvatarHTML(c, opts) {
   if (!c) c = {};
   if (!opts) opts = {};
+  const layered = window.RimkAvatar && window.RimkAvatar.html(c);
+  if (layered) return `<div style="position:relative;width:100%;height:100%;border-radius:inherit;overflow:hidden;">${layered}</div>`;
 
   const raceFile = RACE_FILES[c.race] || RACE_FILES['Rimk'];
 

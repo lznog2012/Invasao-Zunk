@@ -35,11 +35,8 @@ function saveProfile() {
 }
 
 function getSharedAvatar() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE.avatar) || '{}');
-  } catch (e) {
-    return {};
-  }
+  // O personagem do jogo é o avatar criado na conta (camadas do RimkAvatar).
+  return (window.Conta && Conta.gameAvatar && Conta.gameAvatar()) || { b: 'rimk', bg: null, i: [] };
 }
 
 function loadProfile() {
@@ -202,6 +199,8 @@ function toggleForm(type) {
 function generateAvatarHTML(c, extra) {
   if (!c) c = {};
   if (!extra) extra = {};
+  const layered = !extra.isZunkRevealed && window.RimkAvatar && window.RimkAvatar.html(c);
+  if (layered) return `<div style="position:relative;width:100%;height:100%;aspect-ratio:1/1;overflow:hidden;border-radius:8px;">${layered}</div>`;
   let base = 'rimk.png';
   if (extra.isZunkRevealed) base = '2.png';
   const bg = (c.bg && c.bg !== 'none') ? `<img src="../../images/${c.bg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : '';

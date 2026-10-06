@@ -13,7 +13,20 @@
   const NAME_RE = /^[\p{L}\p{N}_.\-]{3,20}$/u;
   const K = { name: 'alpha_name', guestName: 'alpha_name_convidado', cavatar: 'alpha_conta_avatar', flag: 'alpha_conta' };
 
-  const Conta = window.Conta = { user: null, avatar: null, sb: null, ready: null };
+  // Universo: ano atual do jogo e raça -> planeta natal (conforme o lore do Portal).
+  const ANO_JOGO = 847;
+  const IDADE_MAX = 120;                       // a lista de anos vai de 847 até 847 - IDADE_MAX
+  const RACAS = {                              // chave = cor/raça escolhida no editor de avatar
+    rimk:    { nome: 'Rimk',    planeta: 'Rimkópolis', img: 'rimkopolis.png' },
+    sahrin:  { nome: 'Sahrin',  planeta: 'Kaal-7',     img: 'kaal7.png' },
+    vharn:   { nome: 'Vharn',   planeta: 'Nyxaris',    img: 'nyxaris.png' },
+    thraak:  { nome: 'Thraak',  planeta: 'Kaldr',      img: 'kaldr.png' },
+    ferrum:  { nome: 'Ferrum',  planeta: 'Ferrum',     img: 'ferrum.png' },
+    nereids: { nome: 'Nereids', planeta: 'Nereida',    img: 'nereida.png' }
+  };
+  const GENEROS = { feminino: 'Feminino', masculino: 'Masculino', nenhum: 'Nenhum' };
+
+  const Conta = window.Conta = { user: null, avatar: null, info: { birthYear: null, gender: null }, sb: null, ready: null };
   const $ = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ls = {
@@ -27,6 +40,13 @@
   if (ls.get(K.flag) && hasAvatarLib()) {
     try { Conta.avatar = window.RimkAvatar.clean(JSON.parse(ls.get(K.cavatar) || 'null')); } catch (e) { Conta.avatar = null; }
   }
+  // Personagem usado nos jogos = avatar da conta (convidado ou sem avatar: Rimk básico).
+  Conta.gameAvatar = function () {
+    if (!hasAvatarLib()) return null;
+    let av = Conta.avatar;
+    if (!av) { try { av = window.RimkAvatar.clean(JSON.parse(ls.get(K.cavatar) || 'null')); } catch (e) { av = null; } }
+    return av || { b: 'rimk', bg: null, i: [] };
+  };
   Conta.avatarHTML = function () {
     return Conta.avatar && hasAvatarLib() ? window.RimkAvatar.html(Conta.avatar) : '';
   };
@@ -61,11 +81,11 @@
   }
 
   /* ---------- estado ---------- */
-  const snapshot = () => JSON.stringify([Conta.user && Conta.user.username, Conta.avatar]);
+  const snapshot = () => JSON.stringify([Conta.user && Conta.user.username, Conta.avatar, Conta.info]);
 
   function repaint() {
     // redesenha o que cada página já sabe desenhar (as funções existem só em algumas)
-    ['renderProfileMini', 'renderProfileCorner', 'loadProfile'].forEach((fn) => {
+    ['renderProfileMini', 'renderProfileCorner', 'loadProfile', 'updatePreview'].forEach((fn) => {
       try { if (typeof window[fn] === 'function') window[fn](); } catch (e) { console.warn(e); }
     });
     lockNameInputs();
@@ -91,6 +111,14 @@
     } catch (e) { console.warn('Não consegui carregar o avatar da conta:', e && e.message || e); }
   }
 
+  function readInfo(meta) {
+    const y = Number(meta && meta.birth_year), g = meta && meta.gender;
+    return {
+      birthYear: Number.isInteger(y) && y <= ANO_JOGO && y >= ANO_JOGO - IDADE_MAX ? y : null,
+      gender: GENEROS[g] ? g : null
+    };
+  }
+
   async function applyUser(u, fallbackName) {
     let name = (u.user_metadata && u.user_metadata.username) || fallbackName;
     if (!name) {
@@ -102,6 +130,7 @@
     // guarda o apelido de convidado para devolver quando a pessoa sair da conta
     if (!ls.get(K.flag) && ls.get(K.name)) ls.set(K.guestName, ls.get(K.name));
     Conta.user = { id: u.id, username: name };
+    Conta.info = readInfo(u.user_metadata);
     ls.set(K.name, name); ls.set(K.flag, '1');
     await refreshAvatar();
     if (snapshot() !== before) repaint(); else lockNameInputs();
@@ -110,7 +139,7 @@
 
   function clearUser() {
     const had = !!Conta.user;
-    Conta.user = null; Conta.avatar = null;
+    Conta.user = null; Conta.avatar = null; Conta.info = { birthYear: null, gender: null };
     if (ls.get(K.flag)) {
       [K.name, K.cavatar, K.flag].forEach(ls.del);
       const g = ls.get(K.guestName); if (g) { ls.set(K.name, g); ls.del(K.guestName); }
@@ -178,6 +207,19 @@
     return true;
   };
 
+  // Ano de nascimento e gênero ficam na própria conta (user_metadata do Supabase Auth).
+  Conta.saveInfo = async function (info) {
+    if (!Conta.sb || !Conta.user) return false;
+    const next = readInfo({ birth_year: info && info.birthYear, gender: info && info.gender });
+    const { error } = await Conta.sb.auth.updateUser({
+      data: { username: Conta.user.username, birth_year: next.birthYear, gender: next.gender }
+    });
+    if (error) { console.error(error); return false; }
+    Conta.info = next;
+    paintPanel();
+    return true;
+  };
+
   Conta.editAvatar = function () {
     if (!Conta.user || !hasAvatarLib()) return;
     close();
@@ -185,14 +227,14 @@
   };
 
   /* ---------- janelinha (login / conta) ---------- */
-  let modal = null, mode = 'login', legacyOpen = null;
+  let modal = null, mode = 'login';
 
   function injectStyle() {
     const st = document.createElement('style');
     st.textContent = `
     .ct-back{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.75)}
     .ct-back.open{display:flex}
-    .ct-card{width:min(22rem,100%);padding:1.3rem 1.2rem;border-radius:14px;background:var(--bg-card,#0a150a);border:1px solid var(--matrix-dim,#008833);box-shadow:0 0 28px rgba(0,255,102,.15);color:var(--text-primary,#e0f5e8);font-family:inherit}
+    .ct-card{width:min(22rem,100%);max-height:calc(100dvh - 2rem);overflow-y:auto;padding:1.3rem 1.2rem;border-radius:14px;background:var(--bg-card,#0a150a);border:1px solid var(--matrix-dim,#008833);box-shadow:0 0 28px rgba(0,255,102,.15);color:var(--text-primary,#e0f5e8);font-family:inherit}
     .ct-card h3{margin:0 0 .8rem;font-size:1.05rem;color:var(--matrix-green,#00ff66)}
     .ct-tabs{display:flex;gap:.4rem;margin-bottom:.9rem}
     .ct-tabs button{flex:1;padding:.45rem;border-radius:8px;border:1px solid var(--matrix-dark,#003311);background:transparent;color:var(--text-secondary,#88aa99);cursor:pointer;font:inherit}
@@ -205,6 +247,15 @@
     .ct-err{min-height:1.1rem;margin:.1rem 0 .6rem;font-size:.82rem;color:var(--alert-red,#ff3366)}
     .ct-av{width:7rem;height:7rem;margin:0 auto .7rem;border-radius:14px;overflow:hidden;border:1px solid var(--matrix-dim,#008833);background:#000;display:flex;align-items:center;justify-content:center;font-size:2.4rem}
     .ct-name{text-align:center;font-weight:700;margin-bottom:.9rem}
+    .ct-sec{margin:.2rem 0 .9rem;padding:.8rem .8rem .5rem;border-radius:10px;border:1px solid var(--matrix-dark,#003311);background:rgba(0,255,102,.04)}
+    .ct-sec h4{margin:0 0 .65rem;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-imperial,#ffcc00)}
+    .ct-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:0 0 .6rem;font-size:.85rem}
+    .ct-row > span:first-child{color:var(--text-secondary,#88aa99);flex-shrink:0}
+    .ct-val{display:flex;align-items:center;gap:.4rem;font-weight:700;text-align:right}
+    .ct-val img{width:1.5rem;height:1.5rem;border-radius:50%;object-fit:cover}
+    .ct-card select{width:8.5rem;flex-shrink:0;box-sizing:border-box;padding:.4rem .5rem;border-radius:8px;border:1px solid var(--matrix-dim,#008833);background:var(--bg-deep,#020a05);color:var(--text-primary,#e0f5e8);font:inherit;font-size:.85rem}
+    .ct-card select option{background:#020a05;color:#e0f5e8}
+    .ct-info-msg{min-height:1rem;margin:0 0 .3rem;font-size:.75rem;text-align:center;color:var(--text-secondary,#88aa99)}
     .ct-hint{font-size:.78rem;color:var(--text-secondary,#88aa99);text-align:center;margin:.6rem 0 0;line-height:1.35}`;
     document.head.appendChild(st);
   }
@@ -230,13 +281,25 @@
         <button type="button" class="ct-link" id="ct-guestbtn">Continuar como convidado</button>
       </div>
       <div id="ct-acc" style="display:none">
-        <h3>Sua conta</h3>
+        <h3>Perfil do Cidadão</h3>
         <div class="ct-av" id="ct-acc-av"></div>
         <div class="ct-name" id="ct-acc-name"></div>
+        <div class="ct-sec">
+          <h4>Informações do cidadão</h4>
+          <div class="ct-row"><span>Raça</span><span class="ct-val" id="ct-race">—</span></div>
+          <div class="ct-row"><span>Planeta natal</span><span class="ct-val" id="ct-planet">—</span></div>
+          <div class="ct-row"><span>Ano de nascimento</span><select id="ct-year" aria-label="Ano de nascimento"></select></div>
+          <div class="ct-row"><span>Idade</span><span class="ct-val" id="ct-age">—</span></div>
+          <div class="ct-row"><span>Gênero</span>
+            <select id="ct-gender" aria-label="Gênero">
+              ${Object.keys(GENEROS).map((k) => `<option value="${k}">${GENEROS[k]}</option>`).join('')}
+            </select>
+          </div>
+          <div class="ct-info-msg" id="ct-info-msg" role="status"></div>
+        </div>
         <button type="button" class="ct-btn" id="ct-edit-av">🎨 Editar avatar da conta</button>
-        <button type="button" class="ct-btn alt" id="ct-legacy">👽 Personagem dos jogos</button>
         <button type="button" class="ct-btn alt" id="ct-logout">Sair</button>
-        <p class="ct-hint">O avatar da conta aparece aqui no Portal. Dentro dos jogos vale o personagem do universo.</p>
+        <p class="ct-hint">Este é o seu personagem: o avatar da conta aparece no Portal e também dentro dos jogos.</p>
         <button type="button" class="ct-link" id="ct-close">Fechar</button>
       </div>
     </div>`;
@@ -248,9 +311,17 @@
     $('ct-tab-reg').onclick = () => setMode('register');
     $('ct-close').onclick = close;
     $('ct-logout').onclick = async () => { await Conta.logout(); close(); };
+    const yearSel = $('ct-year');
+    yearSel.innerHTML =
+      Array.from({ length: IDADE_MAX + 1 }, (_, i) => ANO_JOGO - i).map((y) => `<option value="${y}">${y}</option>`).join('');
+    ['ct-year', 'ct-gender'].forEach((id) => $(id).addEventListener('change', async () => {
+      const msg = $('ct-info-msg'); msg.textContent = 'Salvando…';
+      const ok = await Conta.saveInfo({ birthYear: Number($('ct-year').value) || null, gender: $('ct-gender').value || null });
+      msg.textContent = ok ? 'Salvo ✓' : 'Não consegui salvar. Tente de novo.';
+      if (!ok) paintPanel();
+    }));
     $('ct-edit-av').onclick = Conta.editAvatar;
-    $('ct-legacy').onclick = () => { close(); if (legacyOpen) legacyOpen(); };
-    $('ct-guestbtn').onclick = () => { close(); if (legacyOpen) legacyOpen(); };
+    $('ct-guestbtn').onclick = close;
     ['ct-name', 'ct-pass', 'ct-pass2'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); }));
     $('ct-submit').onclick = submit;
   }
@@ -292,6 +363,18 @@
       $('ct-acc-name').textContent = Conta.user.username;
       $('ct-acc-av').innerHTML = Conta.avatarHTML() || '👽';
       $('ct-edit-av').style.display = hasAvatarLib() ? 'block' : 'none';
+      // raça e planeta vêm da cor/raça escolhida no editor de avatar (não são editáveis)
+      const r = Conta.avatar && RACAS[Conta.avatar.b];
+      $('ct-race').textContent = r ? r.nome : 'Crie seu avatar';
+      $('ct-planet').innerHTML = r ? `<img src="/images/planetas/${r.img}" alt=""><span>${r.planeta}</span>` : '—';
+      const by = Conta.info.birthYear;
+      // sem opção "Selecione": enquanto não escolhido, o campo fica em branco
+      $('ct-year').value = by ? String(by) : '';
+      if (!by) $('ct-year').selectedIndex = -1;
+      $('ct-gender').value = Conta.info.gender || '';
+      if (!Conta.info.gender) $('ct-gender').selectedIndex = -1;
+      const idade = by ? ANO_JOGO - by : null;
+      $('ct-age').textContent = idade === null ? '—' : idade + (idade === 1 ? ' ano' : ' anos');
     }
   }
 
@@ -304,11 +387,10 @@
   function close() { if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); } }
   Conta.open = open; Conta.close = close;
 
-  // O clique no perfil do Portal passa a abrir esta janelinha; o editor antigo
-  // (raça/traje/fundo do universo) continua acessível por "Personagem dos jogos".
+  // O clique no perfil do Portal abre esta janelinha. O editor antigo de personagem
+  // (raça/traje/fundo do universo) foi aposentado: o personagem dos jogos é o avatar da conta.
   function hookProfileButton() {
     if (typeof window.openProfileModal !== 'function' || window.openProfileModal === open) return;
-    legacyOpen = window.openProfileModal;
     window.openProfileModal = open;
   }
 
