@@ -204,7 +204,8 @@ function renderProfileMini() {
     nameEl.classList.add('empty');
   }
 
-  avatarEl.innerHTML = generateMiniAvatar(p.avatar, p.race);
+  // avatar da CONTA (só aqui, antes dos jogos); sem conta/avatar, segue o personagem do universo
+  avatarEl.innerHTML = (window.Conta && Conta.avatarHTML && Conta.avatarHTML()) || generateMiniAvatar(p.avatar, p.race);
 }
 
 function generateMiniAvatar(c, race) {

@@ -8,6 +8,16 @@ const server = http.createServer(app);
 const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
+// Config pública do Supabase (URL + chave "anon"), lida das variáveis de ambiente do Render.
+// A chave anon é pública por natureza; quem protege os dados é o RLS do banco.
+app.get('/supabase-config.json', (_, res) => {
+  const url = (process.env.SUPABASE_URL || '').trim();
+  const anonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
+  if (!/^https?:\/\//i.test(url) || !anonKey) return res.status(404).json({ error: 'Supabase não configurado' });
+  res.set('Cache-Control', 'no-store');
+  res.json({ url, anonKey });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // RAIZ — Portal da Aliança Rímkar
