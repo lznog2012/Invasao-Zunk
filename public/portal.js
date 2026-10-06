@@ -196,13 +196,8 @@ function renderProfileMini() {
   const avatarEl = document.getElementById('profileMiniAvatar');
   if (!nameEl || !avatarEl) return;
 
-  if (p.name) {
-    nameEl.innerText = p.name;
-    nameEl.classList.remove('empty');
-  } else {
-    nameEl.innerText = 'Cidadão';
-    nameEl.classList.add('empty');
-  }
+  nameEl.innerText = 'Perfil do Cidadão';
+  nameEl.classList.remove('empty');
 
   // avatar da CONTA (só aqui, antes dos jogos); sem conta/avatar, segue o personagem do universo
   avatarEl.innerHTML = (window.Conta && Conta.avatarHTML && Conta.avatarHTML()) || generateMiniAvatar(p.avatar, p.race);
