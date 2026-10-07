@@ -14,6 +14,20 @@
   <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
   <a href="/rimkerama/" class="back-btn">← VOLTAR AO ARCADE</a>
 
+  <!-- BOTÃO DE NARRAÇÃO -->
+  <button id="narrationToggle" class="narration-toggle" onclick="toggleNarration()" title="Narração da Estação">📡</button>
+
+  <!-- PAINEL DE NARRAÇÃO -->
+  <aside id="narrationPanel" class="narration-panel open">
+    <div class="narration-header">
+      <span>📡 NARRAÇÃO DA ESTAÇÃO</span>
+      <button class="narration-close" onclick="toggleNarration()">✕</button>
+    </div>
+    <div class="narration-body" id="narrationBody">
+      <div class="narration-empty">Aguardando início da partida...</div>
+    </div>
+  </aside>
+  
   <div class="container">
 
     <!-- ============ TELA 1: SETUP ============ -->
