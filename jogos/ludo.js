@@ -105,6 +105,7 @@ function init(io, rooms, broadcastStats) {
           text: `⚀ ${player.name} tirou 6 três vezes! Perdeu o turno.`,
           type: 'system'
         });
+        narrate(room, `${player.name} tirou 6 três vezes e perdeu o turno!`, '⚀', 'warn');
         nextTurn(room);
         return;
       }
@@ -116,6 +117,7 @@ function init(io, rooms, broadcastStats) {
     io.to(room.code).emit('ludoDiceRolled', {
       playerId, playerName: player.name, dice, anyMove
     });
+    narrate(room, `${player.name} rolou ${dice}.`, '🎲', 'roll');
     broadcastState(room);
 
     if (!anyMove) {
@@ -124,6 +126,7 @@ function init(io, rooms, broadcastStats) {
         text: `🎲 ${player.name} tirou ${dice}, mas não tem jogadas válidas.`,
         type: 'system'
       });
+      narrate(room, `${player.name} não tem jogadas válidas.`, '💤', 'info');
       setTimeout(() => {
         const r = rooms[room.code];
         if (r && r.state === 'PLAYING' && r.dice === dice) nextTurn(r);
@@ -183,10 +186,13 @@ function init(io, rooms, broadcastStats) {
         attackerName: player.name,
         captured: result.captured
       });
+      const victims = result.captured.map(c => c.playerName).join(', ');
+      narrate(room, `${player.name} abduziu peão de ${victims}!`, '🛸', 'capture');
     }
 
     if (result.finished) {
       player.finished = true;
+      narrate(room, `${player.name} levou todos os peões ao centro!`, '🏁', 'win');
       if (checkWin(room)) return;
     }
 
@@ -307,6 +313,8 @@ function init(io, rooms, broadcastStats) {
       const p = room.players[pid];
       if (p && !p.eliminated && !p.finished) break;
     } while (attempts < room.turnOrder.length);
+    const nowPlayer = room.players[room.turnOrder[room.currentTurn]];
+    if (nowPlayer) narrate(room, `Turno de ${nowPlayer.name}.`, '🎯', 'info');
     startTurnTimer(room);
     broadcastState(room);
   }
@@ -372,12 +380,24 @@ function init(io, rooms, broadcastStats) {
   function checkWin(room) {
     if (room.mode === 'A') {
       const winner = Object.values(room.players).find(p => p.finished);
-      if (winner) { endGame(room, [winner.id]); return true; }
+      if (winner) { 
+        narrate(room, `🏆 ${winner.name} venceu a partida!`, '🏆', 'win');
+        endGame(room, [winner.id]); 
+        return true; 
+      }
     } else {
       const rimk = Object.values(room.players).filter(p => p.team === 'RIMK');
       const zunk = Object.values(room.players).filter(p => p.team === 'ZUNK');
-      if (rimk.length && rimk.every(p => p.finished)) { endGame(room, rimk.map(p => p.id)); return true; }
-      if (zunk.length && zunk.every(p => p.finished)) { endGame(room, zunk.map(p => p.id)); return true; }
+      if (rimk.length && rimk.every(p => p.finished)) { 
+        narrate(room, `🏆 Time RIMK venceu a partida!`, '🏆', 'win');
+        endGame(room, rimk.map(p => p.id)); 
+        return true; 
+      }
+      if (zunk.length && zunk.every(p => p.finished)) { 
+        narrate(room, `🏆 Time ZUNK venceu a partida!`, '🏆', 'win');
+        endGame(room, zunk.map(p => p.id)); 
+        return true; 
+      }
     }
     return false;
   }
@@ -441,6 +461,15 @@ function init(io, rooms, broadcastStats) {
     io.to(room.code).emit('ludoPlayerLeft', { playerId, playerName: p.name });
   }
 
+  function narrate(room, text, icone, tipo) {
+    io.to(room.code).emit('ludoNarration', {
+      text,
+      icone: icone || '📡',
+      tipo: tipo || 'info',
+      timestamp: Date.now()
+    });
+  }
+  
   function checkPauseVote(room, code) {
     if (!room.pauseVotes) return;
     const alive = Object.values(room.players).filter(pl => !pl.eliminated);
@@ -649,6 +678,11 @@ function init(io, rooms, broadcastStats) {
       room.sixesInARow = 0;
 
       io.to(code).emit('ludoStarted', publicState(room));
+      narrate(room, `A partida começou. ${num} jogadores em campo.`, '🚀', 'info');
+      setTimeout(() => {
+        const firstP = room.players[room.turnOrder[0]];
+        if (firstP) narrate(room, `Turno de ${firstP.name}.`, '🎯', 'info');
+      }, 800);
       startTurnTimer(room);
     });
 
@@ -671,7 +705,12 @@ function init(io, rooms, broadcastStats) {
       if (!room) return;
       const p = room.players[socket.id];
       if (!p || !text?.trim()) return;
-      io.to(code).emit('ludoChat', { sender: p.name, text: text.trim(), type: 'normal' });
+      io.to(code).emit('ludoChat', { 
+        sender: p.name, 
+        senderColor: p.color || '#00ff66',
+        text: text.trim(), 
+        type: 'normal' 
+      });
     });
 
     socket.on('ludoProposePause', ({ code }) => {
